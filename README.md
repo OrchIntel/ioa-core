@@ -4,6 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.10–3.12-brightgreen.svg)]()
 [![Build](https://img.shields.io/github/actions/workflow/status/OrchIntel/ioa-core/build.yml?branch=main)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://ioa.systems/docs)
+[![Discord](https://img.shields.io/discord/1426192731679621316?label=Discord&logo=discord&color=7289da)](https://discord.gg/Fzxa5GG9)
 
 IOA Core is the **open-source framework for governed AI orchestration** —  
 bringing verifiable policy, evidence, and trust to every workflow.
