@@ -3,7 +3,7 @@ Last-Updated: 2025-10-09
 
 # Contributing to IOA Core
 
-Thank you for contributing to **Intelligent Orchestration Architecture (IOA)**, developed by OrchIntel Systems Ltd! We welcome contributions to enhance IOA's multi-agent orchestration, memory, and governance. By participating, you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
+Thank you for contributing to **Intelligent Orchestration Architecture (IOA)**, developed by OrchIntel Systems Ltd! We welcome contributions to enhance IOA's multi-agent orchestration, memory, and governance. By participating, you agree to the [Code of Conduct](../../CODE_OF_CONDUCT.md).
 
 ## Getting Started
 1. **Fork the Repository**:

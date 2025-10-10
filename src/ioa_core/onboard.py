@@ -1,18 +1,18 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
-"""
+
 
 """
 Onboarding CLI Module for IOA Core
 
 Provides guided setup for LLM providers, API key management, and roundtable
 configuration through an interactive command-line interface with secure key entry.
+"""Onboard module."""
+
 """
 
 import argparse

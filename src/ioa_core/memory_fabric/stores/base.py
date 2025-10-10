@@ -1,18 +1,18 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
-"""
+
 
 from abc import ABC, abstractmethod
 from typing import List, Optional, Dict, Any, Protocol
 from ..schema import MemoryRecordV1
 
 # PATCH: Cursor-2025-09-10 DISPATCH-OSS-20250910-MEMORY-FABRIC-REFACTOR <store protocols>
+"""Base module."""
+
 
 class MemoryStore(Protocol):
     """Protocol for synchronous memory storage implementations."""

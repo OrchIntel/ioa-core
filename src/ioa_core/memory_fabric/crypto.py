@@ -1,18 +1,18 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
-"""
+
 
 import base64
 import hashlib
 import secrets
 from typing import Optional, Dict, Any, Tuple
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+"""Crypto module."""
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 

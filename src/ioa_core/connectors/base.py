@@ -1,18 +1,18 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
-"""
+
 
 import uuid
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+"""Base module."""
+
 from typing import Dict, Any, Optional, List, Callable
 
 from ..governance.policy_engine import PolicyEngine, ActionContext, ValidationStatus, ActionRiskLevel

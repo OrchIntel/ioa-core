@@ -1,18 +1,18 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
-"""
+
 
 import os
 import json
 import hashlib
 import math
 from typing import List, Dict, Any, Optional, Tuple
+"""Vector Search module."""
+
 from pathlib import Path
 from dataclasses import dataclass
 

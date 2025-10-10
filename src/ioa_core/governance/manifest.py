@@ -1,11 +1,12 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
+"""IOA Core Governance Manifest
+
+System Laws manifest loading and verification.
 """
 
 import json
@@ -84,6 +85,7 @@ class SystemLaws:
     def validate_manifest_structure(self) -> bool:
         """Validate the manifest structure against schema."""
         # Check that all required fields exist and have meaningful values
+        if not self.manifest_id:
             return False
         if not self.laws:
             return False

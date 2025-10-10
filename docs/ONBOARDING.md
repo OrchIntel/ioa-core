@@ -432,7 +432,7 @@ chmod 600 ~/.ioa/config/*
 
 ### Getting Help
 
-- **Documentation**: [docs/](docs/)
+- **Documentation**: [docs/]()
 - **GitHub Issues**: [Report bugs](https://github.com/orchintel/ioa-core/issues)
 - **Discussions**: [Community Q&A](https://github.com/orchintel/ioa-core/discussions)
 - **Security**: [security@orchintel.com](mailto:security@orchintel.com)

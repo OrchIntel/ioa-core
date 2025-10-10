@@ -1,8 +1,8 @@
-# IOA Core v2.5.0
+# IOA Core v2.5.1
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.10%2B-brightgreen.svg)]()
-[![Build](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml/badge.svg)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
+[![Python](https://img.shields.io/badge/python-3.10–3.12-brightgreen.svg)]()
+[![Build](https://img.shields.io/github/actions/workflow/status/OrchIntel/ioa-core/build.yml?branch=main)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://ioa.systems/docs)
 
 IOA Core is the **open-source framework for governed AI orchestration** —  
@@ -12,23 +12,26 @@ bringing verifiable policy, evidence, and trust to every workflow.
 
 Get up and running in minutes:
 
-> **Note**: Some commands below are examples for future functionality.
-
 ```bash
 # Install IOA Core
 pip install ioa-core
 
-# Setup your first project
-# Example (not currently implemented): ioa boot --project-name my-ai-system
+# Bootstrap a new project
+python examples/00_bootstrap/boot_project.py my-ai-system
 
-# Run a simple workflow
-# Example (not currently implemented): ioa workflows run --file workflow.yaml
+# Run a simple governed workflow
+python examples/10_workflows/run_workflow.py
 
 # Run vendor-neutral roundtable with quorum policy
-# Example (not currently implemented): ioa demo vendor-neutral-roundtable --task "Analyze this code for security issues"
+python examples/20_roundtable/roundtable_quorum.py "Analyze this code for security issues (ok)"
+
+# Check system health
+python examples/30_doctor/doctor_check.py
 ```
 
-For a complete quickstart guide, see [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md).
+> **Note**: Examples run offline by default with mock providers. Set `IOA_LIVE=1` and configure API keys for live testing (not executed in CI).
+
+For complete tutorials, see [docs/examples/QUICKSTART.md](docs/examples/QUICKSTART.md).
 
 ## 🎯 Vendor-Neutral Quorum Policy
 
@@ -121,6 +124,88 @@ cd ioa-core
 ```
 
 For detailed installation instructions, see our [Installation Guide](docs/getting-started/installation.md).
+
+## ✨ Core Features
+
+IOA Core provides production-ready capabilities for governed AI orchestration:
+
+### 🔒 Audit & Governance
+- **Immutable Audit Chains**: Cryptographically verified audit logging
+- **System Laws Framework**: Seven governing principles for AI orchestration
+- **Data Redaction**: Automatic redaction of sensitive data in logs
+- **Compliance-Ready**: Educational framework for regulatory requirements
+
+### 💾 Memory System
+- **Multi-Tier Storage**: Hot (in-memory) and cold (persistent) storage
+- **Multiple Backends**: SQLite, S3, Local JSONL
+- **AES-GCM Encryption**: At-rest encryption for sensitive data
+- **4D Tiering** (Preview): Educational preview of tiered memory management
+
+### 🤖 LLM Provider Support
+Supports 6 major LLM providers with unified interface:
+- **OpenAI** (GPT-4, GPT-3.5)
+- **Anthropic** (Claude 3.x)
+- **Google Gemini** (Gemini 1.5)
+- **DeepSeek** (DeepSeek Chat)
+- **XAI** (Grok Beta)
+- **Ollama** (Local models with turbo mode)
+
+### 🎯 Provider Features
+- Zero-retention data handling
+- Rate limiting and cost controls
+- Fallback routing and error handling
+- Live smoke testing for all providers
+
+For a complete feature comparison, see [FEATURE_MATRIX.md](FEATURE_MATRIX.md).
+
+## 📚 Examples & Tutorials
+
+IOA Core includes working examples for all core features. All examples run offline by default.
+
+### Quick Examples
+
+```bash
+# Bootstrap a project
+python examples/00_bootstrap/boot_project.py my-project
+
+# Run governed workflow
+python examples/10_workflows/run_workflow.py
+
+# Multi-agent quorum voting
+python examples/20_roundtable/roundtable_quorum.py "Your task (ok)"
+
+# System health check
+python examples/30_doctor/doctor_check.py
+
+# Provider smoke test
+IOA_PROVIDER=mock python examples/40_providers/provider_smoketest.py
+
+# Ollama turbo mode
+python examples/50_ollama/turbo_mode_demo.py turbo_cloud
+```
+
+### Comprehensive Tutorials
+
+- **[Quick Start](docs/examples/QUICKSTART.md)** - Get started in minutes
+- **[Workflows Guide](docs/examples/WORKFLOWS.md)** - Build governed workflows
+- **[Roundtable Guide](docs/examples/ROUNDTABLE.md)** - Multi-agent consensus
+- **[Provider Setup](docs/examples/PROVIDERS.md)** - Configure LLM providers
+- **[Ollama Turbo](docs/examples/OLLAMA.md)** - Local model optimization
+
+### Live Testing
+
+Examples run offline by default. For live testing with real providers:
+
+```bash
+# Set your API keys
+export OPENAI_API_KEY=your-key
+export ANTHROPIC_API_KEY=your-key
+
+# Enable live mode
+IOA_LIVE=1 IOA_PROVIDER=openai python examples/40_providers/provider_smoketest.py
+```
+
+> **Note**: Live tests are not executed in CI. All CI tests use offline mocks.
 
 ## 🔧 Setup LLM Providers
 
@@ -417,7 +502,7 @@ A `RoundtableResult` is returned with aggregated responses and consensus informa
 - **[Tutorials](docs/tutorials/)** - Step-by-step tutorials and examples
 - **[User Guide](docs/user-guide/)** - CLI reference and configuration
 - **[API Reference](docs/api/)** - Developer documentation
-- **[Operations](docs/ops/)** - Deployment and operations guides
+- **[Operations](docs/external/OPS_GUIDES.md)** - Deployment and operations guides
 
 ## 🧪 Testing & Development
 
@@ -704,13 +789,13 @@ s3://bucket/audit_chain/
 
 ### Documentation
 
-- **[Why Immutable Logs Matter](docs/audit/01_overview.md)** - Understanding the importance of immutable audit logs
-- **[Quickstart: Run + Verify](docs/audit/02_enabling.md)** - How to enable and use audit logging
-- **[Storage Layout](docs/audit/03_storage_layout.md)** - File organization and retention strategies
-- **[S3 Backend](docs/audit/04_s3_backend.md)** - Enterprise S3 storage configuration
-- **[Tamper Detection](docs/audit/05_tamper_detection.md)** - How tamper detection works
-- **[Reading Receipts](docs/audit/06_reading_receipts.md)** - Understanding receipt files
-- **[Enterprise Extensions](docs/audit/07_enterprise_extensions.md)** - Advanced features for enterprise
+- **[Why Immutable Logs Matter](docs/external/AUDIT_GUIDES.md)** - Understanding the importance of immutable audit logs
+- **[Quickstart: Run + Verify](docs/external/AUDIT_GUIDES.md)** - How to enable and use audit logging
+- **[Storage Layout](docs/external/AUDIT_GUIDES.md)** - File organization and retention strategies
+- **[S3 Backend](docs/external/AUDIT_GUIDES.md)** - Enterprise S3 storage configuration
+- **[Tamper Detection](docs/external/AUDIT_GUIDES.md)** - How tamper detection works
+- **[Reading Receipts](docs/external/AUDIT_GUIDES.md)** - Understanding receipt files
+- **[Enterprise Extensions](docs/external/AUDIT_GUIDES.md)** - Advanced features for enterprise
 
 ### Examples
 
@@ -864,10 +949,10 @@ CI Gates validates:
 - **Docs:** CLI validation, MkDocs build verification
 - **Hygiene:** Forbidden pattern detection
 
-See [CI Gates v1 Documentation](docs/ops/ci/CI_GATES_V1.md) for complete details.
+See [CI Gates v1 Documentation](docs/CI_GATE_STRUCTURE.md) for complete details.
 
 ### Documentation Standards
-All documentation contributions must follow our **[IOA Style Guide](docs/ops/guides/IOA_STYLE_GUIDE.md)** which ensures:
+All documentation contributions must follow our **[IOA Style Guide](docs/external/OPS_GUIDES.md)** which ensures:
 - Professional, engineering-grade language
 - Consistent terminology and formatting
 - Governance-first compliance

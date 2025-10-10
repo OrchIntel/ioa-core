@@ -1,18 +1,19 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
 
-"""
+
 CI Gates v1 - Comprehensive validation system for IOA Core
 
 This module implements the CI Gates v1 system that provides configurable
 validation for governance, security, documentation, and hygiene checks.
 Supports multiple profiles (local, PR, nightly) and maintainer overrides.
 """
+"""Ci Gates module."""
+
 
 import json
 import subprocess  # nosec B404 - subprocess used for controlled CI command execution

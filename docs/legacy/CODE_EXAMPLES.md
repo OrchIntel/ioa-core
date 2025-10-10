@@ -98,7 +98,7 @@ async def run_task():
 asyncio.run(run_task())
 ```
 
-For more, see [tests/test_roundtable_executor.py](../tests/test_roundtable_executor.py).
+For more, see [tests/test_roundtable_executor.py](../../tests/examples/).
 
 © 2025 OrchIntel Systems Ltd
 

@@ -1,17 +1,18 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
 
-"""
+
 PR Bot Comment Utilities for CI Gates v1
 
 This module provides utilities for generating PR bot comments and managing
 GitHub integration for CI Gates validation results.
 """
+
+"""Pr Bot Utils module."""
 
 import json
 from dataclasses import dataclass

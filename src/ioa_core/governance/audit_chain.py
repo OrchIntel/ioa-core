@@ -1,18 +1,19 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
 
-"""
+
 IOA Governance: Immutable Audit Chain
 
 Provides append-only, hash-chained JSONL audit logging with schema validation.
 Each entry includes prev_hash and content hash to create an immutable chain.
 Entries are validated against AUDIT_SCHEMA before persistence.
 """
+"""Audit Chain module."""
+
 
 from __future__ import annotations
 

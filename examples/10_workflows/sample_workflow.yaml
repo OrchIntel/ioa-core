@@ -1,0 +1,9 @@
+version: 1
+task: "Analyze code for security issues"
+policy: "demo-governed"
+steps:
+  - name: "audit_step"
+    action: "verify"
+    params:
+      check: "security"
+

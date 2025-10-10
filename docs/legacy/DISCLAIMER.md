@@ -17,12 +17,12 @@ The **Intelligent Orchestration Architecture (IOA)**, developed by OrchIntel Sys
 
 - **Development Stage**: IOA Core is in beta (v2.4.8) and intended for evaluation and development. It is not production-ready without customization. Features like consensus mechanisms (`roundtable_executor.py`) are stubbed for Phase 2 and may raise `NotImplementedError`. Do not use for critical applications without thorough testing and governance extensions.
 
-- **Core vs. Enterprise Features**: IOA Core provides foundational orchestration, memory, and governance. Advanced capabilities (e.g., mood modeling, cold storage, enhanced NLP) are available in the proprietary IOA Enterprise edition under a commercial license. See [FEATURE_MATRIX.md](FEATURE_MATRIX.md) for details. This open-core model allows community contributions while offering enterprise support.
+- **Core vs. Enterprise Features**: IOA Core provides foundational orchestration, memory, and governance. Advanced capabilities (e.g., mood modeling, cold storage, enhanced NLP) are available in the proprietary IOA Enterprise edition under a commercial license. See [../../FEATURE_MATRIX.md](../../FEATURE_MATRIX.md) for details. This open-core model allows community contributions while offering enterprise support.
 
 - **Limitations & Risks**:
   - **Security**: Trust systems use basic SHA-256 validation (`agent_onboarding.py`). Placeholders in examples are for demonstration—replace with secure implementations. No built-in encryption or access controls; users must add these for compliance (e.g., GDPR, HIPAA).
   - **Bias & Ethics**: Basic mitigation exists (e.g., VAD averaging in `refinery_utils.py`), but IOA does not guarantee fairness. Potential for amplified biases in multi-agent consensus—test with diverse datasets.
-  - **Performance**: Tested to 10k entries (~850MB memory, 0.001s hot retrieval), but scales linearly. See [SCALING.md](SCALING.md) for details.
+  - **Performance**: Tested to 10k entries (~850MB memory, 0.001s hot retrieval), but scales linearly. See [../../SCALING.md](../../SCALING.md) for details.
   - **Dependencies**: Relies on external LLMs (e.g., OpenAI)—API changes may break adapters (`llm_adapter.py`).
 
 - **Intended Use**: For research, prototyping, and non-commercial development. Commercial use requires review of Apache 2.0 terms and potential enterprise licensing.

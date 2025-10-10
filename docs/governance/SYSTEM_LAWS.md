@@ -446,7 +446,7 @@ The Governance Harness v1 provides comprehensive validation of all System Laws a
 - Complete audit coverage with tamper-proof logging
 - Integration with Ethics Pack v0 and Sustainability Pack v0
 
-For detailed harness documentation, see [GOV_HARNESS_V1.md](../ops/governance_audit/GOV_HARNESS_V1.md).
+For detailed harness documentation, see [GOV_HARNESS_V1.md](../external/OPS_GUIDES.md).
 
 ## Compliance and Certification
 

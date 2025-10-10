@@ -364,3 +364,22 @@ site/
 .github/workflows/canonical-scan.yml
 .github/workflows/preflight*.yml
 .github/workflows/keyword-scan*.yml
+
+# IOA specific
+.ci/_externals/
+.venv_oss/
+docs/_last_local_gate_raw.txt
+docs/_broken_links_todo.txt
+
+# Feature sync testing
+tests/feature_sync/__pycache__/
+.venv-feature/
+docs/internal_tmp/
+
+# Temporary header fix script
+/tmp/fix_headers.py
+
+# Example artifacts
+my-ai-system/
+my-project/
+test-project/
