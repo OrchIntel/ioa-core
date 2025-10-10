@@ -1,0 +1,119 @@
+name: 🐞 Bug Report
+description: Report a reproducible bug in IOA Core
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please fill out the sections below to help us diagnose and fix the issue.
+
+  - type: input
+    id: version
+    attributes:
+      label: IOA Core Version
+      description: Which version are you using?
+      placeholder: "e.g., 2.5.1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug
+      placeholder: What happened that shouldn't have?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Exact steps to reproduce the behavior
+      placeholder: |
+        1. Run command '...'
+        2. Execute function '...'
+        3. See error '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe the expected outcome
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include full error messages and stack traces
+      placeholder: |
+        Paste complete error output here:
+        ```
+        Traceback (most recent call last):
+          ...
+        ```
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: Which OS are you using?
+      placeholder: "e.g., macOS 13.5, Ubuntu 22.04, Windows 11"
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python Version
+      description: Output of `python --version`
+      placeholder: "e.g., Python 3.10.12"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Any relevant environment information
+      placeholder: |
+        - Virtual environment? Yes/No
+        - Provider configured? (e.g., OpenAI, Ollama)
+        - Running in Docker? Yes/No
+        - Any other relevant details
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Log Output
+      description: Include any relevant log output (redact API keys!)
+      placeholder: Paste logs here (remove sensitive information)
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checklist
+      description: Please verify these items before submitting
+      options:
+        - label: I have searched existing issues and this is not a duplicate
+          required: true
+        - label: I am using the latest version of IOA Core
+          required: false
+        - label: I have included all required information above
+          required: true
+        - label: I have removed any sensitive information (API keys, credentials)
+          required: true
+

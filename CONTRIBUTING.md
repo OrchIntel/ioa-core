@@ -14,6 +14,83 @@ Thank you for your interest in contributing to IOA Core!  We welcome contributio
 5. **Submit a pull request.**  Push your branch to your fork and open a pull request against the `main` branch of the IOA Core repository.  Provide a clear description of your changes and reference any related issues.
 6. **Respond to feedback.**  Project maintainers may request changes or clarifications.  Please respond promptly to review comments to help us merge your contribution.
 
+## Contribution Policy & Boundaries
+
+### ✅ Encouraged Contributions
+
+We welcome the following types of contributions:
+
+- **Bug fixes** - Fixes for reproducible issues
+- **Tests** - Unit tests, integration tests, proof tests
+- **Documentation** - Tutorials, examples, guides, FAQ entries
+- **OSS Features** - Features that don't imply regulatory compliance claims
+- **Performance improvements** - Optimizations with benchmarks
+- **Developer experience** - CLI improvements, error messages, tooling
+
+### ⚠️ Requires Discussion First
+
+Please open an issue for discussion before working on:
+
+- **New modules** - Major architectural changes
+- **Breaking changes** - API modifications affecting existing code
+- **New dependencies** - Additional third-party packages
+- **Major refactors** - Large-scale code restructuring
+
+### ❌ Not Accepted
+
+The following contributions cannot be merged into OSS:
+
+- **Regulated framework implementations** - Full HIPAA, SOX, GDPR, CCPA compliance logic (educational stubs only)
+- **Compliance guarantees** - Claims of regulatory compliance
+- **Restricted Edition features** - Enterprise-only capabilities (visual builder, multi-region, etc.)
+- **Production-ready compliance** - Frameworks requiring legal/audit validation
+
+**Why?** IOA Core OSS provides **educational governance frameworks** and compliance-ready patterns. Production regulatory compliance requires legal review, audit trails, and enterprise support available in Restricted Edition.
+
+### Pull Request Workflow
+
+1. **Fork & Clone**
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/ioa-core.git
+   cd ioa-core
+   ```
+
+2. **Create Feature Branch**
+   ```bash
+   git checkout -b feature/my-improvement
+   ```
+
+3. **Make Changes with Tests**
+   - Write code following PEP 8
+   - Add tests for new functionality
+   - Update documentation
+
+4. **Run CI Locally**
+   ```bash
+   # Run all tests
+   pytest -q
+   
+   # Run local CI gate
+   bash ../ioa-ops/ci_gates/local/local_ci_gate.sh
+   ```
+
+5. **Submit Pull Request**
+   - **Title**: Brief description (e.g., "fix: resolve audit chain verification bug")
+   - **Description**: 
+     - What does this PR do?
+     - Why is this change needed?
+     - How was it tested?
+     - Link to related issues
+   - **Proof Tests**: Include test output showing functionality
+
+6. **CI Must Pass**
+   - ✅ All tests passing
+   - ✅ 0 warnings, 0 skips
+   - ✅ 0 broken links
+   - ✅ 100% SPDX compliance
+
+**Maintainers will review within 3-5 business days.**
+
 ## Code Style
 
 * Follow Python PEP 8 guidelines.
