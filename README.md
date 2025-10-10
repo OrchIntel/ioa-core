@@ -1,8 +1,8 @@
 # IOA Core v2.5.1
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.10%2B-brightgreen.svg)]()
-[![Build](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml/badge.svg)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
+[![Python](https://img.shields.io/badge/python-3.10–3.12-brightgreen.svg)]()
+[![Build](https://img.shields.io/github/actions/workflow/status/OrchIntel/ioa-core/build.yml?branch=main)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://ioa.systems/docs)
 
 IOA Core is the **open-source framework for governed AI orchestration** —  
