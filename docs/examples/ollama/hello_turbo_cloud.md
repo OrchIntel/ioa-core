@@ -233,4 +233,4 @@ Example:
 For more information, see:
 - [Ollama Cloud Documentation](https://ollama.com/cloud)
 - [IOA Core Documentation](../README.md)
-- [Environment Configuration](../env.example)
+- [Environment Configuration](../../env.example)

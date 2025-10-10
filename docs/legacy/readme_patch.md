@@ -143,7 +143,7 @@ pytest tests/ --cov=src --cov-report=html
 
 We welcome contributions! Please see:
 - [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines
-- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards
+- [../../CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md) for community standards
 - [SECURITY.md](SECURITY.md) for security vulnerability reporting
 
 Ways to contribute:
@@ -168,7 +168,7 @@ IOA Enterprise adds:
 - Enterprise storage backends (cold storage, database integration)
 - Professional support and SLA
 
-See [FEATURE_MATRIX.md](FEATURE_MATRIX.md) for detailed comparison.
+See [../../FEATURE_MATRIX.md](../../FEATURE_MATRIX.md) for detailed comparison.
 
 ## Roadmap and Compliance Path
 
@@ -201,7 +201,7 @@ See [FEATURE_MATRIX.md](FEATURE_MATRIX.md) for detailed comparison.
 
 ## License
 
-Apache 2.0 License. See [LICENSE](LICENSE) for full terms.
+Apache 2.0 License. See [LICENSE](../../LICENSE) for full terms.
 
 © 2025 OrchIntel Systems Ltd. IOA™ and OrchIntel™ are trademarks of OrchIntel Systems Ltd.
 
@@ -213,7 +213,7 @@ IOA Core differentiates from other multi-agent frameworks through:
 - **Governance Framework**: Built-in pattern validation and agent behavior rules
 - **Modular Trust System**: Configurable agent trust and capability routing
 
-For detailed comparisons with LangChain, CrewAI, and AutoGen, see our [framework comparison guide](docs/COMPARISON.md).
+For detailed comparisons with LangChain, CrewAI, and AutoGen, see our [framework comparison guide](../COMPARISON.md).
 
 ---
 

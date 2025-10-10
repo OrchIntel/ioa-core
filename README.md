@@ -1,4 +1,4 @@
-# IOA Core v2.5.0
+# IOA Core v2.5.1
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-brightgreen.svg)]()
@@ -417,7 +417,7 @@ A `RoundtableResult` is returned with aggregated responses and consensus informa
 - **[Tutorials](docs/tutorials/)** - Step-by-step tutorials and examples
 - **[User Guide](docs/user-guide/)** - CLI reference and configuration
 - **[API Reference](docs/api/)** - Developer documentation
-- **[Operations](docs/ops/)** - Deployment and operations guides
+- **[Operations](docs/external/OPS_GUIDES.md)** - Deployment and operations guides
 
 ## 🧪 Testing & Development
 
@@ -704,13 +704,13 @@ s3://bucket/audit_chain/
 
 ### Documentation
 
-- **[Why Immutable Logs Matter](docs/audit/01_overview.md)** - Understanding the importance of immutable audit logs
-- **[Quickstart: Run + Verify](docs/audit/02_enabling.md)** - How to enable and use audit logging
-- **[Storage Layout](docs/audit/03_storage_layout.md)** - File organization and retention strategies
-- **[S3 Backend](docs/audit/04_s3_backend.md)** - Enterprise S3 storage configuration
-- **[Tamper Detection](docs/audit/05_tamper_detection.md)** - How tamper detection works
-- **[Reading Receipts](docs/audit/06_reading_receipts.md)** - Understanding receipt files
-- **[Enterprise Extensions](docs/audit/07_enterprise_extensions.md)** - Advanced features for enterprise
+- **[Why Immutable Logs Matter](docs/external/AUDIT_GUIDES.md)** - Understanding the importance of immutable audit logs
+- **[Quickstart: Run + Verify](docs/external/AUDIT_GUIDES.md)** - How to enable and use audit logging
+- **[Storage Layout](docs/external/AUDIT_GUIDES.md)** - File organization and retention strategies
+- **[S3 Backend](docs/external/AUDIT_GUIDES.md)** - Enterprise S3 storage configuration
+- **[Tamper Detection](docs/external/AUDIT_GUIDES.md)** - How tamper detection works
+- **[Reading Receipts](docs/external/AUDIT_GUIDES.md)** - Understanding receipt files
+- **[Enterprise Extensions](docs/external/AUDIT_GUIDES.md)** - Advanced features for enterprise
 
 ### Examples
 
@@ -864,10 +864,10 @@ CI Gates validates:
 - **Docs:** CLI validation, MkDocs build verification
 - **Hygiene:** Forbidden pattern detection
 
-See [CI Gates v1 Documentation](docs/ops/ci/CI_GATES_V1.md) for complete details.
+See [CI Gates v1 Documentation](docs/CI_GATE_STRUCTURE.md) for complete details.
 
 ### Documentation Standards
-All documentation contributions must follow our **[IOA Style Guide](docs/ops/guides/IOA_STYLE_GUIDE.md)** which ensures:
+All documentation contributions must follow our **[IOA Style Guide](docs/external/OPS_GUIDES.md)** which ensures:
 - Professional, engineering-grade language
 - Consistent terminology and formatting
 - Governance-first compliance

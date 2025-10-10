@@ -99,4 +99,4 @@ print(f"Framework: {info['framework']}")
 
 ## License
 
-This educational preview is part of the IOA framework and is licensed under the [Apache 2.0 License](/license).
+This educational preview is part of the IOA framework and is licensed under the [Apache 2.0 License](../../LICENSE).

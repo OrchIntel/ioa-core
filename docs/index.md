@@ -71,7 +71,7 @@ pip install ioa-core
 - **[Tutorials](tutorials/hello-world.md)** - Step-by-step guides
 - **[User Guide](user-guide/cli-reference.md)** - CLI reference and configuration
 - **[API Reference](api/core.md)** - Developer documentation
-- **[Operations](ops/Reports.md)** - Deployment and operations
+- **[Operations](external/OPS_GUIDES.md)** - Deployment and operations
 
 ## Community & Support
 

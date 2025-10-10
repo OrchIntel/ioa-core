@@ -32,7 +32,7 @@ If you discover a security vulnerability in IOA Core, please do not open a publi
 ## Documentation Standards
 
 ### IOA Style Guide
-All documentation must follow the **[IOA Style Guide](docs/ops/guides/IOA_STYLE_GUIDE.md)** which establishes:
+All documentation must follow the **[IOA Style Guide](docs/external/OPS_GUIDES.md)** which establishes:
 - **Professional Dialects:** Engineering-grade, precise language without marketing hype
 - **Terminology Canon:** Exact names for components (System Laws, Command Deck, MediaGate, etc.)
 - **Formatting Rules:** Code fences, CLI prompts, tables, and link standards
@@ -70,7 +70,7 @@ All documentation changes must comply with IOA's governance framework:
 
 **Rule 2: Style & Terminology Conformance**
 - All docs must pass Vale (professional dialects, terminology) and markdownlint (structural hygiene)
-- Must conform to [IOA Style Guide](docs/ops/guides/IOA_STYLE_GUIDE.md)
+- Must conform to [IOA Style Guide](docs/external/OPS_GUIDES.md)
 - Non-conforming language fails CI with actionable hints
 
 **Rule 3: Non-Interactive Execution**
@@ -86,9 +86,9 @@ Dispatch completion requires CI ✅ check - no dispatch may be marked COMPLETE u
 - **Elevated commands** must be tagged with `# [doc-test-needs-sudo]` if unavoidable
 
 **Resources:**
-- **[IOA Style Guide](docs/ops/guides/IOA_STYLE_GUIDE.md)** - Authoritative style and terminology guide
-- **[Documentation Authoring Guide](docs/ops/guides/DOCS_AUTHORING_GUIDE.md)** - Comprehensive writing guidelines
-- **[IOA Ledger Rules](docs/ops/governance/LEDGER_RULES.md)** - Governance and compliance requirements
+- **[IOA Style Guide](docs/external/OPS_GUIDES.md)** - Authoritative style and terminology guide
+- **[Documentation Authoring Guide](docs/external/OPS_GUIDES.md)** - Comprehensive writing guidelines
+- **[IOA Ledger Rules](docs/external/OPS_GUIDES.md)** - Governance and compliance requirements
 - **Local Validation:** Run `python scripts/validate_docs.py` before submitting
 - **CI Gates:** "Docs Validate", "Docs Style & Terminology", and "Docs Non-Interactive Conformance" must pass before merge
 
