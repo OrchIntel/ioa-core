@@ -358,3 +358,9 @@ releases/
 evidence/releases/
 site/
 .venv*/
+
+# Internal CI workflows (run locally via ioa-ops)
+.github/workflows/no-enterprise-keywords.yml
+.github/workflows/canonical-scan.yml
+.github/workflows/preflight*.yml
+.github/workflows/keyword-scan*.yml

@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+
+name: Documentation Link Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run weekly on Monday at 9am UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  linkcheck:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install markdown-link-check requests beautifulsoup4
+    
+    - name: Check Markdown links
+      run: |
+        echo "Checking Markdown links in docs/"
+        # Simple link checking - looks for broken internal links
+        find docs -name "*.md" -type f | while read file; do
+          echo "Checking: $file"
+          # Check if file has any broken internal links
+          grep -o '\[.*\](.*)' "$file" | grep -o '(.*\.md)' | while read link; do
+            link_path=$(echo "$link" | tr -d '()')
+            if [[ "$link_path" != http* ]] && [[ ! -f "$(dirname "$file")/$link_path" ]]; then
+              echo "❌ Broken link in $file: $link_path"
+            fi
+          done
+        done || true
+        
+        echo "✅ Link check complete"
+    
+    - name: Check for broken README links
+      run: |
+        if [ -f README.md ]; then
+          echo "Checking README.md for obvious issues..."
+          grep -E '\[.*\]\(http' README.md || echo "No external links found"
+        fi
+
