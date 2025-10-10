@@ -115,3 +115,35 @@ pip install package
 - Use git tags (e.g., `v2.5.0`) for official versions.
 - Do not put `Version:` or `Last-Updated:` in file headers; these drift.
 - All source files must start with the SPDX Apache-2.0 header.
+## Versioning & Release Policy
+
+IOA Core follows **Semantic Versioning (SemVer)**:
+
+- **MAJOR** (X.0.0): Breaking changes or architecture updates that may require migration.
+- **MINOR** (X.Y.0): Backward-compatible feature additions or improvements.
+- **PATCH** (X.Y.Z): Non-breaking fixes, performance, documentation, CI, or dependency updates.
+
+### Release workflow
+1. Development and fixes occur on feature branches or `dev`.
+2. When stable, we open a release branch, run the full CI gate, and bump the version.
+3. The version in:
+   - `pyproject.toml`
+   - `VERSION`
+   - `README.md` (badge and header)
+   **must match** the tag name (e.g., `v2.5.1`).
+4. Tags are created only for production-ready builds.
+5. The CI pre-tag hook enforces version sync before allowing a release push.
+
+### Examples
+- `2.5.1 → 2.5.2` — patch: doc or CI improvements.
+- `2.5.1 → 2.6.0` — minor: new governance feature, no breaking changes.
+- `2.x.x → 3.0.0` — major: structural changes requiring migration.
+
+### Frequency
+- Minor/patch releases are cut **as needed**, not per merge.
+- Version bump only occurs on a **release branch/tag**, never per commit.
+
+Maintainers should ensure:
+- CI passes (`local_ci_gate.sh` all green).
+- Documentation and changelog reflect the new version.
+- The new tag is pushed **after** the CI gate and QA checks succeed.
