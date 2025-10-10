@@ -1,0 +1,8 @@
+# Copy these lines and fill in your actual API keys
+# Then paste them back in the chat
+
+export OPENAI_API_KEY="sk-proj-..."
+export ANTHROPIC_API_KEY="sk-ant-..."
+export GOOGLE_API_KEY="AIzaSy..."
+export XAI_API_KEY="xai-..."
+export DEEPSEEK_API_KEY="sk-..."

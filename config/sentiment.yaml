@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+language_patterns:
+  en: '[a-zA-Z\s]+'
+  es: '[a-zA-Záéíóúñ\s]+'
+  fa: '[\u0600-\u06FF\s]+'
+  zh: '[\u4E00-\u9FFF\s]+'
+last_updated: '2025-08-11'
+sentiment_words:
+  negative:
+  - sad
+  - bad
+  - negative
+  - terrible
+  - awful
+  - horrible
+  - hate
+  - angry
+  - furious
+  - disgusting
+  - fail
+  - failure
+  - disappointed
+  - frustrated
+  - annoyed
+  - upset
+  - worried
+  positive:
+  - happy
+  - good
+  - positive
+  - excellent
+  - great
+  - wonderful
+  - amazing
+  - fantastic
+  - brilliant
+  - outstanding
+  - perfect
+  - love
+  - joy
+  - beautiful
+  - success
+  - win
+  - victory

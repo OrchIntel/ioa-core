@@ -1,0 +1,51 @@
+{
+  "description": "Universal JSON log entry schema for IOA Core modules.",
+  "properties": {
+    "timestamp": {
+      "description": "ISO 8601 timestamp with timezone",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "module": {
+      "description": "Module name emitting the log",
+      "title": "Module",
+      "type": "string"
+    },
+    "level": {
+      "description": "Log level",
+      "enum": [
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "DEBUG"
+      ],
+      "title": "Level",
+      "type": "string"
+    },
+    "message": {
+      "description": "Log message",
+      "title": "Message",
+      "type": "string"
+    },
+    "data": {
+      "additionalProperties": true,
+      "description": "Additional structured data",
+      "title": "Data",
+      "type": "object"
+    },
+    "dispatch_code": {
+      "description": "Dispatch code for tracking",
+      "title": "Dispatch Code",
+      "type": "string"
+    }
+  },
+  "required": [
+    "timestamp",
+    "module",
+    "level",
+    "message",
+    "dispatch_code"
+  ],
+  "title": "LogEntry",
+  "type": "object"
+}

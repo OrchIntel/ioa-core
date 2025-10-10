@@ -1,0 +1,21 @@
+🔍 IOA Preflight Scanner
+Workspace: .
+Repos: ioa-core-internal, ioa-enterprise, ioa-websites, ioa-ops, ioa-saas
+--------------------------------------------------
+⚠️  Skipping ioa-core-internal (not found)
+⚠️  Skipping ioa-enterprise (not found)
+⚠️  Skipping ioa-websites (not found)
+⚠️  Skipping ioa-ops (not found)
+⚠️  Skipping ioa-saas (not found)
+
+📄 Report written to: ioa-ops/reports/PREFLIGHT_REPORT.md
+
+==================================================
+📊 Scan Complete
+   Files scanned: 0
+   🔴 Critical: 0
+   🟡 Warning: 0
+   🔵 Info: 0
+==================================================
+
+✅ Preflight scan complete

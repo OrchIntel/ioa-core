@@ -1,0 +1,2 @@
+{"type": "screenwriting", "name": "cyrus.IOA", "schema": {"characters": ["name", "bio", "traits"], "scenes": ["id", "title", "content"]}, "agents": ["Analyzer", "Editor", "Lorekeeper"]}
+

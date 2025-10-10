@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+"""
+
+PATCH: Cursor-2025-08-21 DISPATCH-GPT-20250821-007 <agent-to-model terminology refactor>
+"""
+
+kind: workflow
+metadata:
+  name: example_roundtable_workflow
+  description: Minimal example workflow demonstrating model orchestration
+  created_at_utc: "${NOW_UTC}"
+
+identity:
+  # Optional identity context for zero-trust hardening in future
+  required_scopes: ["workflow:execute"]
+
+task:
+  id: "${TASK_ID}"
+  type: analysis
+  prompt: |
+    Assess the performance impact of the proposed caching strategy.
+  inputs:
+    repo_path: ./
+    scenario: baseline
+
+orchestration:
+  router: agent_router
+  strategy: roundtable
+  quorum: 0.6
+  voting_mode: majority  # majority | weighted | borda
+  timeout_s: 30
+
+models:
+  - id: openai_default
+    provider: openai
+    weight: 1.0
+  - id: anthropic_default
+    provider: anthropic
+    weight: 1.0
+
+evaluation:
+  enabled: true
+  policy: minimal
+  success_threshold: 0.95
+  capture_feedback: true
+
+artifacts:
+  save:
+    - final_report
+    - logs
+  output_dir: reports/workflows/${STAMP}/
+
+

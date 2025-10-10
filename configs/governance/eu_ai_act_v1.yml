@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+enabled: true
+scope:
+  jurisdictions: ["EU", "EEA"]
+  default_mode: "monitor"
+  apply_to_providers: ["*"]
+risk:
+  classifier:
+    strategy: "rules+labels"
+    prohibited_categories:
+      - "subliminal_manipulation"
+      - "social_scoring"
+      - "biometric_categorization_sensitive"
+  high_risk_categories:
+    - "biometric_identification"
+    - "employment_hr"
+    - "critical_infrastructure"
+  default_category: "minimal"
+transparency:
+  disclose_generated: true
+  require_capability_card: true
+  require_limitations: true
+data_governance:
+  accept_provenance_manifest: true
+  require_manifest_for_high_risk: true
+  mask_pii_preflight: true
+oversight:
+  required_for_high_risk: true
+  hold_on_violation: true
+robustness:
+  min_accept_accuracy: 0.70
+  drift_warn: 0.10
+  fail_on_drift_in_strict: true
+logging:
+  evidence_level: "full"
+  append_to_audit_chain: true
+post_market:
+  incident_threshold_per_10k: 2
+  weekly_summary_enabled: true
+assurance:
+  contribute_to_assurance_score: true
+  weights: { code: 0.25, tests: 0.25, runtime: 0.25, docs: 0.25 }
+
+

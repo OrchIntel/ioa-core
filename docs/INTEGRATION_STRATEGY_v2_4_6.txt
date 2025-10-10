@@ -1,0 +1,54 @@
+# IOA Integration Strategy
+
+## Overview
+This document outlines the strategy for integrating IOA (Intelligent Operating Architecture) with external tools, services, and ecosystems. IOA is designed as a modular, agent-agnostic platform, making integrations plug-and-play via adapters and APIs. The goal is to enable seamless connectivity while maintaining the core "Knowledge Refinery" principles: digestion/compaction, governance, and multi-agent orchestration.
+
+### Phase 1 (MVP): Internal Integrations
+- **LLM Adapters**: Integrated via llm_adapter.py (e.g., internal agentService for internal agento). Supports model switching (internal agent, internal agent) with minimal config changes.
+- **Storage Backends**: Decoupled via storage_adapter.py (JSON for local; stubs for MongoDB/ChromaDB). No external deps yet—local file system.
+- **Agent Routing**: agent_router.py handles internal roundtable (e.g., PatternWeaver/SentienceMapper registered as agents).
+- **Status**: Complete. All MVP components (memory_engine, cli_interface, bootloader) integrated internally.
+
+### Phase 2: Core External Integrations
+- **Cloud Databases**:
+  - MongoDB Atlas: For structured memory (schemas like characters/cases). Integration: Extend MongoStorageService stub; use pymongo lib (add to requirements.txt).
+  - ChromaDB: For vector embeddings (semantic search in recall/digest). Integration: Extend ChromaStorageService; use chromadb lib.
+  - Strategy: Configurable via env vars (e.g., STORAGE_TYPE=mongo); tiered (free: JSON, paid: cloud).
+- **Cloud Storage (Cold Archive)**:
+  - AWS S3: For preservation path (raw files). Integration: Extend cold_storage.py save/load to boto3 uploads (prefix 's3://'); glacier for long-term.
+  - Strategy: Fallback local if no creds; add cost estimator for uploads.
+- **External LLMs/APIs**:
+  - internal agent/internal agent/internal agent: Via llm_adapter extensions (e.g., internal agentService with API key).
+  - Integration: Register in agent_router.py; route by capability/cost (e.g., cheap for digestion).
+- **Tool Plugins** (e.g., Zapier/Notion/Google Docs):
+  - Strategy: Add plugin_manager.py; webhook endpoints in cli_interface for inbound (e.g., Notion page → digest_entry).
+  - MVP Hook: CLI command 'import_from_url' → browse_page tool to fetch → preserve/digest.
+- **Status**: In progress. storage_adapter stubs ready; cold S3 extension scaffolded.
+
+### Phase 3: Advanced & Ecosystem Integrations
+- **AGI/External Benchmarks**: ARC integration via web_search/browse_page for scores; adapters for future AGI APIs (e.g., x.ai/api redirect).
+- **UI/Dashboard Tools**: Streamlit/Flask for Command Deck (memory viz, Evolva Forge gauges); integrate via web UI extension to cli_interface.
+- **Collaboration Platforms**: Slack/Teams hooks (e.g., bot for roundtable triggers); Zapier for workflows (e.g., Notion update → IOA digest).
+- **Security/Compliance**: Auth0/Cognito for multi-user; encryption libs (e.g., cryptography) for memory at rest.
+- **Marketplace**: Plugin store for user schemas/patterns (e.g., upload .json → registry add).
+- **Strategy**: API-first (expose /digest, /recall endpoints); open-source hooks for community plugins.
+
+### Risks & Mitigation
+- **Dep Dependencies**: Use requirements.txt pinning; fallback mocks for offline.
+- **API Costs**: Route cheap models; background async for non-urgent (e.g., batch digestion).
+- **Security**: All integrations via adapters with key vaults (env vars); audit external calls.
+- **Scalability**: Serverless (Lambda) for high-load; rate limits on external APIs.
+
+### Roadmap Timeline
+- Phase 2: Cloud DB/S3 complete by end-Phase.
+- Phase 3: UI/plugins in full productisation.
+
+Version: v2.0 (Updated July 21, 2025)
+
+
+## NLP Integration Layer (Added in v2.4.5)
+The NLP module (`nlp_module.py v0.1.0`) performs lightweight keyword/entity extraction, language detection, and VAD sentiment tagging. It integrates with `digestor.py` and `pattern_weaver.py` to enrich entries before classification.
+- If NLP fails or is disabled, the fallback path ensures minimal metadata is used.
+- All NLP results are schema-compliant and JSON-serializable.
+
+

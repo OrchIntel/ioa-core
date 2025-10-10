@@ -1,0 +1,22 @@
+# IOA CORE DEVELOPMENT ROADMAP (v2.5.0)
+
+## Completed (v2.4.3–v2.4.5)
+- ✅ NLP integration into digestor and pattern_weaver
+- ✅ Modular pattern suggestion using NLP clustering
+- ✅ Reinforcement loop refactor (roundtable_executor v2.3.3)
+- ✅ internal agent schema validation (PASS for all modules)
+- ✅ Memory schema v0.1.2 fully enforced
+- ✅ Test suite for digestor and pattern_weaver
+
+## Planned (v2.5+)
+- ☑ Sentinel override detection and hook execution
+- ☑ spaCy integration for NLP quote-preservation
+- ☑ MongoDB cold storage tiering + backup
+    - ☑ Dashboard for live pattern stats and agent execution trace
+    - ☑ Codex and GitHub binding (for CI/CD integration)
+
+### Phase&nbsp;2: State migration
+
+- **CONT-HND-001:** State migration (`handshake_manager.py`, 99% success, <0.1&nbsp;s latency)
+
+

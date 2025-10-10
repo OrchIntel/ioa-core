@@ -1,0 +1,25 @@
+{
+  "oss": {
+    "progress": 0,
+    "total": 0,
+    "completed": 0,
+    "eta": "3+ months"
+  },
+  "enterprise": {
+    "progress": 0,
+    "total": 0,
+    "completed": 0,
+    "eta": "3+ months"
+  },
+  "saas": {
+    "progress": 0,
+    "total": 0,
+    "completed": 0,
+    "eta": "3+ months"
+  },
+  "overall": {
+    "progress": 0,
+    "total": 0,
+    "completed": 0
+  }
+}

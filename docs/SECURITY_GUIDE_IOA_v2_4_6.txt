@@ -1,0 +1,41 @@
+IOA Security & Privacy Guide (v2.5.0)
+-------------------------------------------------------------
+
+Summary:
+This guide outlines foundational considerations for privacy, data integrity and access control for IOA systems. While the MVP is local or single‑user, the long‑term vision includes multi‑user deployments, API calls to third‑party models and secure memory persistence.
+
+Security Topics:
+- Memory integrity (immutability, versioning)
+- Role‑based access for multi‑agent and multi‑user systems
+- API key encryption and vault‑based secret management
+- User opt‑in for memory persistence and deletion
+- SOC2 readiness path
+
+Key Recommendations:
+1. Implement versioned writes to prevent memory overwrite or corruption.
+2. Encrypt all memory data at rest and in transit (SSL/TLS, AES‑256).
+3. Introduce access roles and namespaces per user/project.
+4. Secure agent actions with logging and moderation interface.
+5. Support data portability (JSON/PDF exports of memory).
+
+## New in v2.5.0
+
+### Public Key Infrastructure (PKI)
+
+The agent onboarding process now supports RSA/ECDSA signatures for secure
+registration and authentication.  Key pairs are generated in
+`agent_onboarding.py` and verified against a trusted certificate
+authority.  This upgrade ensures that only legitimate agents may join
+the system and prevents impersonation attacks.
+
+### GDPR Erasure Stub
+
+To prepare for full GDPR compliance, the memory engine includes a
+`gdpr_erase` stub method that records erasure requests and purges
+entries across all tiers.  While the complete erasure pipeline is
+implemented in the enterprise edition, this stub provides a clear
+interface for triggering erasure and logging requests for audit
+purposes.
+
+Version: 2.5.0
+Last Updated: 2025-08-12

@@ -1,0 +1,98 @@
+# CLI Documentation Validation Report
+
+**Generated:** {{ timestamp }}  
+**Mode:** {{ summary.validation_mode }}  
+**Fallback Python -m:** {{ summary.fallback_python_m }}
+
+## Summary
+
+- **Total Commands:** {{ total_commands }}
+- **Successful:** {{ successful_commands }}
+- **Failed:** {{ failed_commands }}
+- **Success Rate:** {{ summary.success_rate }}
+- **Files Processed:** {{ summary.files_processed }}
+
+{% if failed_commands > 0 %}
+## Failed Commands
+
+| File | Line | Command | Error |
+|------|------|---------|-------|
+{% for result in results %}
+{% if not result.success %}
+| {{ result.file_path }} | {{ result.line_number }} | `{{ result.command }}` | {{ result.error_message or 'Unknown error' }} |
+{% endif %}
+{% endfor %}
+
+## Fix List
+
+Commands that need to be updated in documentation:
+
+{% for result in results %}
+{% if not result.success %}
+- **{{ result.file_path }}:{{ result.line_number }}** - `{{ result.command }}`
+  {% if result.stderr %}
+  - Error: {{ result.stderr }}
+  {% endif %}
+
+{% endif %}
+{% endfor %}
+
+## Detailed Results
+
+{% for result in results %}
+{% if not result.success %}
+### {{ result.file_path }}:{{ result.line_number }}
+
+**Command:** `{{ result.command }}`  
+**Exit Code:** {{ result.exit_code }}  
+**Error:** {{ result.error_message or 'Unknown error' }}
+
+**Stdout:**
+```
+{{ result.stdout }}
+```
+
+**Stderr:**
+```
+{{ result.stderr }}
+```
+
+---
+
+{% endif %}
+{% endfor %}
+
+{% else %}
+## ✅ All Commands Passed
+
+All CLI commands in documentation are working correctly!
+
+## Successful Commands
+
+{% for result in results %}
+{% if result.success %}
+- **{{ result.file_path }}:{{ result.line_number }}** - `{{ result.command }}`
+{% endif %}
+{% endfor %}
+
+{% endif %}
+
+## Environment Details
+
+- **Python Version:** {{ summary.python_version or 'Unknown' }}
+- **IOA Core Version:** {{ summary.ioa_version or 'Unknown' }}
+- **Platform:** {{ summary.platform or 'Unknown' }}
+- **Working Directory:** {{ summary.working_directory or 'Unknown' }}
+
+## Next Steps
+
+{% if failed_commands > 0 %}
+1. Review the failed commands listed above
+2. Update documentation to use correct CLI commands
+3. Test commands locally before updating documentation
+4. Re-run validation after fixes
+{% else %}
+1. All CLI commands are working correctly
+2. Documentation is in sync with CLI implementation
+3. Consider adding more test cases for edge scenarios
+{% endif %}

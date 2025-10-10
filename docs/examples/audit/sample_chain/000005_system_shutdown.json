@@ -1,0 +1,20 @@
+{
+  "event_id": "evt_005",
+  "timestamp": "2025-09-10T10:05:00Z",
+  "prev_hash": "d4e5f6789012345678901234567890abcdef1234567890abcdef123456a1b2c3",
+  "hash": "e5f6789012345678901234567890abcdef1234567890abcdef123456a1b2c3d4",
+  "payload": {
+    "event_type": "system_shutdown",
+    "service": "ioa_core",
+    "shutdown_reason": "scheduled_maintenance",
+    "uptime_seconds": 300,
+    "total_requests": 42,
+    "total_errors": 0,
+    "memory_usage_mb": 256,
+    "cpu_usage_percent": 15.5,
+    "final_status": "clean_shutdown"
+  },
+  "writer": "system_service",
+  "signature": null,
+  "pubkey": null
+}

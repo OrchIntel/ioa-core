@@ -1,0 +1,156 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+site_name: IOA Core Documentation
+site_description: Intelligent Orchestration Architecture Core - Open-source platform for orchestrating modular AI agents
+site_author: OrchIntel Systems Ltd.
+site_url: https://ioa-core.readthedocs.io/
+
+repo_name: orchintel/ioa-core
+repo_url: https://github.com/orchintel/ioa-core
+edit_uri: edit/main/docs/
+
+# PATCH: Cursor-2025-08-26 Fixed docs_dir configuration and comprehensive navigation for strict=0
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.share
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+
+# Strict mode configuration for CI
+strict: true
+validation:
+  nav:
+    omitted_files: ignore
+  not_found: warn
+
+# Exclude problematic directories and files
+exclude_docs: |
+  ops/enterprise/artifacts/**
+  ops/qa_archive/**
+  ops/qa/**
+  ops/status_reports/**
+  ops/renames/**
+  ops/control-center/**
+  ops/resources/**
+  ops/temp/**
+  ops/temp-organized/**
+  ops/dispatch-*/**
+  ops/governance_audit/**
+  ops/ci/**
+  examples/**
+  user-guide/FAQ_IOA_CORE.md
+  untitled folder/**
+  Multi-Agent Validation Academic Paper.md
+  eth_gov_005_completion.md
+  integration_summary_doc.md
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quickstart: getting-started/quickstart.md
+    - Configuration: getting-started/configuration.md
+    - EC2 Setup: getting-started/ec2-setup.md
+  - Tutorials:
+    - Hello World: tutorials/hello-world.md
+    - Governance & Audit: tutorials/governance-audit.md
+    - PKI Onboarding: tutorials/pki-onboarding.md
+    - Domain Schema: tutorials/domain-schema.md
+    - EC2 100K Gate: tutorials/ec2-100k-gate.md
+    - Energy-Aware Quickstart: tutorials/energy-aware-quickstart.md
+    - Live Smoke: tutorials/live-smoke.md
+  - User Guide:
+    - CLI Reference: user-guide/cli-reference.md
+    - Configuration: user-guide/configuration.md
+    - Memory Quickstart: user-guide/memory_quickstart.md
+    - Troubleshooting: user-guide/troubleshooting.md
+    - Vectors: user-guide/vectors.md
+  - API Reference:
+    - Core Modules: api/core.md
+    - LLM Providers: api/providers.md
+    - Governance: api/governance.md
+  - Core:
+    - Memory Engine: MEMORY_ENGINE.md
+    - Memory Modularization: core/memory_modularization.md
+    - Memory Architecture: core/memory/ARCHITECTURE_33D.md
+    - Memory Configuration: core/memory/CONFIG.md
+  - Governance:
+    - Overview: GOVERNANCE.md
+    - Conformance: governance/CONFORMANCE.md
+    - Key Management: governance/KEY_MANAGEMENT.md
+    - System Laws: governance/SYSTEM_LAWS.md
+    - LAW7: governance/LAW7.md
+    - Governance Operations: governance/GOVERNANCE.md
+  - Security & Compliance:
+    - Security Guide: SECURITY.md
+    - Bias Mitigation: BIAS_MITIGATION.md
+    - Compliance Checklist: COMPLIANCE_CHECKLIST.md
+    - Sentinel Integration: SENTINEL_INTEGRATION.md
+  - Performance & Testing:
+    - Performance Guide: PERFORMANCE.md
+    - Roundtable: ROUNDTABLE.md
+    - Simulation: SIMULATION.md
+    - Workflows: WORKFLOWS.md
+  - Development:
+    - Contributing: CONTRIBUTING.md
+    - Onboarding: ONBOARDING.md
+    - Feature Matrix: feature-matrix.md
+    - Comparison: COMPARISON.md
+    - Disclaimer: DISCLAIMER.md
+    - Terms of Use: TERMS_OF_USE.md
+    - Glossary: GLOSSARY.md
+  - Intellectual Property:
+    - Novelty Register: ip/NOVELTY_REGISTER.md
+    - Trademarks: ip/TRADEMARKS.md
+    - Defensive Publications:
+      - Awareness Flux: ip/DEFENSIVE_PUBLICATIONS/01_awareness_flux.md
+      - Compact Model Protocol: ip/DEFENSIVE_PUBLICATIONS/02_compact_model_protocol.md
+      - Sentinel Governance: ip/DEFENSIVE_PUBLICATIONS/03_sentinel_governance.md
+      - 4D Memory Scheduler: ip/DEFENSIVE_PUBLICATIONS/04_4d_memory_scheduler.md
+  - Whitepapers:
+    - Overview: whitepapers/README.md
+  - Operations:
+    - Reports: ops/Reports.md
+    - Governance:
+      - Automerge Policy: ops/governance/AUTOMERGE_POLICY.md
+      - Ledger Rules: ops/governance/LEDGER_RULES.md
+      - PR Policy: ops/governance/PR_POLICY.md
+    - Framing:
+      - Governance Kernel: ops/framing/IOA_Governance_Kernel_Framing.md
+    - Guides:
+      - Docs Authoring: ops/guides/DOCS_AUTHORING_GUIDE.md
+      - IOA Style: ops/guides/IOA_STYLE_GUIDE.md

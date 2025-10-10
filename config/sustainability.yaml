@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+
+# PATCH: Cursor-2025-09-05 DISPATCH-GOV-20250905-LAW-7-SUSTAINABILITY
+# Default sustainability configuration
+
+# Energy budgets (kWh)
+budgets:
+  task_kwh: 0.010      # 10 Wh per task
+  run_kwh: 0.250       # 250 Wh per run
+  project_kwh: 5.000   # 5 kWh per project
+
+# Thresholds for warnings and blocks
+warn_fraction: 0.8     # Warn at 80% of budget
+block_fraction: 1.0    # Block at 100% of budget
+
+# Energy estimation weights for model/route selection
+weights:
+  quality: 0.6         # Quality importance
+  energy: 0.3          # Energy efficiency importance
+  latency: 0.1         # Latency importance
+
+# Regional settings
+region: "auto"         # Auto-detect region for CO2 calculations
+
+# HITL override settings
+allow_hitl_override: true  # Allow human override of budget limits
+
+# Energy estimation settings
+estimation:
+  # Default energy per token estimates (kWh)
+  energy_per_token:
+    gpt-4: 0.0000001      # 0.1 μWh per token
+    gpt-3.5: 0.00000005   # 0.05 μWh per token
+    claude-3: 0.00000008  # 0.08 μWh per token
+    llama-3: 0.00000006   # 0.06 μWh per token
+    default: 0.0000001    # 0.1 μWh per token
+  
+  # Power consumption profiles (W)
+  power_consumption:
+    high_performance: 200.0  # 200W sustained
+    standard: 100.0          # 100W sustained
+    low_power: 50.0          # 50W sustained
+    default: 100.0           # 100W default
+  
+  # Device power model coefficients
+  device_power:
+    base_power: 20.0         # Base system power (W)
+    cpu_power_per_core: 15.0 # Power per CPU core (W)
+    gpu_power_per_gb: 10.0   # Power per GB GPU memory (W)
+    memory_power_per_gb: 0.5 # Power per GB RAM (W)
+
+# CO2 emission factors (g CO2e per kWh)
+emission_factors:
+  EU: 300.0      # European Union average
+  US: 400.0      # United States average
+  UK: 250.0      # United Kingdom (more renewable)
+  CA: 150.0      # Canada (hydro-heavy)
+  AU: 800.0      # Australia (coal-heavy)
+  CN: 600.0      # China (coal-heavy)
+  IN: 700.0      # India (coal-heavy)
+  BR: 100.0      # Brazil (hydro-heavy)
+  NO: 20.0       # Norway (hydro-heavy)
+  FR: 50.0       # France (nuclear-heavy)
+  DE: 400.0      # Germany (coal + renewable mix)
+  default: 400.0 # Global average
+
+# Audit and logging settings
+audit:
+  log_energy_usage: true     # Log all energy usage
+  log_co2_estimates: true    # Log CO2 estimates
+  log_budget_decisions: true # Log budget decisions
+  log_hitl_overrides: true   # Log HITL overrides
+
+# Integration settings
+integration:
+  # Enable external adapters if available
+  enable_psutil: true         # CPU monitoring via psutil
+  enable_nvidia: true         # GPU monitoring via pynvml
+  enable_amd: true            # AMD GPU monitoring via ROCm
+  
+  # Fallback behavior
+  fallback_on_error: true     # Allow actions if estimation fails
+  conservative_estimates: true # Use conservative estimates when uncertain

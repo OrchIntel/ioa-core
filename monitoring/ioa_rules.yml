@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+
+groups:
+- name: ioa.rules
+  rules:
+  # Authentication Alerts
+  - alert: IOAAuthFailuresHigh
+    expr: rate(ioa_auth_failures_total[5m]) > 5
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      description: "Authentication failure rate is { $value } failures/sec"
+      
+  # Circuit Breaker Alerts
+  - alert: IOACircuitBreakerOpen
+    expr: ioa_circuit_breaker_state{service="s3"} == 1
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: "S3 circuit breaker has been open for { $value } seconds"
+      
+  - alert: IOACircuitBreakerOpen
+    expr: ioa_circuit_breaker_state{service="kms"} == 1
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: "KMS circuit breaker has been open for { $value } seconds"
+      
+  # Backpressure Alerts
+  - alert: IOABackpressureHigh
+    expr: rate(ioa_backpressure_events_total[5m]) > 10
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      description: "Backpressure event rate is { $value } events/sec"
+      
+  # Encryption Alerts
+  - alert: IOAEncryptionErrors
+    expr: rate(ioa_encryption_errors_total[1m]) > 1
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: "Encryption error rate is { $value } errors/sec"
+      
+  # KMS Alerts
+  - alert: IOAKMSFailuresHigh
+    expr: rate(ioa_kms_failures_total[5m]) > 3
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      description: "KMS failure rate is { $value } failures/sec"
+      
+  # S3 Alerts
+  - alert: IOAS3FailuresHigh
+    expr: rate(ioa_s3_failures_total[5m]) > 5
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      description: "S3 failure rate is { $value } failures/sec"
+      
+  # Performance Alerts
+  - alert: IOAAuditQPSHigh
+    expr: rate(ioa_audit_events_total[1m]) > 1000
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      description: "Audit QPS is { $value } events/sec"
+      
+  - alert: IOAPendingBatchHigh
+    expr: ioa_pending_batch_size > 500
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      description: "Pending batch size is { $value } events"

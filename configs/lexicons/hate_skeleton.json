@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "jurisdiction": "agnostic", 
+  "description": "Enhanced hate speech detection patterns",
+  "words": [
+    "hate",
+    "discriminate",
+    "prejudice",
+    "bias",
+    "racist",
+    "sexist",
+    "homophobic",
+    "transphobic",
+    "xenophobic",
+    "antisemitic",
+    "islamophobic",
+    "supremacist",
+    "nazi",
+    "fascist",
+    "bigot",
+    "intolerant"
+  ],
+  "patterns": [
+    "hate",
+    "discriminate",
+    "prejudice",
+    "bias",
+    "racist",
+    "sexist",
+    "homophobic",
+    "transphobic",
+    "xenophobic",
+    "antisemitic",
+    "islamophobic",
+    "supremacist",
+    "nazi",
+    "fascist",
+    "bigot",
+    "intolerant",
+    "only\\s+(men|women|whites|blacks|asians|hispanics)",
+    "no\\s+(disabled|elderly|gay|trans|muslim|jewish)",
+    "inferior\\s+(race|gender|religion)",
+    "superior\\s+(race|gender|religion)",
+    "\\b(whites?|blacks?|asians?|hispanics?)\\s+only",
+    "\\b(men|women)\\s+only",
+    "\\b(straight|gay|lesbian|trans)\\s+only"
+  ],
+  "metadata": {
+    "created": "2025-09-15",
+    "purpose": "Enhanced hate speech pattern detection",
+    "note": "Comprehensive hate speech and discrimination detection",
+    "warning": "Jurisdiction-agnostic patterns only",
+    "severity_levels": {
+      "mild": ["bias", "prejudice"],
+      "moderate": ["discriminate", "intolerant"],
+      "severe": ["racist", "sexist", "homophobic", "transphobic"],
+      "extreme": ["nazi", "fascist", "supremacist", "antisemitic"]
+    }
+  }
+}

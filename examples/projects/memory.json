@@ -1,0 +1,179 @@
+[
+    {
+        "pattern_id": "UNCLASSIFIED",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T02:15:56.944246"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "0"
+    },
+    {
+        "pattern_id": "UNCLASSIFIED",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T02:27:48.766360"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "1"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:05:15.308948"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "2"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:18:22.935692"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "3"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:26:52.514123"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": -0.4,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "4"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:31:07.778710"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "5"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:33:38.011243"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "6"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:40:27.077751"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "7"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:41:43.106801"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "8"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:44:00.474411"
+        },
+        "feeling": {
+            "valence": 0.0,
+            "arousal": 0.0,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "9"
+    },
+    {
+        "pattern_id": "dream_scene",
+        "variables": {},
+        "metadata": {
+            "speaker": "user",
+            "tone": "neutral",
+            "timestamp": "2025-07-21T03:50:12.455684"
+        },
+        "feeling": {
+            "valence": 0.1,
+            "arousal": -0.1,
+            "dominance": 0.0
+        },
+        "raw_ref": "{\"type\": \"scene\", \"title\": \"The Dream\", \"content\": \"Cyrus dreams of a mountain.\"}",
+        "id": "10"
+    }
+]
+

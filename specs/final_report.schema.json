@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "VoteRecord": {
+      "description": "Vote record with agent metadata and voting information.",
+      "properties": {
+        "agent_id": {
+          "description": "Unique identifier for the voting agent",
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "vote": {
+          "description": "The agent's vote/response",
+          "title": "Vote"
+        },
+        "confidence": {
+          "description": "Agent's confidence in their vote (0.0 to 1.0)",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "rationale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Agent's reasoning for the vote",
+          "title": "Rationale"
+        },
+        "weight": {
+          "default": 1.0,
+          "description": "Agent's voting weight (default 1.0)",
+          "exclusiveMinimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "agent_id",
+        "vote",
+        "confidence"
+      ],
+      "title": "VoteRecord",
+      "type": "object"
+    }
+  },
+  "description": "Final consensus report with voting results and metadata.",
+  "properties": {
+    "task_id": {
+      "description": "Unique identifier for the task",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "consensus_achieved": {
+      "description": "Whether consensus was achieved",
+      "title": "Consensus Achieved",
+      "type": "boolean"
+    },
+    "consensus_score": {
+      "description": "Overall consensus score (0.0 to 1.0)",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Consensus Score",
+      "type": "number"
+    },
+    "winning_option": {
+      "description": "The winning option from consensus",
+      "title": "Winning Option"
+    },
+    "voting_algorithm": {
+      "description": "Voting algorithm used",
+      "enum": [
+        "majority",
+        "weighted",
+        "borda"
+      ],
+      "title": "Voting Algorithm",
+      "type": "string"
+    },
+    "tie_breaker_rule": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Tie-breaker rule applied if any",
+      "title": "Tie Breaker Rule"
+    },
+    "votes": {
+      "description": "List of all votes cast",
+      "items": {
+        "$ref": "#/$defs/VoteRecord"
+      },
+      "title": "Votes",
+      "type": "array"
+    },
+    "reports": {
+      "additionalProperties": true,
+      "description": "Additional reports and metadata",
+      "title": "Reports",
+      "type": "object"
+    }
+  },
+  "required": [
+    "task_id",
+    "consensus_achieved",
+    "consensus_score",
+    "winning_option",
+    "voting_algorithm",
+    "votes",
+    "reports"
+  ],
+  "title": "FinalReport",
+  "type": "object"
+}

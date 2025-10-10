@@ -1,0 +1,25 @@
+{
+  "event_id": "evt_003",
+  "timestamp": "2025-09-10T10:02:15Z",
+  "prev_hash": "b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456a1",
+  "hash": "c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456a1b2",
+  "payload": {
+    "event_type": "model_query",
+    "user_id": "user_12345",
+    "model": "gpt-4",
+    "provider": "openai",
+    "prompt_tokens": 150,
+    "completion_tokens": 75,
+    "total_tokens": 225,
+    "cost_usd": 0.0034,
+    "response_time_ms": 1250,
+    "query_hash": "qry_xyz789",
+    "sustainability": {
+      "energy_estimate_kwh": 0.00015,
+      "carbon_estimate_kg": 0.00008
+    }
+  },
+  "writer": "llm_service",
+  "signature": null,
+  "pubkey": null
+}

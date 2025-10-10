@@ -1,0 +1,36 @@
+{
+  "generated": "2025-08-29T04:21:17.757849+00:00",
+  "total_dispatches": 0,
+  "completed_dispatches": 0,
+  "pending_dispatches": 0,
+  "failed_dispatches": 0,
+  "completion_rate": 0,
+  "milestones": {
+    "oss": {
+      "progress": 0,
+      "total": 0,
+      "completed": 0,
+      "eta": "3+ months"
+    },
+    "enterprise": {
+      "progress": 0,
+      "total": 0,
+      "completed": 0,
+      "eta": "3+ months"
+    },
+    "saas": {
+      "progress": 0,
+      "total": 0,
+      "completed": 0,
+      "eta": "3+ months"
+    },
+    "overall": {
+      "progress": 0,
+      "total": 0,
+      "completed": 0
+    }
+  },
+  "attention_count": 0,
+  "reports_count": 0,
+  "resources_count": 0
+}

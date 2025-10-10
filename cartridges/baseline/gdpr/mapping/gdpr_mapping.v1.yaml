@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+cartridge: GDPR
+rows:
+  - system_law: Privacy
+    requirement: Data minimization evidence present
+    evidence_path: docs/ops/governance/SYSTEM_LAWS.md
+    test_path: tests/governance/test_safety_lexicon.py
+

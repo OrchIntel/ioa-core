@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# IOA Module: Pre-commit Hook
+# Version: v2.5.0
+# Last-Updated: 2025-01-27
+# Agents: Cursor assist
+# Summary: Pre-commit ledger validation gate
+
+set -euo pipefail
+
+echo "🚪 IOA Pre-commit Hook: Running Ledger Gate..."
+
+# Run the ledger gate script
+if [[ -f "scripts/ledger_gate.sh" ]]; then
+    bash scripts/ledger_gate.sh
+else
+    echo "⚠️  Ledger gate script not found, skipping validation"
+fi
+
+echo "✅ Pre-commit hook completed"

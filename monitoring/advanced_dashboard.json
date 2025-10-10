@@ -1,0 +1,322 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "IOA Advanced Observability Dashboard",
+    "tags": ["ioa", "production", "observability"],
+    "timezone": "browser",
+    "refresh": "5s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Audit QPS & Throughput",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ioa_audit_events_total[1m])",
+            "legendFormat": "Audit QPS"
+          },
+          {
+            "expr": "rate(ioa_audit_events_total[5m])",
+            "legendFormat": "Audit QPS (5m avg)"
+          }
+        ],
+        "yAxes": [
+          {"label": "Events/sec", "min": 0, "max": 2000}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [1000], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "avg"}
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "1m",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "High Audit QPS",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 2,
+        "title": "Circuit Breaker States",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "ioa_circuit_breaker_state{service=\"s3\"}",
+            "legendFormat": "S3 CB"
+          },
+          {
+            "expr": "ioa_circuit_breaker_state{service=\"kms\"}",
+            "legendFormat": "KMS CB"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"options": {"0": {"text": "CLOSED"}}, "type": "value"},
+              {"options": {"1": {"text": "OPEN"}}, "type": "value"},
+              {"options": {"2": {"text": "HALF_OPEN"}}, "type": "value"}
+            ],
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 1}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Authentication Failures",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ioa_auth_failures_total[5m])",
+            "legendFormat": "Auth Failures/sec"
+          },
+          {
+            "expr": "ioa_auth_failures_total",
+            "legendFormat": "Total Auth Failures"
+          }
+        ],
+        "yAxes": [
+          {"label": "Failures/sec", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [5], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "avg"}
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "2m",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "High Auth Failures",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 4,
+        "title": "Backpressure Events",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ioa_backpressure_events_total[5m])",
+            "legendFormat": "Backpressure Events/sec"
+          },
+          {
+            "expr": "ioa_backpressure_events_total",
+            "legendFormat": "Total Backpressure Events"
+          }
+        ],
+        "yAxes": [
+          {"label": "Events/sec", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [10], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "avg"}
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "2m",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "High Backpressure",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 5,
+        "title": "Pending Batch Size",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ioa_pending_batch_size",
+            "legendFormat": "Pending Batch Size"
+          },
+          {
+            "expr": "ioa_pending_batch_size > 500",
+            "legendFormat": "High Batch Size Alert"
+          }
+        ],
+        "yAxes": [
+          {"label": "Events", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [500], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "1m", "now"]},
+              "reducer": {"params": [], "type": "avg"}
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "1m",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "High Pending Batch",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 6,
+        "title": "Error Rate & Encryption",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ioa_encryption_errors_total[1m])",
+            "legendFormat": "Encryption Errors/sec"
+          },
+          {
+            "expr": "rate(ioa_kms_failures_total[5m])",
+            "legendFormat": "KMS Failures/sec"
+          },
+          {
+            "expr": "rate(ioa_s3_failures_total[5m])",
+            "legendFormat": "S3 Failures/sec"
+          }
+        ],
+        "yAxes": [
+          {"label": "Errors/sec", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [1], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "1m", "now"]},
+              "reducer": {"params": [], "type": "avg"}
+            }
+          ],
+          "executionErrorState": "alerting",
+          "for": "1m",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "Encryption Errors",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 7,
+        "title": "System Health Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"ioa-audit-chain\"}",
+            "legendFormat": "Audit Chain"
+          },
+          {
+            "expr": "up{job=\"ioa-policy-engine\"}",
+            "legendFormat": "Policy Engine"
+          },
+          {
+            "expr": "up{job=\"ioa-storage\"}",
+            "legendFormat": "Storage"
+          }
+        ],
+        "gridPos": {"h": 6, "w": 24, "x": 0, "y": 24},
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"options": {"0": {"text": "DOWN"}}, "type": "value"},
+              {"options": {"1": {"text": "UP"}}, "type": "value"}
+            ],
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Latency Percentiles",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(ioa_audit_latency_seconds_bucket[5m]))",
+            "legendFormat": "p50 Latency"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(ioa_audit_latency_seconds_bucket[5m]))",
+            "legendFormat": "p95 Latency"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(ioa_audit_latency_seconds_bucket[5m]))",
+            "legendFormat": "p99 Latency"
+          }
+        ],
+        "yAxes": [
+          {"label": "Seconds", "min": 0, "logBase": 1}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 30}
+      },
+      {
+        "id": 9,
+        "title": "Memory & CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ioa_memory_usage_bytes",
+            "legendFormat": "Memory Usage"
+          },
+          {
+            "expr": "ioa_cpu_usage_percent",
+            "legendFormat": "CPU Usage %"
+          }
+        ],
+        "yAxes": [
+          {"label": "Usage", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 30}
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "custom",
+          "options": [
+            {"text": "staging", "value": "staging", "selected": true},
+            {"text": "production", "value": "production", "selected": false}
+          ],
+          "query": "staging,production",
+          "current": {"text": "staging", "value": "staging"},
+          "includeAll": false,
+          "multi": false
+        }
+      ]
+    }
+  }
+}

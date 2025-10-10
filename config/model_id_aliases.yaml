@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+
+# Model ID Aliases Configuration
+# Maps legacy/deprecated model IDs to canonical names
+# Used for backward compatibility during the agent→model transition
+
+aliases:
+  # Legacy GPT variants
+  "gpt5": "gpt-5"
+  "gpt5-high": "gpt-5-high"
+  "gpt5-low": "gpt-5-low"
+  "gpt5-fast": "gpt-5-fast"
+  "gpt4": "gpt-4"
+  "gpt4-turbo": "gpt-4-turbo"
+  "gpt4o": "gpt-4o"
+  "gpt4o-mini": "gpt-4o-mini"
+  "gpt35-turbo": "gpt-3.5-turbo"
+  
+  # Legacy Claude variants
+  "claude4-sonnet": "claude-4-sonnet"
+  "claude4-opus": "claude-4-opus"
+  "claude4-haiku": "claude-4-haiku"
+  "claude35-sonnet": "claude-3.5-sonnet"
+  "claude35-haiku": "claude-3.5-haiku"
+  "claude3-opus": "claude-3-opus"
+  "claude3-sonnet": "claude-3-sonnet"
+  "claude3-haiku": "claude-3-haiku"
+  
+  # Legacy Grok variants
+  "grok4-sonnet": "grok-4-sonnet"
+  "grok4-fast": "grok-4-fast"
+  "grok3-sonnet": "grok-3-sonnet"
+  
+  # Legacy Gemini variants
+  "gemini15-flash": "gemini-1.5-flash"
+  "gemini15-flash-8b": "gemini-1.5-flash-8b"
+  "gemini15-pro": "gemini-1.5-pro"
+  "gemini10-pro": "gemini-1.0-pro"
+  "gemini10-pro-vision": "gemini-1.0-pro-vision"
+  
+  # Legacy agent terminology (deprecated)
+  "analysis-agent": "analysis-model"
+  "assistant-agent": "assistant-model"
+  "pattern-weaver-agent": "pattern-weaver"
+  "sentience-mapper-agent": "sentience-mapper"
+  
+  # Test/mock aliases
+  "mock-agent": "mock-model"
+  "test-agent": "test-model"
+  "fallback-agent": "fallback-model"
+
+# Deprecation settings
+deprecation:
+  emit_warnings: true  # Set to false to suppress deprecation warnings
+  warning_message: |
+    DEPRECATED: Model ID '{old_id}' is deprecated. Use '{new_id}' instead.
+    This alias will be removed in a future version.
+  
+  # Expiration dates for aliases (ISO format)
+  expiration_dates:
+    # Legacy agent terminology expires immediately
+    "analysis-agent": "2025-08-22"
+    "assistant-agent": "2025-08-22"
+    "pattern-weaver-agent": "2025-08-22"
+    "sentience-mapper-agent": "2025-08-22"
+    "mock-agent": "2025-08-22"
+    "test-agent": "2025-08-22"
+    "fallback-agent": "2025-08-22"
+    
+    # Legacy model IDs expire in 6 months
+    "gpt5": "2026-02-22"
+    "gpt4": "2026-02-22"
+    "claude4-sonnet": "2026-02-22"
+    "gemini15-flash": "2026-02-22"
+
+# Validation rules
+validation:
+  # Enforce canonical format for new model IDs
+  canonical_format: true
+  
+  # Required prefixes for model IDs
+  required_prefixes:
+    - "gpt-"
+    - "claude-"
+    - "grok-"
+    - "gemini-"
+    - "mock-"
+    - "test-"
+    - "fallback-"
+  
+  # Format rules
+  format_rules:
+    - "lowercase only"
+    - "hyphen-separated"
+    - "start with letter"
+    - "no trailing hyphens"
+    - "version numbers allowed"

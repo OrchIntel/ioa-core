@@ -1,0 +1,48 @@
+{
+  "description": "Vote record with agent metadata and voting information.",
+  "properties": {
+    "agent_id": {
+      "description": "Unique identifier for the voting agent",
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "vote": {
+      "description": "The agent's vote/response",
+      "title": "Vote"
+    },
+    "confidence": {
+      "description": "Agent's confidence in their vote (0.0 to 1.0)",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Agent's reasoning for the vote",
+      "title": "Rationale"
+    },
+    "weight": {
+      "default": 1.0,
+      "description": "Agent's voting weight (default 1.0)",
+      "exclusiveMinimum": 0.0,
+      "title": "Weight",
+      "type": "number"
+    }
+  },
+  "required": [
+    "agent_id",
+    "vote",
+    "confidence"
+  ],
+  "title": "VoteRecord",
+  "type": "object"
+}

@@ -1,0 +1,11 @@
+# IOA Module: docs/requirements-docs.txt
+# Version: v2.5.0
+# Last-Updated: 2025-09-10
+# Agents: Cursor assist
+# Summary: MkDocs documentation dependencies
+
+mkdocs
+mkdocs-material
+mkdocstrings[python]
+# mkdocs-linkcheck          # uncomment only if referenced in mkdocs.yml
+# any other mkdocs plugins we truly use

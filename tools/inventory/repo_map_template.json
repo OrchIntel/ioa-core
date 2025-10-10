@@ -1,0 +1,107 @@
+{
+  "description": "Repository mapping template for websites linkcheck (dual-mode: internal/public)",
+  "version": "2.0",
+  "modes": {
+    "internal": {
+      "note": "Pre-launch: websites pull canonical files from private internal repos.",
+      "repos": {
+        "core-internal": {
+          "base_url": "https://github.com/OrchIntel/ioa-core-internal",
+          "description": "Private development + full audit history (regulator view)"
+        },
+        "core": {
+          "base_url": "https://github.com/OrchIntel/ioa-core",
+          "description": "Public OSS baseline (unused in internal mode, kept for reference)"
+        },
+        "enterprise": {
+          "base_url": "https://github.com/OrchIntel/ioa-enterprise",
+          "description": "Enterprise extensions (private)"
+        },
+        "saas": {
+          "base_url": "https://github.com/OrchIntel/ioa-saas",
+          "description": "SaaS control plane (private)"
+        },
+        "websites": {
+          "base_url": "https://github.com/OrchIntel/ioa-websites",
+          "description": "Websites mono-repo (3 sites) – code"
+        },
+        "examples": {
+          "base_url": "https://github.com/OrchIntel/ioa-examples",
+          "description": "Examples and tutorials (public)"
+        },
+        "cert-service": {
+          "base_url": "https://github.com/OrchIntel/ioa-cert-service",
+          "description": "Certification Service (PKI + badge signing/verification)"
+        },
+        "docs-site": {
+          "base_url": "https://github.com/OrchIntel/ioa-docs-site",
+          "description": "Optional standalone docs site (mkdocs/static); may be deferred"
+        }
+      },
+      "sites": {
+        "ioa.systems": "https://preview.ioa.systems",
+        "ioaproject.org": "https://preview.ioaproject.org",
+        "orchintel.com": "https://preview.orchintel.com",
+        "docs.ioa.systems": "https://preview.docs.ioa.systems"
+      },
+      "path_mappings": {
+        "core-laws": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/SYSTEM_LAWS.md",
+        "core-assurance": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/ASSURANCE_SCORE.md",
+        "core-feature-matrix": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/docs/ops/feature_matrix.md",
+        "core-src": "https://github.com/OrchIntel/ioa-core-internal/tree/main/src/",
+        "core-tests": "https://github.com/OrchIntel/ioa-core-internal/tree/main/tests/",
+        "examples-root": "https://github.com/OrchIntel/ioa-examples/",
+        "websites-root": "https://github.com/OrchIntel/ioa-websites/"
+      }
+    },
+    "public": {
+      "note": "Post-launch: websites pull canonical files from public OSS repos.",
+      "repos": {
+        "core": {
+          "base_url": "https://github.com/OrchIntel/ioa-core",
+          "description": "Public OSS baseline"
+        },
+        "enterprise": {
+          "base_url": "https://github.com/OrchIntel/ioa-enterprise",
+          "description": "Enterprise extensions (private)"
+        },
+        "saas": {
+          "base_url": "https://github.com/OrchIntel/ioa-saas",
+          "description": "SaaS control plane (private)"
+        },
+        "websites": {
+          "base_url": "https://github.com/OrchIntel/ioa-websites",
+          "description": "Websites mono-repo (3 sites) – code"
+        },
+        "examples": {
+          "base_url": "https://github.com/OrchIntel/ioa-examples",
+          "description": "Examples and tutorials (public)"
+        },
+        "cert-service": {
+          "base_url": "https://github.com/OrchIntel/ioa-cert-service",
+          "description": "Certification Service (PKI + badge signing/verification)"
+        },
+        "docs-site": {
+          "base_url": "https://github.com/OrchIntel/ioa-docs-site",
+          "description": "Optional standalone docs site (mkdocs/static); may be deferred"
+        }
+      },
+      "sites": {
+        "ioa.systems": "https://ioa.systems",
+        "ioaproject.org": "https://ioaproject.org",
+        "orchintel.com": "https://orchintel.com",
+        "docs.ioa.systems": "https://docs.ioa.systems"
+      },
+      "path_mappings": {
+        "core-laws": "https://raw.githubusercontent.com/OrchIntel/ioa-core/main/SYSTEM_LAWS.md",
+        "core-assurance": "https://raw.githubusercontent.com/OrchIntel/ioa-core/main/ASSURANCE_SCORE.md",
+        "core-feature-matrix": "https://raw.githubusercontent.com/OrchIntel/ioa-core/main/docs/ops/feature_matrix.md",
+        "core-src": "https://github.com/OrchIntel/ioa-core/tree/main/src/",
+        "core-tests": "https://github.com/OrchIntel/ioa-core/tree/main/tests/",
+        "examples-root": "https://github.com/OrchIntel/ioa-examples/",
+        "websites-root": "https://github.com/OrchIntel/ioa-websites/"
+      }
+    }
+  },
+  "default_mode": "internal"
+}

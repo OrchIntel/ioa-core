@@ -1,0 +1,30 @@
+# IOA Performance Runner Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /work
+
+# Install system dependencies for AWS CLI and basic tools
+RUN apt-get update -y && apt-get install -y \
+    git \
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install AWS CLI v2
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install \
+    && rm -rf aws awscliv2.zip
+
+# Install Python testing dependencies
+RUN pip install --no-cache-dir \
+    pytest \
+    pytest-xdist \
+    jsonschema
+
+# Copy the run script (will be mounted from host or copied during build)
+# COPY scripts/run_perf.sh /work/scripts/run_perf.sh
+# RUN chmod +x /work/scripts/run_perf.sh
+
+# Default command - will be overridden by mounting the script
+CMD ["/bin/bash"]

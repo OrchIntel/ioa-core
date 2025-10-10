@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IOA System Laws Manifest Schema",
+  "description": "Schema for validating IOA System Laws manifest files",
+  "type": "object",
+  "required": ["version", "laws", "policy", "signature", "metadata"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Semantic version of the laws manifest"
+    },
+    "laws": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "enforcement", "description", "scope"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^law\\d+$",
+            "description": "Unique identifier for the law"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable name of the law"
+          },
+          "enforcement": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "description": "Enforcement level of the law"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Detailed description of the law"
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "List of areas where this law applies"
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["conflict_resolution", "jurisdiction", "fairness"],
+      "properties": {
+        "conflict_resolution": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^law\\d+$"
+          },
+          "description": "Ordered list of law IDs for conflict resolution"
+        },
+        "jurisdiction": {
+          "type": "object",
+          "required": ["default", "affinity"],
+          "properties": {
+            "default": {
+              "type": "string",
+              "description": "Default jurisdiction for conflicts"
+            },
+            "affinity": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of supported jurisdictions"
+            },
+            "conflict_rules": {
+              "type": "object",
+              "description": "Specific rules for jurisdiction conflicts"
+            }
+          }
+        },
+        "fairness": {
+          "type": "object",
+          "required": ["threshold", "metrics", "mitigation_strategies"],
+          "properties": {
+            "threshold": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "description": "Fairness threshold (0.0 = perfect fairness)"
+            },
+            "metrics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of fairness metrics to calculate"
+            },
+            "mitigation_strategies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of strategies to mitigate fairness issues"
+            }
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "kid", "value", "timestamp"],
+      "properties": {
+        "alg": {
+          "type": "string",
+          "enum": ["RS256", "ES256", "PS256"],
+          "description": "Signature algorithm used"
+        },
+        "kid": {
+          "type": "string",
+          "description": "Key identifier for signature verification"
+        },
+        "value": {
+          "type": "string",
+          "description": "Base64-encoded signature value"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when signature was created"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["created", "expires", "issuer", "audience"],
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when manifest was created"
+        },
+        "expires": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when manifest expires"
+        },
+        "issuer": {
+          "type": "string",
+          "description": "Entity that issued the manifest"
+        },
+        "audience": {
+          "type": "string",
+          "description": "Intended audience for the manifest"
+        }
+      }
+    }
+  }
+}

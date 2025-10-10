@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IOA Assurance Evidence Schema",
+  "description": "Schema for IOA Core evidence artifacts including assurance scores and per-law metrics",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version",
+      "pattern": "^v\\d+\\.\\d+$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when evidence was generated"
+    },
+    "commit": {
+      "type": "string",
+      "description": "Git commit SHA of the codebase when evidence was generated",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "overall_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Overall assurance score (0-1 scale)"
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "Six assurance dimensions (T,S,C,R,E,Sus)",
+      "properties": {
+        "transparency": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "security": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "compliance": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "reliability": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "ethics": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "sustainability": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "required": ["transparency", "security", "compliance", "reliability", "ethics", "sustainability"]
+    },
+    "laws": {
+      "type": "array",
+      "description": "Per-law sub-scores and metrics",
+      "items": {
+        "type": "object",
+        "properties": {
+          "law_id": {
+            "type": "string",
+            "pattern": "^law[1-7]$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable law name"
+          },
+          "sub_score": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Per-law sub-score (0-1 scale)"
+          },
+          "metrics": {
+            "type": "object",
+            "description": "Detailed metrics for this law",
+            "properties": {
+              "code": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 4,
+                "description": "Code enforcement level (0-4 scale)"
+              },
+              "tests": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 4,
+                "description": "Test coverage level (0-4 scale)"
+              },
+              "runtime": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 4,
+                "description": "Runtime evidence level (0-4 scale)"
+              },
+              "docs": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 4,
+                "description": "Documentation level (0-4 scale)"
+              }
+            },
+            "required": ["code", "tests", "runtime", "docs"]
+          }
+        },
+        "required": ["law_id", "name", "sub_score", "metrics"]
+      },
+      "minItems": 7,
+      "maxItems": 7
+    },
+    "methodology_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to methodology documentation"
+    },
+    "files": {
+      "type": "object",
+      "description": "File references for this evidence release",
+      "properties": {
+        "assurance_json": {
+          "type": "string",
+          "description": "Relative path to assurance.json"
+        },
+        "assurance_html": {
+          "type": "string",
+          "description": "Relative path to assurance.html"
+        },
+        "assurance_sig": {
+          "type": "string",
+          "description": "Relative path to assurance.sig"
+        },
+        "mapping_eu_ai": {
+          "type": "string",
+          "description": "Relative path to mapping_eu_ai.json"
+        },
+        "mapping_gdpr": {
+          "type": "string",
+          "description": "Relative path to mapping_gdpr.json"
+        },
+        "mapping_sig": {
+          "type": "string",
+          "description": "Relative path to mapping.sig"
+        },
+        "evidence_zip": {
+          "type": "string",
+          "description": "Relative path to evidence.zip"
+        }
+      },
+      "required": ["assurance_json", "assurance_html", "assurance_sig", "mapping_eu_ai", "mapping_gdpr", "mapping_sig", "evidence_zip"]
+    },
+    "signature": {
+      "type": "string",
+      "description": "Signature file name for this evidence release"
+    }
+  },
+  "required": ["version", "generated_at", "commit", "overall_score", "dimensions", "laws", "methodology_url", "files", "signature"]
+}

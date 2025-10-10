@@ -1,0 +1,142 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+Description: 'IOA Perf Mini Runner - Single EC2 instance with Docker, SSM, and S3 access for MemoryFabric performance testing'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: c7i.large
+    Description: EC2 instance type for performance testing
+
+  KeyName:
+    Type: String
+    Default: ''
+    Description: EC2 key pair name (optional)
+
+  VpcId:
+    Type: String
+    Default: ''
+    Description: VPC ID (leave empty for default VPC)
+
+  SubnetId:
+    Type: String
+    Default: ''
+    Description: Subnet ID (leave empty for default subnet)
+
+  AmiId:
+    Type: String
+    Default: ami-0fc5d935ebf8bc3bc
+    Description: Ubuntu 22.04 LTS AMI ID (us-east-1 default)
+
+Resources:
+  # IAM Role for EC2 instance with SSM and S3 access
+  PerfRunnerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      RoleName: ioa-perf-runner-role
+
+  # Instance profile to attach the role to EC2
+  PerfRunnerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref PerfRunnerRole
+      InstanceProfileName: ioa-perf-runner-profile
+
+  # Security group (minimal - allows SSM only)
+  PerfRunnerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for IOA perf runner
+      VpcId: !If [UseVpc, !Ref VpcId, !Ref AWS::NoValue]
+      SecurityGroupIngress: []
+
+  # EC2 instance
+  PerfRunner:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref PerfRunnerInstanceProfile
+      ImageId: !Ref AmiId
+      KeyName: !If [HasKeyName, !Ref KeyName, !Ref AWS::NoValue]
+      SecurityGroupIds:
+        - !Ref PerfRunnerSecurityGroup
+      VpcId: !If [UseVpc, !Ref VpcId, !Ref AWS::NoValue]
+      SubnetId: !If [UseSubnet, !Ref SubnetId, !Ref AWS::NoValue]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 60
+            VolumeType: gp3
+            DeleteOnTermination: true
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -e
+          exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/console) 2>&1
+
+          echo "Starting IOA Perf Runner setup..."
+
+          # Update system
+          apt-get update -y
+
+          # Install Docker
+          echo "Installing Docker..."
+          apt-get install -y docker.io curl unzip awscli
+
+          # Enable and start Docker
+          systemctl enable --now docker
+
+          # Add ubuntu user to docker group (for SSM)
+          usermod -aG docker ubuntu || true
+
+          # Create working directory
+          mkdir -p /opt/ioa-run
+          chown ubuntu:ubuntu /opt/ioa-run
+
+          echo "IOA Perf Runner setup complete at $(date)"
+
+      Tags:
+        - Key: Name
+          Value: ioa-perf-runner
+        - Key: Purpose
+          Value: memoryfabric-performance-testing
+        - Key: Project
+          Value: ioa-core-internal
+
+Outputs:
+  InstanceId:
+    Description: EC2 instance ID for the perf runner
+    Value: !Ref PerfRunner
+    Export:
+      Name: ioa-perf-runner-instance-id
+
+  InstancePublicIp:
+    Description: Public IP address of the perf runner (if applicable)
+    Value: !GetAtt PerfRunner.PublicIp
+    Export:
+      Name: ioa-perf-runner-public-ip
+
+  InstancePrivateIp:
+    Description: Private IP address of the perf runner
+    Value: !GetAtt PerfRunner.PrivateIp
+    Export:
+      Name: ioa-perf-runner-private-ip
+
+Conditions:
+  HasKeyName: !Not [!Equals [!Ref KeyName, '']]
+  UseVpc: !Not [!Equals [!Ref VpcId, '']]
+  UseSubnet: !Not [!Equals [!Ref SubnetId, '']]

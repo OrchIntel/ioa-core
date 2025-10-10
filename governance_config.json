@@ -1,0 +1,31 @@
+{
+  "sustainability": {
+    "enabled": true,
+    "energy_budget_kwh_per_100k": 1.0,
+    "thresholds": {
+      "warn": 0.8,
+      "delay": 0.9,
+      "block": 1.0
+    },
+    "override_ttl_minutes": 30,
+    "enforcement_mode": "monitor",
+    "model_factors_kwh_per_100k": {
+      "gpt-4o-mini": 0.0015,
+      "gpt-4o": 0.0025,
+      "gpt-3.5-turbo": 0.0015,
+      "claude-3-haiku": 0.0010,
+      "claude-3-sonnet": 0.0020,
+      "claude-3-opus": 0.0030,
+      "gemini-1.5-pro": 0.0020,
+      "gemini-1.5-flash": 0.0015,
+      "llama-3-8b": 0.0010,
+      "llama-3-70b": 0.0040,
+      "mistral-7b": 0.0012,
+      "default": 0.0020
+    },
+    "jurisdiction_overrides": {
+      "EU": 0.8,
+      "US": 1.2
+    }
+  }
+}

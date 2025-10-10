@@ -1,0 +1,52 @@
+{
+  "patterns": [
+    {
+      "id": "pattern-1",
+      "name": "Hello World",
+      "description": "Basic greeting pattern",
+      "content": "Hello world! This is a simple greeting pattern.",
+      "tags": ["greeting", "basic", "hello"],
+      "category": "communication"
+    },
+    {
+      "id": "pattern-2", 
+      "name": "Data Processing",
+      "description": "Pattern for processing data",
+      "content": "Data processing involves cleaning, transforming, and analyzing information.",
+      "tags": ["data", "processing", "analysis"],
+      "category": "data_science"
+    },
+    {
+      "id": "pattern-3",
+      "name": "Machine Learning",
+      "description": "ML pattern for predictions",
+      "content": "Machine learning algorithms can predict outcomes based on historical data patterns.",
+      "tags": ["ml", "prediction", "algorithms"],
+      "category": "ai"
+    },
+    {
+      "id": "pattern-4",
+      "name": "API Integration",
+      "description": "Pattern for API connections",
+      "content": "API integration allows systems to communicate and share data seamlessly.",
+      "tags": ["api", "integration", "communication"],
+      "category": "development"
+    },
+    {
+      "id": "pattern-5",
+      "name": "Security Best Practices",
+      "description": "Security guidelines",
+      "content": "Security best practices include encryption, authentication, and regular updates.",
+      "tags": ["security", "encryption", "authentication"],
+      "category": "security"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-01-27",
+    "description": "Sample patterns for vector search testing",
+    "total_patterns": 5
+  }
+}
+  
+

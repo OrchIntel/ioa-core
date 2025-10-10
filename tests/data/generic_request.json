@@ -1,0 +1,19 @@
+{
+  "request_id": "req-demo-001",
+  "timestamp": "2025-10-09T12:00:00Z",
+  "action_type": "api_query",
+  "actor_id": "demo-user-123",
+  "data_classification": "internal",
+  "jurisdiction": "US",
+  "payload": {
+    "query": "Retrieve system documentation for IOA Core governance features",
+    "include_examples": true,
+    "format": "markdown"
+  },
+  "metadata": {
+    "client_ip": "192.168.1.100",
+    "user_agent": "IOA-Demo/1.0",
+    "session_id": "session-abc123"
+  }
+}
+

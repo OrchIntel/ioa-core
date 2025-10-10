@@ -1,0 +1,33 @@
+{
+  "actions": [
+    {
+      "id": "llm_generation_1",
+      "type": "llm_generation",
+      "token_count": 1000,
+      "model_type": "gpt-4"
+    },
+    {
+      "id": "data_processing_1",
+      "type": "data_processing",
+      "execution_time_ms": 5000,
+      "device_profile": "standard"
+    },
+    {
+      "id": "llm_generation_2",
+      "type": "llm_generation",
+      "token_count": 500,
+      "model_type": "gpt-3.5"
+    },
+    {
+      "id": "heavy_computation",
+      "type": "heavy_computation",
+      "execution_time_ms": 15000,
+      "device_profile": "high_performance",
+      "device_specs": {
+        "cpu_cores": 16,
+        "gpu_memory_gb": 32,
+        "memory_gb": 64
+      }
+    }
+  ]
+}

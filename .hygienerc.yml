@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+# IOA Hygiene Router Configuration
+
+default:
+  repo: "OrchIntel/ioa"       # safe default (current repo)
+  branch: "main"
+  mode: "pr"                  # open PR, not direct push
+
+routes:
+  enterprise:
+    repo: "OrchIntel/ioa-enterprise"
+    branch: "main"
+    mode: "pr"
+  saas:
+    repo: "OrchIntel/ioa-saas"
+    branch: "main"
+    mode: "pr"
+  internal:
+    repo: "OrchIntel/ioa-core-internal"
+    branch: "dev"
+    mode: "direct"
+
+guards:
+  protected_branches: ["main", "release/*"]
+  require_ci_green: true
+  require_codeowners: true
+  secret_scan_required: true
+  dry_run_first: true
+
+# Safety: ioa-core (public) is NOT listed
+# Hygiene router must never push there until explicitly enabled at launch

@@ -1,0 +1,156 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+# Classification rules for file inventory
+# Format: regex_pattern -> {repo_target: "target", category: "category"}
+
+path_rules:
+  # Cartridges
+  - pattern: ".*/cartridges/(eu-ai|gdpr|privacy|soc2|hipaa)/.*"
+    repo_target: "core"
+    category: "cartridge"
+  
+  # Framework
+  - pattern: ".*/framework/.*"
+    repo_target: "core"
+    category: "framework"
+  
+  # Fabric
+  - pattern: ".*/fabric/.*"
+    repo_target: "core"
+    category: "fabric"
+  
+  # Connectors
+  - pattern: ".*/connectors/.*"
+    repo_target: "core"
+    category: "connector"
+  
+  # Ops/CI
+  - pattern: ".*/ops/.*"
+    repo_target: "core"
+    category: "ops"
+  - pattern: ".*/.github/workflows/.*"
+    repo_target: "core"
+    category: "ops"
+  
+  # Documentation
+  - pattern: ".*/docs/.*"
+    repo_target: "docs"
+    category: "docs"
+  - pattern: ".*\.md$"
+    repo_target: "docs"
+    category: "docs"
+  
+  # Websites
+  - pattern: ".*/website/.*"
+    repo_target: "websites"
+    category: "web"
+  - pattern: ".*mkdocs\.yml$"
+    repo_target: "websites"
+    category: "web"
+  - pattern: ".*docusaurus\.config\.js$"
+    repo_target: "websites"
+    category: "web"
+  
+  # Examples
+  - pattern: ".*/examples/.*"
+    repo_target: "examples"
+    category: "examples"
+  - pattern: ".*/notebooks/.*"
+    repo_target: "examples"
+    category: "examples"
+  
+  # Enterprise
+  - pattern: ".*/enterprise/.*"
+    repo_target: "enterprise"
+    category: "enterprise"
+  
+  # SaaS
+  - pattern: ".*/saas/.*"
+    repo_target: "saas"
+    category: "saas"
+
+file_extension_rules:
+  # Code files
+  - pattern: ".*\.py$"
+    repo_target: "core"
+    category: "code"
+  - pattern: ".*\.js$"
+    repo_target: "core"
+    category: "code"
+  - pattern: ".*\.ts$"
+    repo_target: "core"
+    category: "code"
+  
+  # Config files
+  - pattern: ".*\.yml$"
+    repo_target: "core"
+    category: "config"
+  - pattern: ".*\.yaml$"
+    repo_target: "core"
+    category: "config"
+  - pattern: ".*\.json$"
+    repo_target: "core"
+    category: "config"
+  - pattern: ".*\.toml$"
+    repo_target: "core"
+    category: "config"
+  
+  # Documentation
+  - pattern: ".*\.md$"
+    repo_target: "docs"
+    category: "docs"
+  
+  # Notebooks
+  - pattern: ".*\.ipynb$"
+    repo_target: "examples"
+    category: "notebook"
+
+keyword_rules:
+  # Enterprise keywords
+  - keywords: ["HIPAA", "SOC 2 full", "enterprise connector", "salesforce", "servicenow", "sap"]
+    repo_target: "enterprise"
+    category: "enterprise"
+  
+  # SaaS keywords
+  - keywords: ["multitenant", "billing", "quota", "dashboard", "control-plane"]
+    repo_target: "saas"
+    category: "saas"
+  
+  # Website keywords
+  - keywords: ["docusaurus", "mkdocs", "hugo", "next.js", "openGraph", "website"]
+    repo_target: "websites"
+    category: "web"
+  
+  # Cartridge keywords
+  - keywords: ["cartridge", "EU AI", "GDPR", "CCPA", "HIPAA", "SOC 2"]
+    repo_target: "core"
+    category: "cartridge"
+  
+  # Framework keywords
+  - keywords: ["cartridge framework", "mapping manifest", "lifecycle hook"]
+    repo_target: "core"
+    category: "framework"
+  
+  # Fabric keywords
+  - keywords: ["fabric", "immutable audit", "evidence log"]
+    repo_target: "core"
+    category: "fabric"
+  
+  # Connector keywords
+  - keywords: ["connector", "postgres", "s3", "webhook", "kafka", "rabbitmq", "fhir"]
+    repo_target: "core"
+    category: "connector"
+  
+  # Assurance keywords
+  - keywords: ["assurance score", "reality audit", "harness"]
+    repo_target: "core"
+    category: "assurance"
+  
+  # Ops keywords
+  - keywords: ["ci", "workflow", "github actions", "sbom", "cosign", "trufflehog", "bandit"]
+    repo_target: "core"
+    category: "ops"

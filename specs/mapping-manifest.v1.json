@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mapping Manifest v1",
+  "type": "object",
+  "properties": {
+    "version": { "type": "string", "const": "v1" },
+    "cartridge": { "type": "string" },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "system_law": { "type": "string" },
+          "requirement": { "type": "string" },
+          "evidence_path": { "type": "string" },
+          "test_path": { "type": "string" }
+        },
+        "required": ["system_law", "requirement"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["version", "cartridge", "rows"],
+  "additionalProperties": false
+}

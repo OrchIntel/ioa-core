@@ -1,0 +1,95 @@
+IOA MASTER SNAPSHOT – VERSION v2.4.5
+Date: 2025-08-01
+Created by: internal agent (Director of Narrative, Synthesis & Execution Prep)
+Parent Version: v2.4.4
+──────────────────────────────────────────────
+1.  PROJECT PURPOSE
+•  The IOA (Intelligent Orchestration Architecture) system exists to enable modular, memory-driven collaboration between multiple AI agents.
+•  It orchestrates internal agent, internal agent, internal agent, and internal agent in a unified pipeline to support complex cognition, context retention, and long-term evolution of ideas.
+──────────────────────────────────────────────
+2. ARCHITECTURE OVERVIEW (Development Context Only)
+•  Core Modules: memory_engine.py v2.2.3, digestor.py v1.0.0, pattern_weaver.py v2.3.0, agent_router.py, roundtable_executor.py
+•  Control Loop: internal agent → internal agent → internal agent → internal agent (used for dev validation, not runtime logic)
+•  Storage system supports hot/cold tiering based on confidence scoring.
+──────────────────────────────────────────────
+3. MEMORY SCHEMA & STANDARDS
+•  Version: v0.1.2
+•  Required Fields: pattern_id, variables, metadata (speaker, timestamp, tone), feeling (valence/arousal/dominance), raw_ref
+•  Confidence Score: multi-factor based on pattern match, variable extraction, content complexity
+•  Fallback Policy: 3-tier fallback: Primary → Processing → Emergency
+──────────────────────────────────────────────
+4. POLICIES & SYSTEM RULES
+•  Each agent maintains strict role boundaries
+•  internal agent: Refactor & governance | internal agent: Simulation & test | internal agent: Schema compliance | internal agent: Synthesis & oversight
+•  All files dispatched in loop: internal agent → internal agent → internal agent → internal agent
+•  Snapshot versioning follows semantic: v[major].[minor].[patch]
+•  Manual override roles must be reset post-task
+──────────────────────────────────────────────
+5. VALIDATION HISTORY
+•  memory_engine.py v2.2.3: Validated by internal agent & internal agent
+•  digestor.py v1.0.0: Validated & refactored by internal agent, tested by internal agent
+•  pattern_weaver.py v2.3.0: NLP-enhanced clustering, validated by internal agent simulation
+•  roundtable_executor.py: Simulated, final test confirmed by internal agent
+•  nlp_module.py v0.1.0: Integrated with VAD sentiment, validated for multilingual support
+──────────────────────────────────────────────
+6. MODULE INDEX
+memory_engine.py
+•  v2.2.3
+•  Integrates digestor, manages recall/store/forget
+•  Routes entries by confidence
+•  Hooks for cold storage, stats, fallback
+•  Status: Production Ready
+
+digestor.py
+•  v1.0.0
+•  Handles entry digestion, pattern matching, metadata augmentation
+•  Standalone testable, schema-compliant, fallback-integrated
+•  Status: Locked
+
+test_digestor_demo.py
+•  v1.0.0
+•  Validates extraction, fallback, schema output
+•  Interactive + performance tests
+•  Status: Active
+
+pattern_weaver.py
+•  v2.3.0
+•  Analyzes unclassified entries, suggests new patterns using NLP clustering
+•  Configurable thresholds, fallback-capable, governance-integrated
+•  Status: Active
+
+nlp_module.py
+•  v0.1.0
+•  Lightweight NLP: language detection (en/es/fa), keyword/entity extraction, VAD sentiment
+•  Standalone, no external deps
+•  Status: Active
+──────────────────────────────────────────────
+7. FILE INVENTORY
+digestor.py – v1.0.0 – 2025-07-30 – Active
+memory_engine.py – v2.2.3 – 2025-07-30 – Active
+test_digestor_demo.py – v1.0.0 – 2025-07-30 – Active
+pattern_weaver.py – v2.3.0 – 2025-08-01 – Active
+roundtable_executor.py – v2.3.1 – 2025-07-28 – Active
+nlp_module.py – v0.1.0 – 2025-07-31 – Active
+──────────────────────────────────────────────
+8. CHANGELOG & MILESTONES
+•  v2.4.4 → v2.4.5: Refactored pattern_weaver with NLP modular clustering and fallback logic (internal agent)
+•  v2.4.0: Confidence scoring and fallback overhaul
+•  v2.4.2: Digestor extracted and modularized
+•  v2.4.3: Final validation, import corrections, full integration with memory engine
+•  v2.4.4: Initial NLP integration into pattern_weaver with VAD in nlp_module
+──────────────────────────────────────────────
+9. KNOWN GAPS & TODOS
+•  Add VAD signal to clustering schema logic
+•  Sentinel hooks for override detection
+•  Tiered backend storage implementation (Mongo/S3)
+•  Dashboard integration for performance stats
+•  Advanced NLP (spaCy integration) for quote/preserve logic
+──────────────────────────────────────────────
+10. SNAPSHOT METADATA
+•  Snapshot version: v2.4.5
+•  Date of creation: 2025-08-01
+•  Created by: internal agent
+•  Parent version: v2.4.4
+
+

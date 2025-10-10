@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+site_name: IOA Core Documentation
+site_description: Intelligent Orchestration Architecture Core - Open-source platform for orchestrating modular AI agents
+site_author: OrchIntel Systems Ltd.
+site_url: https://ioa-core.readthedocs.io/
+
+repo_name: orchintel/ioa-core
+repo_url: https://github.com/orchintel/ioa-core
+edit_uri: edit/main/docs/
+
+# PATCH: Cursor-2025-08-19 Fixed docs_dir configuration for mkdocs build
+docs_dir: .
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.share
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [../src]
+          options:
+            show_source: true
+            show_root_heading: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quickstart: getting-started/quickstart.md
+    - EC2 Setup: getting-started/ec2-setup.md
+  - Tutorials:
+    - Hello World: tutorials/hello-world.md
+    - Governance & Audit: tutorials/governance-audit.md
+    - PKI Onboarding: tutorials/pki-onboarding.md
+    - Domain Schema: tutorials/domain-schema.md
+  - User Guide:
+    - CLI Reference: user-guide/cli-reference.md
+    - Configuration: user-guide/configuration.md
+    - Troubleshooting: user-guide/troubleshooting.md
+  - API Reference:
+    - Core Modules: api/core.md
+    - LLM Providers: api/providers.md
+    - Governance: api/governance.md
+  - Operations:
+    - Operations Guide: ops/operations.md
+    - Performance: ops/performance.md
+    - Security: ops/security.md
+  - Contributing:
+    - Contributing Guide: ../CONTRIBUTING.md
+    - Code of Conduct: ../CODE_OF_CONDUCT.md
+    - Security Policy: ../SECURITY.md

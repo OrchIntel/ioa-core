@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+
+# markdownlint configuration for IOA documentation
+# Enforces structural hygiene and formatting standards
+
+# Default state for all rules
+default: true
+
+# Rule-specific configurations
+MD013: false  # Line length - allow longer lines for code blocks
+MD033: false  # Inline HTML - allow HTML for complex formatting
+MD041: false  # First line in file should be a top level heading - allow IOA headers
+MD024: false  # Multiple headings with the same content - allow in tutorials
+MD029: false  # Ordered list item prefix - allow various styles
+
+# Strict rules for IOA documentation
+MD002: true   # First heading should be a top level heading
+MD003: true   # Heading style - enforce consistent heading style
+MD004: true   # Unordered list style - enforce consistent list style
+MD007: true   # Unordered list indentation - enforce proper indentation
+MD009: true   # Trailing spaces - no trailing spaces
+MD010: true   # Hard tabs - no hard tabs
+MD011: true   # Reversed link syntax - prevent reversed links
+MD012: true   # Multiple consecutive blank lines - max 1 blank line
+MD014: true   # Dollar signs used before commands without showing output
+MD018: true   # No space after hash on atx style heading
+MD019: true   # Multiple spaces after hash on atx style heading
+MD020: true   # No space inside hashes on closed atx style heading
+MD021: true   # Multiple spaces inside hashes on closed atx style heading
+MD022: true   # Headings should be surrounded by blank lines
+MD023: true   # Headings must start at the beginning of the line
+MD025: true   # Only one top level heading in the document
+MD026: true   # Trailing punctuation in heading
+MD027: true   # Multiple spaces after blockquote symbol
+MD028: true   # Blank line inside blockquote
+MD030: true   # Spaces after list markers
+MD031: true   # Blank lines around fenced code blocks
+MD032: true   # Lists should be surrounded by blank lines
+MD034: true   # Bare URL used - use proper link syntax
+MD035: true   # Horizontal rule style - enforce consistent style
+MD036: true   # Emphasis used for emphasis - use proper emphasis
+MD037: true   # Spaces inside emphasis markers
+MD038: true   # Spaces inside code span elements
+MD039: true   # Spaces inside link text
+MD040: true   # Fenced code blocks should have a language specified
+MD042: true   # No empty links - prevent broken links
+MD043: true   # Required heading structure - enforce IOA header format
+MD044: true   # Proper names should have the correct capitalization
+MD045: true   # Images should have alternate text (alt text)
+MD046: true   # Code block style - enforce consistent code block style
+MD047: true   # Files should end with a single newline character
+MD048: true   # Code fence style - enforce consistent code fence style
+MD049: true   # Emphasis style - enforce consistent emphasis style
+MD050: true   # Strong style - enforce consistent strong style
+MD051: true   # Link fragment style - enforce consistent link fragment style
+MD052: true   # Reference links should be placed at the end of the document
+MD053: true   # Link image reference definitions should be placed at the end of the document
+
+# IOA-specific custom rules
+MD043:
+  # IOA header structure enforcement

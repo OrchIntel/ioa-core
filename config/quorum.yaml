@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+# PATCH: Cursor-2025-09-09 DISPATCH-OSS-20250909-QUORUM-POLICY-VENDOR-NEUTRAL
+
+# Provider fallback order (editable)
+fallback_order:
+  - "openai"
+  - "anthropic" 
+  - "gemini"
+  - "deepseek"
+  - "xai"
+  - "ollama"
+
+# Quorum thresholds
+strong_quorum:
+  min_providers: 2
+
+# Sibling weighting (votes from same provider/model family count with reduced weight)
+sibling_weight: 0.6
+
+# Auditor fallback order (same as fallback_order by default, but editable)
+auditor_fallback_order:
+  - "openai"
+  - "anthropic"
+  - "gemini" 
+  - "deepseek"
+  - "xai"
+  - "ollama"
+
+# Consensus threshold (weighted agreement required for PASS)
+consensus_threshold: 0.67
+
+# Model family groupings for sibling detection
+model_families:
+  openai:
+    - "gpt-4"
+    - "gpt-4o"
+    - "gpt-3.5"
+  anthropic:
+    - "claude-3"
+    - "claude-3-5"
+  google:
+    - "gemini-1.5"
+    - "gemini-pro"
+  deepseek:
+    - "deepseek-chat"
+    - "deepseek-coder"
+  xai:
+    - "grok-4"
+    - "grok-2"
+  ollama:
+    - "llama3"
+    - "mistral"
+    - "codellama"
+
+# Provider aliases (gemini -> google)
+provider_aliases:
+  "gemini": "google"
+  "grok": "xai"

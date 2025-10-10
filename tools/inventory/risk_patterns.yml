@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+# Risk detection patterns for file inventory
+# These patterns help identify potential security risks and issues
+
+secret_patterns:
+  # API keys and tokens
+  - pattern: "(?i)(secret|token|apikey|api_key|password|passwd)\s*[:=]"
+    risk_type: "secret_candidate"
+    description: "Potential API key or secret"
+  
+  # AWS credentials
+  - pattern: "(?i)aws_access_key_id|aws_secret_access_key"
+    risk_type: "secret_candidate"
+    description: "AWS credentials"
+  
+  - pattern: "(?i)x-api-key"
+    risk_type: "secret_candidate"
+    description: "API key header"
+  
+  # Database credentials
+  - pattern: "(?i)(db_password|database_password|db_pass)\s*[:=]"
+    risk_type: "secret_candidate"
+    description: "Database password"
+  
+  # JWT tokens
+  - pattern: "(?i)jwt_secret|jwt_key"
+    risk_type: "secret_candidate"
+    description: "JWT secret or key"
+
+pii_patterns:
+  # Social Security Numbers
+  - pattern: "\b\d{3}-\d{2}-\d{4}\b"
+    risk_type: "pii_candidate"
+    description: "Potential SSN"
+  
+  # Email addresses
+  - pattern: "\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b"
+    risk_type: "pii_candidate"
+    description: "Email address"
+  
+  # Phone numbers (US format)
+  - pattern: "\b\d{3}[-.]?\d{3}[-.]?\d{4}\b"
+    risk_type: "pii_candidate"
+    description: "Phone number"
+  
+  # Credit card numbers (basic pattern)
+  - pattern: "\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b"
+    risk_type: "pii_candidate"
+    description: "Potential credit card number"
+
+file_extension_risks:
+  # Certificate and key files
+  - extensions: [".pem", ".key", ".pfx", ".p12", ".crt", ".cer"]
+    risk_type: "secret_candidate"
+    description: "Certificate or key file"
+  
+  # Environment files
+  - extensions: [".env", ".env.local", ".env.production", ".env.staging"]
+    risk_type: "secret_candidate"
+    description: "Environment file with potential secrets"
+  
+  # Backup files
+  - extensions: [".bak", ".backup", ".old", ".orig"]
+    risk_type: "backup_file"
+    description: "Backup file that may contain outdated secrets"
+
+size_thresholds:
+  # Large binary files
+  - size_mb: 50
+    risk_type: "large_binary"
+    description: "Large binary file (>50MB)"
+  
+  # Very large files
+  - size_mb: 200
+    risk_type: "very_large_file"
+    description: "Very large file (>200MB)"
+
+binary_risks:
+  # Unknown binary types
+  - extensions: [".bin", ".dat", ".data"]
+    risk_type: "binary_unknown"
+    description: "Unknown binary file type"
+  
+  # Executable files
+  - extensions: [".exe", ".dll", ".so", ".dylib"]
+    risk_type: "executable"
+    description: "Executable file"
+
+license_risks:
+  # Files without clear licensing
+  - patterns: ["LICENSE", "COPYING", "NOTICE"]
+    risk_type: "license_unknown"
+    description: "Missing or unclear license information"
+  
+  # Third-party code
+  - patterns: ["vendor/", "third_party/", "external/"]
+    risk_type: "third_party_code"
+    description: "Third-party code without clear licensing"

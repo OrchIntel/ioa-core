@@ -1,0 +1,326 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+---
+# IOA Core MemoryFabric v1.2 Production Monitoring Dashboard
+# Generated: 2025-10-09
+
+kind: ConfigMap
+metadata:
+  name: ioa-core-monitoring
+  namespace: ioa-production
+
+data:
+  # Grafana Dashboard Configuration
+  grafana-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "IOA Core MemoryFabric v1.2 Production",
+        "tags": ["ioa", "memoryfabric", "production"],
+        "timezone": "UTC",
+        "panels": [
+          {
+            "title": "Store Latency (P50/P95/P99)",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.50, rate(ioa_memoryfabric_store_duration_seconds_bucket[5m])) * 1000",
+                "legendFormat": "P50"
+              },
+              {
+                "expr": "histogram_quantile(0.95, rate(ioa_memoryfabric_store_duration_seconds_bucket[5m])) * 1000",
+                "legendFormat": "P95"
+              },
+              {
+                "expr": "histogram_quantile(0.99, rate(ioa_memoryfabric_store_duration_seconds_bucket[5m])) * 1000",
+                "legendFormat": "P99"
+              }
+            ],
+            "thresholds": [
+              {"value": 50, "colorMode": "warning", "line": true, "op": "gt", "fill": true},
+              {"value": 100, "colorMode": "critical", "line": true, "op": "gt", "fill": true}
+            ]
+          },
+          {
+            "title": "Retrieve Latency (P50/P95/P99)",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.50, rate(ioa_memoryfabric_retrieve_duration_seconds_bucket[5m])) * 1000",
+                "legendFormat": "P50"
+              },
+              {
+                "expr": "histogram_quantile(0.95, rate(ioa_memoryfabric_retrieve_duration_seconds_bucket[5m])) * 1000",
+                "legendFormat": "P95"
+              },
+              {
+                "expr": "histogram_quantile(0.99, rate(ioa_memoryfabric_retrieve_duration_seconds_bucket[5m])) * 1000",
+                "legendFormat": "P99"
+              }
+            ],
+            "thresholds": [
+              {"value": 20, "colorMode": "warning", "line": true, "op": "gt", "fill": true},
+              {"value": 40, "colorMode": "critical", "line": true, "op": "gt", "fill": true}
+            ]
+          },
+          {
+            "title": "Cold Recall Hit Rate",
+            "type": "singlestat",
+            "targets": [
+              {
+                "expr": "rate(ioa_memoryfabric_cold_recall_hits_total[5m]) / rate(ioa_memoryfabric_cold_recall_total[5m]) * 100",
+                "legendFormat": "Hit Rate %"
+              }
+            ],
+            "thresholds": "90,95",
+            "colors": ["#d44a3a", "#fa6400", "#299c46"]
+          },
+          {
+            "title": "4D-Tiering Promotion Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(ioa_memoryfabric_tier_promotions_total[5m])",
+                "legendFormat": "Promotions/sec"
+              }
+            ]
+          },
+          {
+            "title": "Jurisdiction Compliance",
+            "type": "singlestat",
+            "targets": [
+              {
+                "expr": "rate(ioa_memoryfabric_jurisdiction_compliance_total[5m]) / rate(ioa_memoryfabric_jurisdiction_checks_total[5m]) * 100",
+                "legendFormat": "Compliance %"
+              }
+            ],
+            "thresholds": "99.9,99.99",
+            "colors": ["#d44a3a", "#fa6400", "#299c46"]
+          },
+          {
+            "title": "Audit Coverage",
+            "type": "singlestat",
+            "targets": [
+              {
+                "expr": "rate(ioa_memoryfabric_audit_log_entries_total[5m]) / rate(ioa_memoryfabric_operations_total[5m]) * 100",
+                "legendFormat": "Coverage %"
+              }
+            ],
+            "thresholds": "99,99.9",
+            "colors": ["#d44a3a", "#fa6400", "#299c46"]
+          },
+          {
+            "title": "Error Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(ioa_memoryfabric_errors_total[5m]) / rate(ioa_memoryfabric_operations_total[5m]) * 100",
+                "legendFormat": "Error Rate %"
+              }
+            ],
+            "thresholds": [
+              {"value": 0.1, "colorMode": "warning", "line": true, "op": "gt", "fill": true},
+              {"value": 1.0, "colorMode": "critical", "line": true, "op": "gt", "fill": true}
+            ]
+          },
+          {
+            "title": "Write Amplification",
+            "type": "singlestat",
+            "targets": [
+              {
+                "expr": "ioa_memoryfabric_write_amplification_ratio",
+                "legendFormat": "Write Amp"
+              }
+            ],
+            "thresholds": "1.5,2.2",
+            "colors": ["#299c46", "#fa6400", "#d44a3a"]
+          },
+          {
+            "title": "System Resource Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "ioa_system_cpu_usage_percent",
+                "legendFormat": "CPU %"
+              },
+              {
+                "expr": "ioa_system_memory_usage_percent",
+                "legendFormat": "Memory %"
+              }
+            ],
+            "thresholds": [
+              {"value": 80, "colorMode": "warning", "line": true, "op": "gt", "fill": true},
+              {"value": 90, "colorMode": "critical", "line": true, "op": "gt", "fill": true}
+            ]
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "30s"
+      }
+    }
+
+  # Prometheus Metrics Configuration
+  prometheus-rules.yaml: |
+    groups:
+    - name: ioa_memoryfabric_alerts
+      rules:
+      - alert: MemoryFabricHighStoreLatency
+        expr: histogram_quantile(0.95, rate(ioa_memoryfabric_store_duration_seconds_bucket[5m])) > 0.050
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "Store operations are slower than expected. Current P95: {{ $value }}s"
+
+      - alert: MemoryFabricHighRetrieveLatency
+        expr: histogram_quantile(0.95, rate(ioa_memoryfabric_retrieve_duration_seconds_bucket[5m])) > 0.020
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "Retrieve operations are slower than expected. Current P95: {{ $value }}s"
+
+      - alert: MemoryFabricLowColdRecall
+        expr: (rate(ioa_memoryfabric_cold_recall_hits_total[5m]) / rate(ioa_memoryfabric_cold_recall_total[5m])) < 0.90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "Cold data retrieval performance degraded. Current rate: {{ $value }}"
+
+      - alert: MemoryFabricJurisdictionCompliance
+        expr: (rate(ioa_memoryfabric_jurisdiction_compliance_total[5m]) / rate(ioa_memoryfabric_jurisdiction_checks_total[5m])) < 0.999
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Data jurisdiction compliance violation detected. Current compliance: {{ $value }}"
+
+      - alert: MemoryFabricAuditCoverage
+        expr: (rate(ioa_memoryfabric_audit_log_entries_total[5m]) / rate(ioa_memoryfabric_operations_total[5m])) < 0.99
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Audit trail coverage insufficient. Current coverage: {{ $value }}"
+
+      - alert: MemoryFabricHighErrorRate
+        expr: (rate(ioa_memoryfabric_errors_total[5m]) / rate(ioa_memoryfabric_operations_total[5m])) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "Operation error rate elevated. Current rate: {{ $value }}"
+
+  # Application Metrics Configuration
+  metrics_config.yaml: |
+    # MemoryFabric v1.2 Production Metrics
+    metrics:
+      enabled: true
+      prefix: "ioa_memoryfabric"
+      histograms:
+        - name: "store_duration_seconds"
+          buckets: [0.001, 0.005, 0.010, 0.025, 0.050, 0.100, 0.250, 0.500, 1.0]
+          help: "Time spent storing records"
+
+        - name: "retrieve_duration_seconds"
+          buckets: [0.001, 0.005, 0.010, 0.025, 0.050, 0.100, 0.250, 0.500, 1.0]
+          help: "Time spent retrieving records"
+
+        - name: "query_duration_seconds"
+          buckets: [0.001, 0.005, 0.010, 0.025, 0.050, 0.100, 0.250, 0.500, 1.0]
+          help: "Time spent executing queries"
+
+      counters:
+        - name: "operations_total"
+          labels: ["operation_type", "profile", "tier"]
+          help: "Total number of operations"
+
+        - name: "errors_total"
+          labels: ["operation_type", "error_type"]
+          help: "Total number of errors"
+
+        - name: "cold_recall_total"
+          help: "Total cold recall attempts"
+
+        - name: "cold_recall_hits_total"
+          help: "Total successful cold recall operations"
+
+        - name: "tier_promotions_total"
+          labels: ["from_tier", "to_tier", "reason"]
+          help: "Total tier promotions"
+
+        - name: "jurisdiction_checks_total"
+          help: "Total jurisdiction compliance checks"
+
+        - name: "jurisdiction_compliance_total"
+          help: "Total compliant jurisdiction operations"
+
+        - name: "audit_log_entries_total"
+          help: "Total audit log entries"
+
+      gauges:
+        - name: "active_connections"
+          help: "Number of active connections"
+
+        - name: "memory_usage_bytes"
+          help: "Current memory usage"
+
+        - name: "disk_usage_bytes"
+          help: "Current disk usage"
+
+        - name: "write_amplification_ratio"
+          help: "Current write amplification ratio"
+
+  # Alert Manager Configuration
+  alertmanager_config.yaml: |
+    global:
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_from: 'alerts@orchintel.com'
+      smtp_auth_username: 'alerts@orchintel.com'
+      smtp_auth_password: 'your_password_here'
+
+    route:
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'ioa-team'
+      routes:
+      - match:
+          severity: critical
+        receiver: 'ioa-critical'
+
+    receivers:
+    - name: 'ioa-team'
+      email_configs:
+      - to: 'team@orchintel.com'
+        subject: 'IOA MemoryFabric Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          {{ end }}
+
+    - name: 'ioa-critical'
+      email_configs:
+      - to: 'critical@orchintel.com'
+        subject: 'CRITICAL: IOA MemoryFabric Alert: {{ .GroupLabels.alertname }}'
+      slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#ioa-critical'
+        title: 'CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          🚨 *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          {{ end }}
+

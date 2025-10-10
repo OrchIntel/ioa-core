@@ -1,0 +1,80 @@
+# TruffleHog ignore file
+# Exclude test files and directories that contain false positive secrets
+
+# Test directories
+tests/.*
+test/.*
+.*_test\.py
+test_.*\.py
+
+# Virtual environments
+venv/.*
+\.venv/.*
+ioa-env/.*
+env/.*
+\.env/.*
+
+# Build and cache directories
+__pycache__/.*
+.*\.pyc
+.*\.pyo
+.*\.pyd
+\.Python
+build/.*
+develop-eggs/.*
+dist/.*
+downloads/.*
+eggs/.*
+\.eggs/.*
+lib/.*
+lib64/.*
+parts/.*
+sdist/.*
+var/.*
+wheels/.*
+.*\.egg-info/.*
+\.installed\.cfg
+.*\.egg
+
+# IDE and editor files
+\.vscode/.*
+\.idea/.*
+.*\.swp
+.*\.swo
+.*~
+
+# OS generated files
+\.DS_Store
+\.DS_Store\?
+\._.*
+\.Spotlight-V100
+\.Trashes
+ehthumbs\.db
+Thumbs\.db
+
+# Git directories
+\.git/.*
+
+# Node modules
+node_modules/.*
+
+# Documentation and examples
+docs/.*
+examples/.*
+site/.*
+README\.md
+cold_storage/.*
+config/.*
+src/agent_onboarding\.py
+src/model_onboarding\.py
+
+# Checksum files
+CHECKSUMS\.sha256
+.*\.sha256
+
+# Public export directory
+ioa-core-public/.*
+
+# Triage and CI files
+triage/.*
+\.ioa/.*

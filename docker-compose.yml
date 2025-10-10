@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  ioa-core:
+    image: python:3.9
+    volumes:
+      - .:/app
+    working_dir: /app
+    # Install dependencies and run a simple echo agent as a demonstration.
+    command: >-
+      bash -c "pip install -r requirements.txt && \
+               python -m src.cli_interface --task 'Echo test'"
+    environment:
+      - HANDOFF_PASSWORD=secure_password_123
+      - IOA_ENV=development

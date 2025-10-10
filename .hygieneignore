@@ -1,0 +1,65 @@
+# IOA Hygiene Ignore File
+# Version: v2.5.0
+# Last-Updated: 2025-01-11
+# Agents: Cursor assist
+# Summary: OSS-safe ignore patterns for hygiene auto-commit workflow
+
+# Exclude ops/internal artifacts
+docs/ops/qa_archive/**
+docs/ops/qa/ledger/private/**
+_internal/**
+logs/**
+tmp/**
+**/*.secrets.json
+**/*.key
+.env*
+
+# Exclude development artifacts
+.cursor/**
+**/__pycache__/**
+*.py[cod]
+*.DS_Store
+*.log
+*.tmp
+*.bak
+
+# Exclude sensitive configuration
+config/secrets/**
+**/secrets.yaml
+**/secrets.yml
+**/*.pem
+**/*.p12
+**/*.pfx
+
+# Exclude detect-secrets baseline file from hygiene secret scan
+.secrets.baseline
+
+# Exclude build artifacts
+build/**
+dist/**
+*.egg-info/**
+.coverage
+htmlcov/**
+
+# Exclude IDE and editor files
+.vscode/**
+.idea/**
+*.swp
+*.swo
+*~
+
+# Exclude OS-specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Exclude test artifacts
+.pytest_cache/**
+test_results/**
+coverage.xml
+.coverage.*
+
+# Exclude temporary files
+*.pid
+*.sock
+*.lock

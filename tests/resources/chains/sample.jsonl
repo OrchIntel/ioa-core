@@ -1,0 +1,3 @@
+{"timestamp": "2025-01-27T00:00:00Z", "event": "chain_start", "chain_id": "sample_chain", "metadata": {"test": true}}
+{"timestamp": "2025-01-27T00:00:01Z", "event": "operation", "chain_id": "sample_chain", "operation": "test_op", "result": "success"}
+{"timestamp": "2025-01-27T00:00:02Z", "event": "chain_end", "chain_id": "sample_chain", "metadata": {"test": true}}

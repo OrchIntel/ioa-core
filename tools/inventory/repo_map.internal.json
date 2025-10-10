@@ -1,0 +1,54 @@
+{
+  "description": "Concrete repo map for linkcheck",
+  "version": "2.0",
+  "mode": "internal",
+  "repos": {
+    "core-internal": {
+      "base_url": "https://github.com/OrchIntel/ioa-core-internal",
+      "description": "Private development + full audit history (regulator view)"
+    },
+    "core": {
+      "base_url": "https://github.com/OrchIntel/ioa-core",
+      "description": "Public OSS baseline (unused in internal mode, kept for reference)"
+    },
+    "enterprise": {
+      "base_url": "https://github.com/OrchIntel/ioa-enterprise",
+      "description": "Enterprise extensions (private)"
+    },
+    "saas": {
+      "base_url": "https://github.com/OrchIntel/ioa-saas",
+      "description": "SaaS control plane (private)"
+    },
+    "websites": {
+      "base_url": "https://github.com/OrchIntel/ioa-websites",
+      "description": "Websites mono-repo (3 sites) – code"
+    },
+    "examples": {
+      "base_url": "https://github.com/OrchIntel/ioa-examples",
+      "description": "Examples and tutorials (public)"
+    },
+    "cert-service": {
+      "base_url": "https://github.com/OrchIntel/ioa-cert-service",
+      "description": "Certification Service (PKI + badge signing/verification)"
+    },
+    "docs-site": {
+      "base_url": "https://github.com/OrchIntel/ioa-docs-site",
+      "description": "Optional standalone docs site (mkdocs/static); may be deferred"
+    }
+  },
+  "sites": {
+    "ioa.systems": "https://preview.ioa.systems",
+    "ioaproject.org": "https://preview.ioaproject.org",
+    "orchintel.com": "https://preview.orchintel.com",
+    "docs.ioa.systems": "https://preview.docs.ioa.systems"
+  },
+  "path_mappings": {
+    "core-laws": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/SYSTEM_LAWS.md",
+    "core-assurance": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/ASSURANCE_SCORE.md",
+    "core-feature-matrix": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/docs/ops/feature_matrix.md",
+    "core-src": "https://github.com/OrchIntel/ioa-core-internal/tree/main/src/",
+    "core-tests": "https://github.com/OrchIntel/ioa-core-internal/tree/main/tests/",
+    "examples-root": "https://github.com/OrchIntel/ioa-examples/",
+    "websites-root": "https://github.com/OrchIntel/ioa-websites/"
+  }
+}

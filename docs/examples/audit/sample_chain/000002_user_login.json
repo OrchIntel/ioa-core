@@ -1,0 +1,19 @@
+{
+  "event_id": "evt_002",
+  "timestamp": "2025-09-10T10:01:30Z",
+  "prev_hash": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+  "hash": "b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456a1",
+  "payload": {
+    "event_type": "user_login",
+    "user_id": "user_12345",
+    "username": "john.doe",
+    "ip_address": "192.168.1.100",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "session_id": "sess_abc123def456",
+    "authentication_method": "password",
+    "success": true
+  },
+  "writer": "auth_service",
+  "signature": null,
+  "pubkey": null
+}

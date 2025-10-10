@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
+name: My First Workflow
+description: A simple workflow to test IOA Core
+
+steps:
+  - name: introduction
+    task: "Introduce yourself and explain what you can do"
+    timeout: 30
+    output_format: "text"
+
+  - name: analysis
+    task: "Analyze the introduction and provide insights"
+    depends_on: [introduction]
+    timeout: 45
+    output_format: "json"
