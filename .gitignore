@@ -378,3 +378,8 @@ docs/internal_tmp/
 
 # Temporary header fix script
 /tmp/fix_headers.py
+
+# Example artifacts
+my-ai-system/
+my-project/
+test-project/

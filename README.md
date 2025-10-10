@@ -12,23 +12,26 @@ bringing verifiable policy, evidence, and trust to every workflow.
 
 Get up and running in minutes:
 
-> **Note**: Some commands below are examples for future functionality.
-
 ```bash
 # Install IOA Core
 pip install ioa-core
 
-# Setup your first project
-# Example (not currently implemented): ioa boot --project-name my-ai-system
+# Bootstrap a new project
+python examples/00_bootstrap/boot_project.py my-ai-system
 
-# Run a simple workflow
-# Example (not currently implemented): ioa workflows run --file workflow.yaml
+# Run a simple governed workflow
+python examples/10_workflows/run_workflow.py
 
 # Run vendor-neutral roundtable with quorum policy
-# Example (not currently implemented): ioa demo vendor-neutral-roundtable --task "Analyze this code for security issues"
+python examples/20_roundtable/roundtable_quorum.py "Analyze this code for security issues (ok)"
+
+# Check system health
+python examples/30_doctor/doctor_check.py
 ```
 
-For a complete quickstart guide, see [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md).
+> **Note**: Examples run offline by default with mock providers. Set `IOA_LIVE=1` and configure API keys for live testing (not executed in CI).
+
+For complete tutorials, see [docs/examples/QUICKSTART.md](docs/examples/QUICKSTART.md).
 
 ## 🎯 Vendor-Neutral Quorum Policy
 
@@ -154,6 +157,55 @@ Supports 6 major LLM providers with unified interface:
 - Live smoke testing for all providers
 
 For a complete feature comparison, see [FEATURE_MATRIX.md](FEATURE_MATRIX.md).
+
+## 📚 Examples & Tutorials
+
+IOA Core includes working examples for all core features. All examples run offline by default.
+
+### Quick Examples
+
+```bash
+# Bootstrap a project
+python examples/00_bootstrap/boot_project.py my-project
+
+# Run governed workflow
+python examples/10_workflows/run_workflow.py
+
+# Multi-agent quorum voting
+python examples/20_roundtable/roundtable_quorum.py "Your task (ok)"
+
+# System health check
+python examples/30_doctor/doctor_check.py
+
+# Provider smoke test
+IOA_PROVIDER=mock python examples/40_providers/provider_smoketest.py
+
+# Ollama turbo mode
+python examples/50_ollama/turbo_mode_demo.py turbo_cloud
+```
+
+### Comprehensive Tutorials
+
+- **[Quick Start](docs/examples/QUICKSTART.md)** - Get started in minutes
+- **[Workflows Guide](docs/examples/WORKFLOWS.md)** - Build governed workflows
+- **[Roundtable Guide](docs/examples/ROUNDTABLE.md)** - Multi-agent consensus
+- **[Provider Setup](docs/examples/PROVIDERS.md)** - Configure LLM providers
+- **[Ollama Turbo](docs/examples/OLLAMA.md)** - Local model optimization
+
+### Live Testing
+
+Examples run offline by default. For live testing with real providers:
+
+```bash
+# Set your API keys
+export OPENAI_API_KEY=your-key
+export ANTHROPIC_API_KEY=your-key
+
+# Enable live mode
+IOA_LIVE=1 IOA_PROVIDER=openai python examples/40_providers/provider_smoketest.py
+```
+
+> **Note**: Live tests are not executed in CI. All CI tests use offline mocks.
 
 ## 🔧 Setup LLM Providers
 
