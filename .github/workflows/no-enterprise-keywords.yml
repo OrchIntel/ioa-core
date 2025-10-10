@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+
+name: No Enterprise Keywords
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  keyword-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check for absolute local paths
+      run: |
+        echo "Checking for absolute local paths..."
+        if grep -r --include="*.py" --include="*.md" --include="*.yml" "/Users/" . 2>/dev/null | grep -v ".git" | grep -v "workflows"; then
+          echo "❌ Found absolute local paths"
+          exit 1
+        fi
+        echo "✅ No absolute local paths found"
+    
+    - name: Check for enterprise keywords (excluding allowed contexts)
+      run: |
+        echo "Checking for enterprise keywords..."
+        # Check for 'enterprise' but exclude 'Restricted Edition' contexts
+        if grep -ri "enterprise" --include="*.py" --include="*.md" . 2>/dev/null | \
+           grep -v "Restricted Edition" | \
+           grep -v ".git" | \
+           grep -v "workflows" | \
+           grep -v "ioa-enterprise"; then
+          echo "⚠️  Found enterprise references (review needed)"
+          # Don't fail, just warn
+        fi
+        echo "✅ Enterprise keyword check complete"
+    
+    - name: Check for cursor/agent references
+      run: |
+        echo "Checking for cursor/agent keywords..."
+        if grep -ri "cursor\|claude\|gpt-4" --include="*.py" --include="*.md" . 2>/dev/null | \
+           grep -v "provider" | \
+           grep -v "example" | \
+           grep -v ".git" | \
+           grep -v "workflows" | \
+           head -5; then
+          echo "⚠️  Found potential agent references (review needed)"
+          # Don't fail, just warn
+        fi
+        echo "✅ Agent keyword check complete"
+

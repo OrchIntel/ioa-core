@@ -1,13 +1,12 @@
-**Version:** v2.5.0  
-**Last-Updated:** 2025-10-09
+# IOA Core v2.5.0
 
-# IOA Core
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-brightgreen.svg)]()
+[![Build](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml/badge.svg)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
+[![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://ioa.systems/docs)
 
-[![Docs CLI Validate](https://github.com/orchintel/ioa-core/workflows/Docs%20CLI%20Validation/badge.svg)](https://github.com/orchintel/ioa-core/actions/workflows/docs-cli-validate.yml)
-[![Docs Build](https://github.com/orchintel/ioa-core/workflows/Docs%20Build%20and%20Validation/badge.svg)](https://github.com/orchintel/ioa-core/actions/workflows/docs-build.yml)
-[![Smoketests](https://github.com/orchintel/ioa-core/workflows/Docs%20CLI%20Validation/badge.svg)](https://github.com/orchintel/ioa-core/actions/workflows/docs-cli-validate.yml)
-
-IOA is a compliance-driven orchestration layer for multi-provider AI workflows.
+IOA Core is the **open-source framework for governed AI orchestration** —  
+bringing verifiable policy, evidence, and trust to every workflow.
 
 ## 🚀 Quick Start
 

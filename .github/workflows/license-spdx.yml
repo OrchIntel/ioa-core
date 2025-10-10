@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+
+name: License SPDX Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  spdx-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check SPDX headers in Python files
+      run: |
+        echo "Checking SPDX headers..."
+        missing=0
+        for file in $(find src -name "*.py"); do
+          if ! head -10 "$file" | grep -q "SPDX-License-Identifier: Apache-2.0"; then
+            echo "❌ Missing SPDX header: $file"
+            missing=$((missing + 1))
+          fi
+        done
+        
+        if [ $missing -gt 0 ]; then
+          echo "❌ Found $missing files missing SPDX headers"
+          exit 1
+        else
+          echo "✅ All files have SPDX headers"
+        fi
+    
+    - name: Verify LICENSE file
+      run: |
+        if [ ! -f LICENSE ]; then
+          echo "❌ LICENSE file not found"
+          exit 1
+        fi
+        echo "✅ LICENSE file present"
+

@@ -37,7 +37,17 @@ from governance.audit_chain import AuditChain
 # Load secrets from environment
 try:
     from dotenv import load_dotenv
-    load_dotenv('/Users/ryan/ioa-envs/.env.secrets')
+    import os
+    # Try multiple locations for .env file
+    env_paths = [
+        '.env.secrets',
+        '.env',
+        os.path.expanduser('~/.ioa/.env.secrets'),
+    ]
+    for env_path in env_paths:
+        if os.path.exists(env_path):
+            load_dotenv(env_path)
+            break
 except ImportError:
     print("⚠️  python-dotenv not installed; using existing env vars only")
 

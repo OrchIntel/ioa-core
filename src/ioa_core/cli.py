@@ -791,29 +791,29 @@ def _run_provider_microcall(
                 selected_model = ollama_results["model_selection"]["selected_model"]
                 model_used = selected_model
 
-                    manager = LLMManager()
-                    service = manager.create_service(
-                        provider=provider_id, model=selected_model, offline=False
-                    )
+                manager = LLMManager()
+                service = manager.create_service(
+                    provider=provider_id, model=selected_model, offline=False
+                )
 
-                    # Use strict hello micro-prompt
-                    test_prompt = "Say 'hello' and nothing else."
-                    response = service.execute(
-                        test_prompt, timeout=timeout_ms // 1000, max_tokens=max_tokens
-                    )
+                # Use strict hello micro-prompt
+                test_prompt = "Say 'hello' and nothing else."
+                response = service.execute(
+                    test_prompt, timeout=timeout_ms // 1000, max_tokens=max_tokens
+                )
 
-                    if isinstance(response, str) and len(response) >= 0:
-                        # Estimate token usage (rough approximation)
-                        tokens_in = (
-                            len(test_prompt.split()) + 1
-                        )  # +1 for prompt overhead
-                        tokens_out = (
-                            len(response.split()) + 1
-                        )  # +1 for response overhead
-                        http_status = 200
-                    else:
-                        status = "failed"
-                        error = "Invalid response type"
+                if isinstance(response, str) and len(response) >= 0:
+                    # Estimate token usage (rough approximation)
+                    tokens_in = (
+                        len(test_prompt.split()) + 1
+                    )  # +1 for prompt overhead
+                    tokens_out = (
+                        len(response.split()) + 1
+                    )  # +1 for response overhead
+                    http_status = 200
+                else:
+                    status = "failed"
+                    error = "Invalid response type"
             else:
                 error = ollama_results["summary"].get(
                     "error", "Ollama smoketest failed"
@@ -960,16 +960,16 @@ def _run_provider_microcall(
                         "content-type": "application/json",
                     }
 
-                        _body = {
-                            "model": _model,
-                            "max_tokens": max(1, max_tokens),
-                            "messages": [{"role": "user", "content": test_prompt}],
-                        }
-                        # PATCH: Cursor-2025-09-19 - Explicit timeout to address Bandit B113 false positive
-                        timeout_seconds = max(1, timeout_ms // 1000)
-                        return _requests.post(
-                            _url, headers=_hdrs, json=_body, timeout=timeout_seconds
-                        )  # nosec B113
+                    _body = {
+                        "model": _model,
+                        "max_tokens": max(1, max_tokens),
+                        "messages": [{"role": "user", "content": test_prompt}],
+                    }
+                    # PATCH: Cursor-2025-09-19 - Explicit timeout to address Bandit B113 false positive
+                    timeout_seconds = max(1, timeout_ms // 1000)
+                    return _requests.post(
+                        _url, headers=_hdrs, json=_body, timeout=timeout_seconds
+                    )  # nosec B113
 
                     fallback_models = [
                         model_used or "claude-3-5-sonnet-20241022",
@@ -1073,23 +1073,23 @@ def _run_provider_microcall(
                     "Content-Type": "application/json",
                 }
 
-                    _body = {
-                        "model": _model,
-                        "stream": False,
-                        "temperature": 0,
-                        "messages": [
-                            {"role": "system", "content": "You are a test assistant."},
-                            {"role": "user", "content": test_prompt},
-                        ],
-                    }
-                    # PATCH: Cursor-2025-09-19 - Explicit timeout to address Bandit B113 false positive
-                    timeout_seconds = max(1, timeout_ms // 1000)
-                    return _requests.post(
-                        f"{_base}/chat/completions",
-                        headers=_hdrs,
-                        json=_body,
-                        timeout=timeout_seconds,
-                    )  # nosec B113
+                _body = {
+                    "model": _model,
+                    "stream": False,
+                    "temperature": 0,
+                    "messages": [
+                        {"role": "system", "content": "You are a test assistant."},
+                        {"role": "user", "content": test_prompt},
+                    ],
+                }
+                # PATCH: Cursor-2025-09-19 - Explicit timeout to address Bandit B113 false positive
+                timeout_seconds = max(1, timeout_ms // 1000)
+                return _requests.post(
+                    f"{_base}/chat/completions",
+                    headers=_hdrs,
+                    json=_body,
+                    timeout=timeout_seconds,
+                )  # nosec B113
 
                 fallback_models = [
                     model_used or "grok-4-latest",
@@ -1518,11 +1518,11 @@ def providers(provider: Optional[str], non_interactive: bool, ollama_mode: str):
 
     # Build model overrides dictionary
     model_overrides = {}
-        model_overrides["openai"] = openai_model
-        model_overrides["anthropic"] = anthropic_model
-        model_overrides["google"] = google_model
-        model_overrides["deepseek"] = deepseek_model
-        model_overrides["xai"] = xai_model
+    model_overrides["openai"] = openai_model
+    model_overrides["anthropic"] = anthropic_model
+    model_overrides["google"] = google_model
+    model_overrides["deepseek"] = deepseek_model
+    model_overrides["xai"] = xai_model
 
     # Provider configuration
     provider_configs = {
@@ -2385,11 +2385,11 @@ def roundtable(
 
     # Model overrides
     model_overrides = {}
-        model_overrides["openai"] = openai_model
-        model_overrides["anthropic"] = anthropic_model
-        model_overrides["google"] = google_model
-        model_overrides["deepseek"] = deepseek_model
-        model_overrides["xai"] = xai_model
+    model_overrides["openai"] = openai_model
+    model_overrides["anthropic"] = anthropic_model
+    model_overrides["google"] = google_model
+    model_overrides["deepseek"] = deepseek_model
+    model_overrides["xai"] = xai_model
 
     try:
         run_roundtable_demo(
