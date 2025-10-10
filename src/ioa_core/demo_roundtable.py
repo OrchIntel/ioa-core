@@ -1,18 +1,19 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
 
-"""
+
 Multi-Agent Roundtable Demo for IOA Core
 
 Coordinates multiple AI providers to create a 5-slide pitch outline for EcoLens,
 a fictional AI startup focused on water optimization for small farms.
 
 PATCH: Cursor-2025-09-08 DISPATCH-OSS-20250908-DEMO-ROUNDTABLE
+"""Demo Roundtable module."""
+
 """
 
 import json

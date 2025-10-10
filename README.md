@@ -122,6 +122,39 @@ cd ioa-core
 
 For detailed installation instructions, see our [Installation Guide](docs/getting-started/installation.md).
 
+## ✨ Core Features
+
+IOA Core provides production-ready capabilities for governed AI orchestration:
+
+### 🔒 Audit & Governance
+- **Immutable Audit Chains**: Cryptographically verified audit logging
+- **System Laws Framework**: Seven governing principles for AI orchestration
+- **Data Redaction**: Automatic redaction of sensitive data in logs
+- **Compliance-Ready**: Educational framework for regulatory requirements
+
+### 💾 Memory System
+- **Multi-Tier Storage**: Hot (in-memory) and cold (persistent) storage
+- **Multiple Backends**: SQLite, S3, Local JSONL
+- **AES-GCM Encryption**: At-rest encryption for sensitive data
+- **4D Tiering** (Preview): Educational preview of tiered memory management
+
+### 🤖 LLM Provider Support
+Supports 6 major LLM providers with unified interface:
+- **OpenAI** (GPT-4, GPT-3.5)
+- **Anthropic** (Claude 3.x)
+- **Google Gemini** (Gemini 1.5)
+- **DeepSeek** (DeepSeek Chat)
+- **XAI** (Grok Beta)
+- **Ollama** (Local models with turbo mode)
+
+### 🎯 Provider Features
+- Zero-retention data handling
+- Rate limiting and cost controls
+- Fallback routing and error handling
+- Live smoke testing for all providers
+
+For a complete feature comparison, see [FEATURE_MATRIX.md](FEATURE_MATRIX.md).
+
 ## 🔧 Setup LLM Providers
 
 Configure your LLM providers using the unified CLI:

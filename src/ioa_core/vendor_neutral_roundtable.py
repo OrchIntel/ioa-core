@@ -1,18 +1,19 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
 
-"""
+
 Vendor-Neutral Roundtable Executor
 
 Implements vendor-neutral quorum policy with sibling weighting, auditor fallback,
 and graceful scaling from 1→N providers for multi-agent consensus.
 
 Key Features:
+"""Vendor Neutral Roundtable module."""
+
 - Provider-agnostic roster building with sibling detection
 - Weighted consensus with sibling model discounting (0.6x weight)
 - Auditor fallback selection with M2 baseline validation
