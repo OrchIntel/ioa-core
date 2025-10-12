@@ -123,4 +123,4 @@ IOA Core is designed to support various compliance requirements:
 
 ## Acknowledgments
 
-We thank security researchers and community members who responsibly report vulnerabilities. Contributors to security improvements are acknowledged in our [CONTRIBUTORS.md](CONTRIBUTORS.md) file.
+We thank security researchers and community members who responsibly report vulnerabilities. Contributors to security improvements are acknowledged in our [docs/reference/CONTRIBUTORS.md](docs/reference/CONTRIBUTORS.md) file.

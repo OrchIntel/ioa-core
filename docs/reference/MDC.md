@@ -175,10 +175,10 @@ export IOA_POLICY_MODE=enforce  # Enforce all policies
 
 ## 📚 Additional Resources
 
-- [IOA SDK Documentation](docs/external/EXTERNAL_REPOS.md)
-- [Governance Guidelines](docs/external/OPS_GUIDES.md)
-- [Audit Requirements](docs/external/AUDIT_GUIDES.md)
-- [Memory Fabric Usage](docs/external/EXTERNAL_REPOS.md)
+- [IOA SDK Documentation](../external/EXTERNAL_REPOS.md)
+- [Governance Guidelines](../external/OPS_GUIDES.md)
+- [Audit Requirements](../external/AUDIT_GUIDES.md)
+- [Memory Fabric Usage](../external/EXTERNAL_REPOS.md)
 
 ## ⚠️ Violations
 
@@ -192,4 +192,4 @@ export IOA_POLICY_MODE=enforce  # Enforce all policies
 
 ---
 
-**Questions?** Contact the IOA Governance Team or refer to the [IOA Ops Documentation](docs/external/OPS_GUIDES.md).
+**Questions?** Contact the IOA Governance Team or refer to the [IOA Ops Documentation](../external/OPS_GUIDES.md).

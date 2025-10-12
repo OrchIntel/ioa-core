@@ -231,9 +231,9 @@ pip install ioa-core
 ```
 
 ## Documentation
-- [Quick Start Guide](docs/getting-started/quickstart.md)
-- [API Documentation](docs/api/)
-- [Tutorials](docs/tutorials/)
+- [Quick Start Guide](../../../examples/QUICKSTART.md)
+- [Examples & Tutorials](../../../examples/)
+- [Reference Documentation](../../../reference/)
 
 ## License
 Apache 2.0 - See LICENSE file

@@ -114,7 +114,7 @@ pip install ioa-core
 ```
 
 ## Quick Start
-See [Getting Started Guide](docs/getting-started/quickstart.md)
+See [Getting Started Guide](../../../examples/QUICKSTART.md)
 
 ## Known Issues
 - CLI deep imports have syntax errors (fix planned for v2.5.1)

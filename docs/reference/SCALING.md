@@ -30,5 +30,5 @@ IOA Core is designed for scalable AI orchestration across multiple providers and
 
 ## See Also
 
-- [Performance Guide](docs/getting-started/)
-- [Architecture](docs/getting-started/)
+- [Performance Guide](../examples/)
+- [Architecture](../examples/)

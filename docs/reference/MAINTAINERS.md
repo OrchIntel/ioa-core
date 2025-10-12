@@ -100,7 +100,7 @@ We welcome new maintainers! To become a maintainer:
 
 ## Code of Conduct
 
-All maintainers are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md) and maintain professional, respectful interactions with the community.
+All maintainers are expected to follow our [Code of Conduct](../../CODE_OF_CONDUCT.md) and maintain professional, respectful interactions with the community.
 
 ## Emeritus Maintainers
 
