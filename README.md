@@ -961,6 +961,32 @@ All documentation contributions must follow our **[IOA Style Guide](docs/externa
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for complete documentation governance rules.
 
+## 📂 Repository Layout
+
+```
+/                    # Minimal top-level: README, LICENSE, CHANGELOG, CONTRIBUTING, SECURITY, pyproject.toml
+├── .github/         # GitHub Actions workflows, issue templates, CODEOWNERS
+├── src/             # ioa_core source code
+├── tests/           # Test suites (unit, integration, feature proofs, performance)
+├── docs/            # All documentation
+│   ├── ops/         # Operational docs & dispatch reports
+│   ├── reference/   # Reference materials (scaling, maintainers, trademarks)
+│   ├── examples/    # Tutorial documentation
+│   └── ...
+├── examples/        # Runnable examples with READMEs
+├── tools/           # Helper scripts (non-CI)
+├── monitoring/      # Monitoring configuration & runbooks
+└── cartridges/      # Compliance cartridge frameworks
+```
+
+**Key Principles**:
+- **Root is clean**: Only essential project files at top level
+- **Docs are organized**: Operational, reference, and tutorial docs properly categorized
+- **Examples are runnable**: All examples include READMEs and are tested in CI
+- **Tools are separate**: Helper scripts live in `/tools`, CI workflows in `/.github/workflows`
+
+For detailed file locations and organization, see [docs/ops/WHERE_THINGS_LIVE.md](docs/ops/WHERE_THINGS_LIVE.md).
+
 ## 📄 License
 
 This project is licensed under the [Apache 2.0 License](LICENSE). See the license file for details.

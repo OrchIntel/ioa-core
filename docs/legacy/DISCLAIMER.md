@@ -22,7 +22,7 @@ The **Intelligent Orchestration Architecture (IOA)**, developed by OrchIntel Sys
 - **Limitations & Risks**:
   - **Security**: Trust systems use basic SHA-256 validation (`agent_onboarding.py`). Placeholders in examples are for demonstration—replace with secure implementations. No built-in encryption or access controls; users must add these for compliance (e.g., GDPR, HIPAA).
   - **Bias & Ethics**: Basic mitigation exists (e.g., VAD averaging in `refinery_utils.py`), but IOA does not guarantee fairness. Potential for amplified biases in multi-agent consensus—test with diverse datasets.
-  - **Performance**: Tested to 10k entries (~850MB memory, 0.001s hot retrieval), but scales linearly. See [../../SCALING.md](../../SCALING.md) for details.
+  - **Performance**: Tested to 10k entries (~850MB memory, 0.001s hot retrieval), but scales linearly. See [../../docs/reference/SCALING.md](../../docs/reference/SCALING.md) for details.
   - **Dependencies**: Relies on external LLMs (e.g., OpenAI)—API changes may break adapters (`llm_adapter.py`).
 
 - **Intended Use**: For research, prototyping, and non-commercial development. Commercial use requires review of Apache 2.0 terms and potential enterprise licensing.

@@ -10,8 +10,8 @@ IOA Core is developed and maintained by OrchIntel Systems Ltd. and the open-sour
 
 We welcome contributions from the community! To get involved:
 
-1. Review the [Contributing Guide](CONTRIBUTING.md)
-2. Check the [Code of Conduct](CODE_OF_CONDUCT.md)
+1. Review the [Contributing Guide](../../CONTRIBUTING.md)
+2. Check the [Code of Conduct](../../CODE_OF_CONDUCT.md)
 3. Browse [open issues](https://github.com/OrchIntel/ioa-core/issues)
 4. Submit pull requests following our guidelines
 
