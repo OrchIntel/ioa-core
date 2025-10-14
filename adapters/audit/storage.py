@@ -1,12 +1,10 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
 Multi-backend storage system for audit chains.
 
 Supports both local filesystem and S3 storage with consistent interfaces

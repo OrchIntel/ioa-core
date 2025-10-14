@@ -1,12 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-"""
-
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 Tests that data can be encrypted and decrypted correctly through the cold storage
 system with AES-256 encryption enabled.
 """

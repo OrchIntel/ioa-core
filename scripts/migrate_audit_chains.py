@@ -1,13 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-#!/usr/bin/env python3
-"""
-
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 Migrates audit chains from the old format to the new standardized format:
 - Old: logs/audit_chain-YYYYMMDD-HHMMSS-<hash>.jsonl
 - New: audit_chain/YYYYMMDD/run_<id>.jsonl + audit_chain/YYYYMMDD/run_<id>_receipt.json

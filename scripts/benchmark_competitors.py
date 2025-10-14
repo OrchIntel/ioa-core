@@ -1,12 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-"""
-
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 This script inspects installed packages and public docs (if import fails, it falls back
 to string summaries) to determine whether frameworks provide built-in SOX/GDPR conflict
 resolution. It does not execute any network calls. Output is a lightweight markdown table.

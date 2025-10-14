@@ -1,12 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-"""
-
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 # PATCH: Cursor-2025-01-26 DISPATCH-GPT-20250826-033C <core memory engine freeze>
 # Comprehensive tests for the new core memory engine.
 """

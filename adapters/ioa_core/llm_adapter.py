@@ -1,16 +1,10 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-from __future__ import annotations
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
-"""
-
-"""
 Module responsibilities:
 - Provide a small, test-oriented adapter `OpenAIService` that uses the
   OpenAI v1 client signature: client.chat.completions.create(...).
@@ -21,6 +15,8 @@ Public objects:
 - LLMAuthenticationError
 - LLMAPIError
 """
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Dict, Optional

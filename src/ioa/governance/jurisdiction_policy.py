@@ -1,12 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-"""
-
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 This module implements Law 1 (Compliance Supremacy) through jurisdiction-based
 filtering and enforcement, ensuring 100% compliance across all memory operations.
 """

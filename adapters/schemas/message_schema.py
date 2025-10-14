@@ -1,16 +1,10 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-from __future__ import annotations
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
-"""
-
-"""
 Module responsibilities:
 - Define canonical, versioned message models used across IOA Core.
 - Provide forward-compatible fields for identity/governance hooks (zero-trust ready).
@@ -21,6 +15,8 @@ Key public objects:
 - AgentResponse: Agent output with scoring/trace.
 - FeedbackMessage: Human/automated feedback loop message.
 """
+
+from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Literal, Optional

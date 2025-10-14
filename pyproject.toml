@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ioa-core"
-version = "2.5.1"
+version = "2.5.2-rc1"
 description = "Intelligent Orchestration Architecture Core - Open-source platform for orchestrating modular AI agents with memory-driven collaboration and governance mechanisms"
 readme = "README.md"
 license = "Apache-2.0"

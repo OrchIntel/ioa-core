@@ -1,11 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-"""
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 Tests for the open‑core mood engine stub.
 
 Ensures that stub functions are importable and return expected placeholder values.

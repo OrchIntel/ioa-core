@@ -1,12 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-#!/usr/bin/env python3
-"""
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 IOA Security Validation Suite
 Fuzz testing and penetration testing harness for PolicyEngine, signing backend, and cartridge policies.
 """

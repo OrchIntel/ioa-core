@@ -1,20 +1,16 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-from __future__ import annotations
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-"""
-"""
-
-"""
 This minimal evaluator reads a final report dict and produces a FeedbackMessage
 with a coarse score based on presence of key fields. It is intentionally simple
 to seed the evaluation loop and will evolve in roadmap v4.3.
 """
+
+from __future__ import annotations
 
 from typing import Any, Dict
 

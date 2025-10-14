@@ -1,9 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
+
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
 # IOA Module v2.4.8 | IOA Contributors | Last updated: 2025-08-05
 # Description: Stub mood engine for open‑core; defines basic enums and placeholders.

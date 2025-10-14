@@ -1,12 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-"""
-
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 PATCH: Cursor-2025-09-05 DISPATCH-EXEC-20250905-CONNECTOR-10K-TEST-&-PATCHES
 - Added connector audit hooks for policy enforcement
 - Added WASM sandbox stub for LocalOps execution security

@@ -1,12 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-#!/usr/bin/env python3
-"""
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 IOA Backup and Disaster Recovery Validator
 Tests backup/restore functionality for rotated logs and encrypted manifests (FS and S3).
 """

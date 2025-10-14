@@ -1,0 +1,18 @@
+Aletheia Framework v2.0 - License Notice
+
+The Aletheia Framework v2.0 materials in this directory are provided for educational reference only.
+
+Copyright and License:
+- "Aletheia Framework v2.0" © Rolls-Royce Civil Aerospace
+- Licensed under CC BY-ND 4.0 International (Creative Commons Attribution-NoDerivatives 4.0)
+- Original source: https://www.rolls-royce.com/innovation/the-aletheia-framework.aspx
+
+IOA Reference Notice:
+IOA Core references Aletheia for educational alignment only and does not modify, distribute, or create derivative materials based on the Aletheia Framework. These materials are included solely for reference purposes to help developers understand how IOA's runtime governance capabilities can complement established ethics assessment methodologies.
+
+Files included:
+- aletheia-framework-booklet-2021.pdf (unaltered original)
+
+For questions about IOA's approach to ethics integration, please refer to:
+- IOA Community: https://github.com/OrchIntel/ioa-core
+- IOA Documentation: https://ioa.systems/docs

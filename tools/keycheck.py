@@ -1,13 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
 """
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+SPDX-License-Identifier: Apache-2.0
+Copyright (c) 2025 OrchIntel Systems Ltd.
+https://orchintel.com | https://ioa.systems
 
-#!/usr/bin/env python3
-"""
-
+Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 This script verifies API keys and Ollama environment readiness by parsing
 ioa doctor --json output instead of checking raw environment variables.
 """

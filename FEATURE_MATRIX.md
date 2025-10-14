@@ -17,6 +17,7 @@ This document lists proven, implemented features in IOA Core open-source edition
 | **Audit Chain Verification** | ✅ Available | Verify audit chain integrity and sequence |
 | **Data Redaction** | ✅ Available | Automatic redaction of sensitive data in logs |
 | **System Laws Framework** | ✅ Available | Seven governing principles for AI orchestration |
+| **Ethics Frameworks** | ✅ Available | Reference integration with established ethics assessment tools (Aletheia v2.0 attribution; no derivatives) |
 
 ### ✅ Memory System
 
@@ -48,6 +49,19 @@ This document lists proven, implemented features in IOA Core open-source edition
 | `ioa --help` | ✅ Available | Main CLI help |
 | `ioa smoketest-live` | ✅ Available | Live provider smoke testing |
 | Provider management | ✅ Available | Configure and test LLM providers |
+
+### ✅ Ethics Cartridge (Preview)
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Ethics Precheck** | ✅ Available | Runtime ethics validation with confidence scoring |
+| **PII Detection** | ✅ Available | Basic detection of personally identifiable information |
+| **Deception Detection** | ✅ Available | Identification of potential manipulation attempts |
+| **Harmful Content Detection** | ✅ Available | Basic screening for inappropriate content |
+| **Fairness Violation Detection** | ✅ Available | Detection of potential bias or discrimination |
+| **Policy Validation** | ✅ Available | Validate ethics policy configurations |
+
+**Note**: Ethics cartridge (Aletheia-inspired) - IOA original implementation with neutral criteria names. Not a derivative of Aletheia Framework v2.0.
 
 ---
 

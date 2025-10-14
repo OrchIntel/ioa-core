@@ -1,9 +1,10 @@
-# IOA Core v2.5.1
+# IOA Core v2.5.2-rc1
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10–3.12-brightgreen.svg)]()
 [![Build](https://img.shields.io/github/actions/workflow/status/OrchIntel/ioa-core/build.yml?branch=main)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://ioa.systems/docs)
+[![Run in Colab](https://colab.research.google.com/assets/colab-badge.svg)](examples/colab/IOA_Runtime_Demo.ipynb)
 [![Discord](https://img.shields.io/discord/1426192731679621316?label=Discord&logo=discord&color=7289da)](https://discord.gg/Fzxa5GG9)
 
 IOA Core is the **open-source framework for governed AI orchestration** —  
@@ -135,6 +136,7 @@ IOA Core provides production-ready capabilities for governed AI orchestration:
 - **System Laws Framework**: Seven governing principles for AI orchestration
 - **Data Redaction**: Automatic redaction of sensitive data in logs
 - **Compliance-Ready**: Educational framework for regulatory requirements
+- **Ethics Frameworks**: Reference integration with established ethics assessment tools ([Aletheia v2.0](docs/ethics/aletheia/README.md))
 
 ### 💾 Memory System
 - **Multi-Tier Storage**: Hot (in-memory) and cold (persistent) storage
