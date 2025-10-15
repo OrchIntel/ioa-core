@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.10–3.12-brightgreen.svg)]()
 [![Build](https://img.shields.io/github/actions/workflow/status/OrchIntel/ioa-core/build.yml?branch=main)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://ioa.systems/docs)
-[![Run in Colab](https://colab.research.google.com/assets/colab-badge.svg)](examples/colab/IOA_Runtime_Demo.ipynb)
+[![Run in Colab](https://colab.research.google.com/assets/colab-badge.svg)](examples/colab/IOA_Aletheia_Runtime_Demo.ipynb)
 [![Discord](https://img.shields.io/discord/1426192731679621316?label=Discord&logo=discord&color=7289da)](https://discord.gg/Fzxa5GG9)
 
 IOA Core is the **open-source framework for governed AI orchestration** —  
@@ -186,6 +186,20 @@ IOA_PROVIDER=mock python examples/40_providers/provider_smoketest.py
 # Ollama turbo mode
 python examples/50_ollama/turbo_mode_demo.py turbo_cloud
 ```
+
+### Interactive Colab Demos
+
+**🎓 Aletheia Runtime Demo** (Public - No API Keys Required)
+- **Colab**: [![Run in Colab](https://colab.research.google.com/assets/colab-badge.svg)](examples/colab/IOA_Aletheia_Runtime_Demo.ipynb)
+- **Description**: Educational simulation of IOA Core with Aletheia Framework v2.0 integration
+- **Features**: 6-facet governance scoring, policy enforcement simulation, evidence bundle generation
+- **Perfect for**: Learning how IOA enforces Aletheia facets at runtime
+
+**☁️ Cloud API Demo** (Internal - Requires API Keys)
+- **Colab**: [![Run in Colab](https://colab.research.google.com/assets/colab-badge.svg)](examples/colab/IOA_Cloud_API_Demo.ipynb)
+- **Description**: Live IOA Cloud API integration with real governance checks
+- **Features**: Actual API calls, real evidence bundles, production-ready examples
+- **Perfect for**: Testing with real IOA Cloud infrastructure
 
 ### Comprehensive Tutorials
 
