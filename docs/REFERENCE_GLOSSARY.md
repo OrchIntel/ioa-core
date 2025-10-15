@@ -62,9 +62,9 @@ Complete reference of terms, concepts, and components in IOA Core.
 
 | Term | Plain Definition | Example / Link | Related Docs |
 |------|------------------|----------------|--------------|
-| **OSS Boundary** | Clear separation between open-source core features and restricted edition capabilities | [README.md](../README.md) | [FEATURE_MATRIX.md](../FEATURE_MATRIX.md) |
+| **OSS Boundary** | Clear separation between open-source core features and advanced capabilities | [README.md](../README.md) | [FEATURE_MATRIX.md](../FEATURE_MATRIX.md) |
 | **Educational Preview** | Feature available for learning/experimentation, not production-ready | 4D Tiering | [FEATURE_MATRIX.md](../FEATURE_MATRIX.md) |
-| **Restricted Edition** | Commercial version with enterprise features (HIPAA, SOX, GDPR, Visual Builder) | [FEATURE_MATRIX.md](../FEATURE_MATRIX.md) | [README.md](../README.md) |
+| **Advanced Edition** | Commercial version with advanced features (HIPAA, SOX, GDPR, Visual Builder) | [FEATURE_MATRIX.md](../FEATURE_MATRIX.md) | [README.md](../README.md) |
 | **Data Redaction** | Automatic removal of sensitive information from audit logs | [audit_chain.py](../src/ioa_core/governance/audit_chain.py) | [FEATURE_MATRIX.md](../FEATURE_MATRIX.md) |
 
 ---
