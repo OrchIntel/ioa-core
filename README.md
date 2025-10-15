@@ -195,10 +195,11 @@ python examples/50_ollama/turbo_mode_demo.py turbo_cloud
 - **Features**: 6-facet governance scoring, policy enforcement simulation, evidence bundle generation
 - **Perfect for**: Learning how IOA enforces Aletheia facets at runtime
 
-**☁️ Cloud API Demo** (Internal - Requires API Keys)
+**☁️ Cloud API Demo** (Internal - Requires API Keys & Backend)
 - **Colab**: [![Run in Colab](https://colab.research.google.com/assets/colab-badge.svg)](examples/colab/IOA_Cloud_API_Demo.ipynb)
 - **Description**: Live IOA Cloud API integration with real governance checks
 - **Features**: Actual API calls, real evidence bundles, production-ready examples
+- **Requirements**: IOA Cloud API keys and backend infrastructure
 - **Perfect for**: Testing with real IOA Cloud infrastructure
 
 ### Comprehensive Tutorials

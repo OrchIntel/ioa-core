@@ -508,7 +508,7 @@ All human reviews generate **cryptographic evidence** identical to automated dec
 
 1. **Installation**: `pip install ioa-core` (Python 3.10+)
 2. **Example Scripts**: Available at `ioa-core/examples/ethics/` (healthcare, finance, legal scenarios)
-3. **Colab Demo**: Interactive Aletheia Runtime Demo at [https://colab.research.google.com/github/OrchIntel/ioa-core](https://colab.research.google.com/github/OrchIntel/ioa-core/blob/main/examples/colab/IOA_Aletheia_Runtime_Demo.ipynb)
+3. **Colab Demo**: Interactive Aletheia Runtime Demo at [https://colab.research.google.com/github/OrchIntel/ioa-core](https://colab.research.google.com/github/OrchIntel/ioa-core/blob/main/examples/colab/IOA_Aletheia_Runtime_Demo.ipynb) (No keys required by default; optional BYO-LLM toggle available in the notebook)
 4. **Documentation**: Full API reference at [https://ioa.systems/docs](https://ioa.systems/docs)
 
 **Requirements**: Active API keys for 4-6 LLM providers (OpenAI, Anthropic, Google, etc.). Estimated cost: $5-$20 for full reproduction suite.
