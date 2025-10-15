@@ -70,7 +70,7 @@ This document lists proven, implemented features in IOA Core open-source edition
 The following features are available in Restricted Edition:
 
 - **Workflow Engine (YAML DSL)** - Visual workflow builder
-- **PKI Agent Onboarding** - Enterprise agent management
+- **PKI Agent Onboarding** - Advanced agent management
 - **Multi-region Replication** - Geo-distributed storage
 - **Advanced Analytics** - Detailed usage and performance analytics
 - **Compliance Frameworks** - Full HIPAA, SOX, GDPR tooling
@@ -103,7 +103,7 @@ python3 tests/perf/test_ollama_turbo.py
 | **Core Engine** | ✅ Full | ✅ Full |
 | **LLM Providers** | ✅ 6 providers | ✅ 6+ providers |
 | **Governance** | ✅ Basic | ✅ Advanced |
-| **Memory System** | ✅ Hot/Cold | ✅ Multi-tier + Enterprise |
+| **Memory System** | ✅ Hot/Cold | ✅ Multi-tier + Advanced |
 | **Workflow Engine** | ❌ Future | ✅ Visual Builder |
 | **Compliance** | ✅ Educational | ✅ Production-Ready |
 

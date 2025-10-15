@@ -157,10 +157,10 @@ def precheck(input_payload: Dict[str, Any], strict_mode: bool = False) -> Ethics
 
 ## Related Documentation
 
-- [IOA Governance Overview](../../docs/governance/GOVERNANCE.md)
-- [Aletheia Reference](../../docs/ethics/aletheia/README.md)
-- [Policy Cartridges](../../docs/governance/)
-- [Evidence Chain Documentation](../../docs/examples/audit/)
+- [IOA Governance Overview](../../../../docs/governance/GOVERNANCE.md)
+- [Aletheia Reference](../../../../docs/ethics/aletheia/README.md)
+- [Policy Cartridges](../../../../docs/governance/)
+- [Evidence Chain Documentation](../../../../docs/examples/)
 
 ## License
 
