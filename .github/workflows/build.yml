@@ -49,4 +49,13 @@ jobs:
       run: |
         pip install dist/*.whl --force-reinstall
         python -c "import ioa_core; print('✅ Import successful')"
+    
+    - name: Sign and publish IOA badge
+      if: github.event_name == 'push' && github.repository_owner == 'OrchIntel' && !github.event.head_commit.author.name == 'dependabot[bot]'
+      run: |
+        curl -s ${{ env.CERT_SERVICE_URL || 'https://api.orchintel.com/cert' }}/sign \
+          -d "{\"manifest\": {\"repo\": \"${{ github.repository }}\", \"status\": \"pass\"}, \"algo\": \"RS256\"}" \
+          > badge.sig || echo "Badge signing failed, continuing..."
+        curl -s ${{ env.CERT_SERVICE_URL || 'https://api.orchintel.com/cert' }}/badge/gold.svg -o badge.svg || echo "Badge download failed, continuing..."
+        echo "![Governed by IOA](badge.svg)" >> README.md
 
