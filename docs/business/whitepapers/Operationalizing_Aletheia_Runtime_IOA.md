@@ -19,6 +19,19 @@ This study establishes a foundation for transitioning AI ethics from static docu
 
 ---
 
+## Governance Badge Tiers
+
+IOA implements a four-tier governance badge system to provide visual indicators of runtime governance assurance levels:
+
+- **Bronze (Shadow)**: Observation-only governance mode with shadow monitoring and logging
+- **Silver (Enforce)**: Active governance enforcement with pre/post policy validation and action blocking  
+- **Gold (Consensus)**: Full consensus-based governance with quorum enforcement and multi-party validation
+- **Platinum (Federated)**: Distributed federated governance across multiple organizations with cross-organization consensus
+
+These badges enable stakeholders to immediately assess the governance maturity of AI systems, facilitating informed decision-making and compliance verification.
+
+---
+
 ## 1. Introduction
 
 ### 1.1 The Ethics Enforcement Gap
