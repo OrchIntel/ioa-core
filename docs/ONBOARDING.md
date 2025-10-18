@@ -435,7 +435,7 @@ chmod 600 ~/.ioa/config/*
 - **Documentation**: [docs/]()
 - **GitHub Issues**: [Report bugs](https://github.com/orchintel/ioa-core/issues)
 - **Discussions**: [Community Q&A](https://github.com/orchintel/ioa-core/discussions)
-- **Security**: [security@orchintel.com](mailto:security@orchintel.com)
+- **Security**: [mailto:security@orchintel.com](mailto:mailto:security@orchintel.com)
 
 ## Next Steps
 

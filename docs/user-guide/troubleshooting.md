@@ -745,8 +745,8 @@ For specific component issues:
 
 ### Professional Support
 
-1. **Security Issues**: [security@orchintel.com](mailto:security@orchintel.com)
-2. **Advanced Support**: [support@orchintel.com](mailto:support@orchintel.com)
+1. **Security Issues**: [mailto:security@orchintel.com](mailto:mailto:security@orchintel.com)
+2. **Advanced Support**: [mailto:support@orchintel.com](mailto:mailto:support@orchintel.com)
 3. **Consulting**: [consulting@orchintel.com](mailto:consulting@orchintel.com)
 
 ## Prevention
