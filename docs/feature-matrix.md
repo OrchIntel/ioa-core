@@ -319,8 +319,8 @@ This document provides a comprehensive comparison of features available in the o
 ## Contact Information
 
 - **Open Source**: [GitHub Repository](https://github.com/orchintel/ioa-core)
-- **Organization Sales**: [mailto:sales@orchintel.com](mailto:mailto:sales@orchintel.com)
-- **Support**: [mailto:support@orchintel.com](mailto:mailto:support@orchintel.com)
+- **Organization Sales**: [sales@orchintel.com](mailto:sales@orchintel.com)
+- **Support**: [support@orchintel.com](mailto:support@orchintel.com)
 - **Documentation**: [docs.orchintel.com](https://docs.orchintel.com)
 
 ---

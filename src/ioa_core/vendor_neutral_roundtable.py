@@ -9,7 +9,7 @@
 Vendor-Neutral Roundtable Executor
 
 Implements vendor-neutral quorum policy with sibling weighting, auditor fallback,
-and graceful scaling from 1→N providers for multi-agent consensus.
+and graceful scaling from 1 to N providers for multi-agent consensus.
 
 Key Features:
 """Vendor Neutral Roundtable module."""

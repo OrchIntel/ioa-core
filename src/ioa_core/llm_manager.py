@@ -11,8 +11,6 @@ Minimal LLMManager implementation for ioa_core package.
 
 This provides a basic implementation that allows the CLI to function
 without requiring the full src.llm_manager module.
-"""Llm Manager module."""
-
 """
 
 from typing import Optional

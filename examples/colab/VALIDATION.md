@@ -1,6 +1,6 @@
 # Colab Notebook Validation Report
 
-**Generated**: 2025-10-16T08:11:32.026172+00:00  
+**Generated**: 2025-10-16T08:12:14.193659+00:00  
 **Purpose**: Validate Colab notebook accessibility and first-cell execution  
 
 ## Summary
@@ -15,7 +15,7 @@
 ### IOA_Aletheia_Runtime_Demo.ipynb
 
 **Overall Status**: passed  
-**Execution Time**: 0.04s  
+**Execution Time**: 0.05s  
 **Cells Tested**: 2  
 
 **Cell Results**:
@@ -38,7 +38,7 @@
 ### IOA_Cloud_API_Demo.ipynb
 
 **Overall Status**: passed  
-**Execution Time**: 0.12s  
+**Execution Time**: 0.11s  
 **Cells Tested**: 2  
 
 **Cell Results**:
