@@ -4,16 +4,13 @@
 #
 # Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-
-
+"""
 Vendor-Neutral Roundtable Executor
 
 Implements vendor-neutral quorum policy with sibling weighting, auditor fallback,
 and graceful scaling from 1 to N providers for multi-agent consensus.
 
 Key Features:
-"""Vendor Neutral Roundtable module."""
-
 - Provider-agnostic roster building with sibling detection
 - Weighted consensus with sibling model discounting (0.6x weight)
 - Auditor fallback selection with M2 baseline validation
@@ -311,7 +308,7 @@ class RosterBuilder:
         
         raise AuditorError("No providers available for auditor")
     
-    async def validate_response(self, response: str, task: str, 
+    async def validate_response(self, response: str, task: str) -> dict:
         """
         Validate response using M2 baseline auditor.
         
