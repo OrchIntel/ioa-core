@@ -19,7 +19,7 @@ from typing import List, Optional, Dict, Any, Union
 from datetime import datetime, timezone
 from contextlib import nullcontext
 
-from .schema import MemoryRecordV1, MemoryType, StorageTier
+from .schema import MemoryRecordV1, MemoryType, StorageTier, EmbeddingV1
 from .stores.base import MemoryStore
 from .stores.local_jsonl import LocalJSONLStore
 from .stores.sqlite import SQLiteStore
@@ -333,7 +333,8 @@ class MemoryFabric:
         tags: Optional[List[str]] = None,
         memory_type: Union[str, MemoryType] = MemoryType.CONVERSATION,
         storage_tier: Union[str, StorageTier] = StorageTier.HOT,
-        record_id: Optional[str] = None
+        record_id: Optional[str] = None,
+        embedding: Optional[EmbeddingV1] = None
     ) -> str:
         """
         Store content in memory fabric.
@@ -423,7 +424,8 @@ class MemoryFabric:
                     metadata=record_metadata,
                     tags=tags or [],
                     memory_type=MemoryType(memory_type) if isinstance(memory_type, str) else memory_type,
-                    storage_tier=StorageTier(storage_tier) if isinstance(storage_tier, str) else storage_tier
+                    storage_tier=StorageTier(storage_tier) if isinstance(storage_tier, str) else storage_tier,
+                    embedding=embedding
                 )
 
                 # Encrypt content if encryption is enabled

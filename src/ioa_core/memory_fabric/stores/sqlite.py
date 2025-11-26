@@ -7,6 +7,7 @@
 
 
 import json
+import os
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -26,12 +27,21 @@ class SQLiteStore(BaseMemoryStore):
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the SQLite store."""
         super().__init__(config)
-        self.data_dir = Path(config.get("data_dir", "./artifacts/memory"))
+        self.data_dir = Path(config.get("data_dir", "./artifacts/memory") if config else "./artifacts/memory")
         self.data_dir.mkdir(parents=True, exist_ok=True)
         
-        # Create run-specific database
-        run_id = str(uuid.uuid4())[:8]
-        self.db_path = self.data_dir / f"memory_run_{run_id}.db"
+        # Allow fixed db_name via config or environment variable
+        # This enables production use cases where a single database is preferred
+        db_name = (config or {}).get("db_name") or os.environ.get("IOA_MEMORY_DB_NAME")
+        
+        if db_name:
+            # Fixed database name (recommended for production)
+            self.db_path = self.data_dir / db_name
+        else:
+            # Legacy: run-specific database (for backwards compatibility)
+            run_id = str(uuid.uuid4())[:8]
+            self.db_path = self.data_dir / f"memory_run_{run_id}.db"
+        
         self._connection = None
         self._init_database()
     

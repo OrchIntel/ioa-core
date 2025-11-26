@@ -34,6 +34,7 @@ class MemoryType(str, Enum):
 class EmbeddingV1:
     """Embedding vector with versioning."""
     vector: List[float]
+    model: str  # Model name used to generate embedding (e.g., "text-embedding-3-small")
     dimension: int
     __schema_version__: str = "1.0"
     
