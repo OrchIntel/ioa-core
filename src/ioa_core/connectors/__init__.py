@@ -5,12 +5,11 @@
 # Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
 
+"""
 IOA Core Connectors Package
 
 Connectors for integrating with external systems and services.
 """
 
 __version__ = "2.5.0"
-
-"""  Init   module."""
 

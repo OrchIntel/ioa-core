@@ -7,6 +7,7 @@
 
 
 import logging
+import re
 import uuid
 import json
 from typing import Dict, Any, Optional, List, Tuple
@@ -451,6 +452,22 @@ class PolicyEngine:
                     return {
                         "violation": True,
                         "details": f"Content contains discriminatory language: '{term}'"
+                    }
+            # Broader patterns for exclusionary phrasing (e.g., "we only hire men", "men only")
+            discriminatory_patterns = [
+                r"\b(?:only|just)\s+(?:\w+\s+)?(men|male|males|women|female|females)\b",
+                r"\b(men|male|males|women|female|females)\s+only\b",
+                r"\bhire\s+only\s+(men|male|males|women|female|females)\b",
+                r"\bwe\s+only\s+want\s+to\s+hire\s+(men|male|males|women|female|females)\b",
+                r"\bonly\s+(men|male|males|women|female|females)\s+for\b",
+                r"\bno\s+(men|male|males|women|female|females)\b",
+                r"\bno\s+(disabled|handicapped|wheelchair users|visually impaired|hearing impaired)\b",
+            ]
+            for pattern in discriminatory_patterns:
+                if re.search(pattern, content):
+                    return {
+                        "violation": True,
+                        "details": "Content contains discriminatory language or exclusionary pattern"
                     }
         
         # Check for equal opportunity requirements
