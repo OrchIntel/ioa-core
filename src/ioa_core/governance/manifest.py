@@ -47,6 +47,8 @@ class SystemLaws:
         self.policy = manifest_data.get("policy", {})
         self.signature = manifest_data.get("signature", {})
         self.metadata = manifest_data.get("metadata", {})
+        # Provide a manifest identifier for integrity checks
+        self.manifest_id = self.metadata.get("id", self.version or "unknown")
         
         # Create law lookup
         self._laws_by_id = {law["id"]: law for law in self.laws}

@@ -143,3 +143,40 @@ class EnergyBudgetExceededError(SystemLawsError):
                 "override_available": override_available
             }
         )
+
+
+# NOTE: The SystemLaws class was missing, which caused manifest load failures
+# (e.g., AttributeError: 'SystemLaws' object has no attribute 'manifest_id').
+# PolicyEngine relies on this class for manifest accessors.
+class SystemLaws:
+    """Lightweight wrapper around the System Laws manifest."""
+
+    def __init__(self, manifest: Dict[str, Any]):
+        self.manifest = manifest or {}
+        self.version = self.manifest.get("version")
+        self.laws = self.manifest.get("laws", [])
+        self.policy = self.manifest.get("policy", {})
+        self.signature = self.manifest.get("signature", {})
+        self.metadata = self.manifest.get("metadata", {})
+
+        # Provide manifest_id for compatibility with existing validation checks
+        self.manifest_id = self.metadata.get("id", self.version or "unknown")
+        # Convenience alias used by PolicyEngine (fairness threshold/config)
+        self.fairness = self.policy.get("fairness", {})
+
+    def validate_manifest_structure(self) -> bool:
+        required_fields = ["version", "laws", "policy", "signature", "metadata"]
+        return all(field in self.manifest for field in required_fields)
+
+    def get_fairness_threshold(self) -> float:
+        return float(self.fairness.get("threshold", 0.0))
+
+    def get_conflict_resolution_order(self):
+        return self.policy.get("conflict_resolution", [])
+
+    def get_law(self, law_id: str) -> Optional[Dict[str, Any]]:
+        return next((law for law in self.laws if law.get("id") == law_id), None)
+
+    def is_critical_law(self, law_id: str) -> bool:
+        law = self.get_law(law_id)
+        return bool(law and law.get("enforcement") == "critical")

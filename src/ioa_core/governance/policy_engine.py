@@ -105,6 +105,13 @@ class PolicyEngine:
         self._load_ethics_pack()
         
         logger.info("Policy Engine initialized with System Laws and jurisdiction conflict resolution")
+
+    def validate_action(self, action_ctx: ActionContext) -> ValidationResult:
+        """
+        Public entrypoint used by callers (e.g., governance-proxy).
+        Thin wrapper around validate_against_laws to preserve existing API.
+        """
+        return self.validate_against_laws(action_ctx)
     
     def register_policy_event_handler(self, handler: callable):
         """Register a handler for policy events."""
