@@ -713,7 +713,23 @@ class PolicyEngine:
             return ValidationStatus.APPROVED
         
         if violations:
-            # Check if any violations are critical
+            # CRITICAL: Check for discriminatory or threat violations - these must always be BLOCKED
+            # regardless of law enforcement level (discrimination and threats are always critical)
+            critical_violation_types = [
+                v for v in violations 
+                if (
+                    "discriminatory" in v.get("details", "").lower() or
+                    "threat" in v.get("details", "").lower() or
+                    "violence" in v.get("details", "").lower() or
+                    "intimidat" in v.get("details", "").lower() or
+                    "harmful" in v.get("details", "").lower()
+                )
+            ]
+            
+            if critical_violation_types:
+                return ValidationStatus.BLOCKED
+            
+            # Check if any violations are from critical laws
             critical_violations = [
                 v for v in violations 
                 if self.laws.is_critical_law(v.get("law_id", ""))
@@ -725,7 +741,7 @@ class PolicyEngine:
         if required_approvals:
             return ValidationStatus.REQUIRES_APPROVAL
         
-        # Non-critical violations may be mitigated
+        # Non-critical violations may be mitigated (but discrimination/threats already handled above)
         return ValidationStatus.MITIGATED
     
     def resolve_policy_conflicts(self, conflicting_laws: List[str], 
