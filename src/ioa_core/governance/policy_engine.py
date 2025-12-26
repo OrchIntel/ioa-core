@@ -445,7 +445,11 @@ class PolicyEngine:
             content = action_ctx.metadata["content_text"].lower()
             discriminatory_terms = [
                 "only men", "only women", "no disabled", "no elderly", 
-                "whites only", "blacks only", "asians only", "hispanics only"
+                "whites only", "blacks only", "asians only", "hispanics only",
+                # CRITICAL FIX: Add singular forms (e.g., "white only" vs "whites only")
+                "white only", "black only", "asian only", "hispanic only",
+                "white-only", "black-only", "asian-only", "hispanic-only",
+                "whites-only", "blacks-only", "asians-only", "hispanics-only",
             ]
             for term in discriminatory_terms:
                 if term in content:
