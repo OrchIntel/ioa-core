@@ -4,15 +4,13 @@
 #
 # Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-
-
+"""
 IOA Governance: Immutable Audit Chain
 
 Provides append-only, hash-chained JSONL audit logging with schema validation.
 Each entry includes prev_hash and content hash to create an immutable chain.
 Entries are validated against AUDIT_SCHEMA before persistence.
 """
-"""Audit Chain module."""
 
 
 from __future__ import annotations
@@ -216,6 +214,101 @@ class AuditChain:
         except Exception:
             return "[REDACTED]"
 
+    def _extract_model_provenance(self, data: Dict[str, Any]) -> Optional[list[Dict[str, Any]]]:
+        """Build a normalized model provenance list from existing event data."""
+        provenance = data.get("model_provenance")
+        if isinstance(provenance, dict):
+            provenance = [provenance]
+        if isinstance(provenance, list):
+            normalized = []
+            for entry in provenance:
+                if not isinstance(entry, dict):
+                    continue
+                normalized.append(self._normalize_model_provenance_entry(entry))
+            return normalized or None
+
+        provider = data.get("provider")
+        model_name = data.get("model_name", data.get("model"))
+        if not provider and not model_name and not data.get("model_id"):
+            return None
+
+        usage = data.get("usage", {}) if isinstance(data.get("usage"), dict) else {}
+        return [
+            self._normalize_model_provenance_entry(
+                {
+                    "provider": provider or "unknown",
+                    "model_name": model_name or data.get("model_id", "unknown"),
+                    "model_id": data.get("model_id", model_name or "unknown"),
+                    "model_version": data.get("model_version", data.get("model_snapshot")),
+                    "endpoint": data.get("endpoint", data.get("deployment_id")),
+                    "temperature": data.get("temperature"),
+                    "top_p": data.get("top_p"),
+                    "input_token_count": data.get(
+                        "input_token_count",
+                        usage.get("prompt_tokens", usage.get("input_tokens")),
+                    ),
+                    "output_token_count": data.get(
+                        "output_token_count",
+                        usage.get("completion_tokens", usage.get("output_tokens")),
+                    ),
+                    "total_token_count": data.get(
+                        "total_token_count", usage.get("total_tokens")
+                    ),
+                    "latency_ms": data.get("latency_ms"),
+                    "cost_estimate_usd": data.get("cost_estimate_usd"),
+                    "offline_mock": data.get(
+                        "offline_mock",
+                        data.get("simulated", data.get("offline")),
+                    ),
+                    "prompt_template_id": data.get("prompt_template_id"),
+                    "policy_version": data.get("policy_version"),
+                    "roundtable_role": data.get("roundtable_role"),
+                }
+            )
+        ]
+
+    def _normalize_model_provenance_entry(self, entry: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize a single model provenance record."""
+        normalized = {
+            "provider": entry.get("provider", "unknown"),
+            "model_name": entry.get(
+                "model_name", entry.get("model", entry.get("model_id", "unknown"))
+            ),
+            "model_id": entry.get(
+                "model_id",
+                entry.get("model_name", entry.get("model", "unknown")),
+            ),
+            "model_version": entry.get("model_version", entry.get("model_snapshot")),
+            "endpoint": entry.get("endpoint", entry.get("deployment_id")),
+            "temperature": entry.get("temperature"),
+            "top_p": entry.get("top_p"),
+            "input_token_count": entry.get(
+                "input_token_count",
+                entry.get("prompt_tokens", entry.get("input_tokens")),
+            ),
+            "output_token_count": entry.get(
+                "output_token_count",
+                entry.get("completion_tokens", entry.get("output_tokens")),
+            ),
+            "total_token_count": entry.get(
+                "total_token_count", entry.get("total_tokens")
+            ),
+            "latency_ms": entry.get("latency_ms"),
+            "cost_estimate_usd": entry.get("cost_estimate_usd"),
+            "offline_mock": entry.get(
+                "offline_mock", entry.get("simulated", entry.get("offline"))
+            ),
+            "prompt_template_id": entry.get("prompt_template_id"),
+            "policy_version": entry.get("policy_version"),
+            "roundtable_role": entry.get("roundtable_role"),
+            "recorded_at": entry.get(
+                "recorded_at", datetime.now(timezone.utc).isoformat()
+            ),
+        }
+        for key, value in entry.items():
+            normalized.setdefault(key, value)
+        return normalized
+
     # PATCH: Cursor-2025-08-19 Implement size-based rotation with SHA-256 suffix
     def _maybe_rotate(self) -> None:
         try:
@@ -313,8 +406,13 @@ class AuditChain:
         if self._should_apply_backpressure():
             raise RuntimeError(f"Audit backpressure triggered (pending={len(self._pending_batch)}, threshold={self._backpressure_threshold})")
 
+        model_provenance = self._extract_model_provenance(data)
+
         # Redact sensitive values before logging
         safe_data = self._redact(data)
+
+        if model_provenance:
+            safe_data["model_provenance"] = model_provenance
 
         # Operator identity tracking (optional fields)
         operator_id = os.environ.get("IOA_OPERATOR_ID")

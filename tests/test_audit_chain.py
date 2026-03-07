@@ -1,9 +1,5 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
 
 
 """
@@ -14,7 +10,8 @@ Verifies that the audit chain correctly appends entries and maintains hash conti
 
 import json
 from pathlib import Path
-from src.governance.audit_chain import AuditChain
+
+from ioa_core.governance.audit_chain import AuditChain
 
 def test_audit_chain_appends_and_chains(tmp_path: Path):
     """Test that audit chain correctly appends entries and maintains hash chain."""

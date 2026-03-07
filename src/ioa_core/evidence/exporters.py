@@ -183,6 +183,7 @@ class EvidenceExporter:
         <h2>Bundle Information</h2>
         <div class="metadata">
             <p><strong>Validations Count:</strong> {validations_count}</p>
+            <p><strong>Model Provenance Records:</strong> {model_provenance_count}</p>
             <p><strong>Evidence Hash:</strong> <code>{evidence_hash}</code></p>
             <p><strong>Signature Status:</strong> <span class="status {signature_status}">{signature_status_text}</span></p>
         </div>
@@ -196,6 +197,11 @@ class EvidenceExporter:
     <div class="section">
         <h2>Metadata</h2>
         <pre>{metadata_json}</pre>
+    </div>
+
+    <div class="section">
+        <h2>Model Provenance</h2>
+        <pre>{model_provenance_json}</pre>
     </div>
     
     {signature_section}
@@ -243,11 +249,13 @@ class EvidenceExporter:
             framework=bundle.framework,
             version=bundle.version,
             validations_count=bundle.validations_count,
+            model_provenance_count=len(bundle.model_provenance),
             evidence_hash=bundle.evidence_hash,
             signature_status="success" if bundle.signature else "error",
             signature_status_text="Present" if bundle.signature else "Missing",
             validations_html=validations_html,
             metadata_json=json.dumps(bundle.metadata, indent=2),
+            model_provenance_json=json.dumps(bundle.model_provenance, indent=2),
             signature_section=signature_section,
             bundle_json=bundle.to_json()
         )

@@ -39,6 +39,7 @@ class EvidenceBundle:
     validations_count: int = 0
     metadata: Dict[str, Any] = None
     validations: List[Dict[str, Any]] = None
+    model_provenance: List[Dict[str, Any]] = None
     signature: Optional[str] = None
     evidence_hash: str = ""
     
@@ -50,6 +51,8 @@ class EvidenceBundle:
             self.metadata = {}
         if self.validations is None:
             self.validations = []
+        if self.model_provenance is None:
+            self.model_provenance = []
         if not self.evidence_hash:
             self.evidence_hash = self._calculate_hash()
     
@@ -81,6 +84,57 @@ class EvidenceBundle:
     def add_metadata(self, key: str, value: Any) -> None:
         """Add metadata to the bundle."""
         self.metadata[key] = value
+        self.evidence_hash = self._calculate_hash()
+
+    def add_model_provenance(self, provenance: Dict[str, Any]) -> None:
+        """Add normalized model provenance metadata to the bundle."""
+        if not isinstance(provenance, dict):
+            raise EvidenceBundleError("Model provenance must be a dictionary")
+
+        normalized = {
+            "provider": provenance.get("provider", "unknown"),
+            "model_name": provenance.get(
+                "model_name",
+                provenance.get("model", provenance.get("model_id", "unknown")),
+            ),
+            "model_id": provenance.get(
+                "model_id",
+                provenance.get("model_name", provenance.get("model", "unknown")),
+            ),
+            "model_version": provenance.get("model_version", provenance.get("model_snapshot")),
+            "endpoint": provenance.get("endpoint", provenance.get("deployment_id")),
+            "temperature": provenance.get("temperature"),
+            "top_p": provenance.get("top_p"),
+            "input_token_count": provenance.get(
+                "input_token_count",
+                provenance.get("prompt_tokens", provenance.get("input_tokens")),
+            ),
+            "output_token_count": provenance.get(
+                "output_token_count",
+                provenance.get("completion_tokens", provenance.get("output_tokens")),
+            ),
+            "total_token_count": provenance.get(
+                "total_token_count",
+                provenance.get("total_tokens"),
+            ),
+            "latency_ms": provenance.get("latency_ms"),
+            "cost_estimate_usd": provenance.get("cost_estimate_usd"),
+            "offline_mock": provenance.get(
+                "offline_mock",
+                provenance.get("simulated", provenance.get("offline")),
+            ),
+            "prompt_template_id": provenance.get("prompt_template_id"),
+            "policy_version": provenance.get("policy_version"),
+            "roundtable_role": provenance.get("roundtable_role"),
+            "recorded_at": provenance.get(
+                "recorded_at", datetime.now(timezone.utc).isoformat()
+            ),
+        }
+
+        for key, value in provenance.items():
+            normalized.setdefault(key, value)
+
+        self.model_provenance.append(normalized)
         self.evidence_hash = self._calculate_hash()
     
     def generate_signature(self, signer: str = "ioa-core") -> str:

@@ -3,7 +3,7 @@
 **Version:** 2.5.1  
 **Last Updated:** 2025-10-10
 
-This document lists proven, implemented features in IOA Core open-source edition.
+This document lists verified features in the current public IOA Core release candidate.
 
 ---
 
@@ -65,9 +65,10 @@ This document lists proven, implemented features in IOA Core open-source edition
 
 ---
 
-## Not in OSS (Restricted Edition)
+## Separate Commercial Extensions
 
-The following features are available in Restricted Edition:
+The following capabilities are not part of the public IOA Core repository and should
+not be implied by OSS-facing docs:
 
 - **Workflow Engine (YAML DSL)** - Visual workflow builder
 - **PKI Agent Onboarding** - Advanced agent management
@@ -96,9 +97,9 @@ python3 tests/perf/test_ollama_turbo.py
 
 ---
 
-## OSS vs Restricted Edition
+## Core vs Commercial Extensions
 
-| Category | OSS | Restricted Edition |
+| Category | Public IOA Core | Commercial Extensions |
 |----------|-----|-------------------|
 | **Core Engine** | ✅ Full | ✅ Full |
 | **LLM Providers** | ✅ 6 providers | ✅ 6+ providers |
@@ -109,6 +110,6 @@ python3 tests/perf/test_ollama_turbo.py
 
 ---
 
-**Note**: IOA Core OSS provides production-ready audit, memory, and multi-provider orchestration. Restricted Edition adds enterprise compliance, advanced analytics, and visual tooling.
+**Note**: Public IOA Core currently focuses on audit, evidence, memory, and multi-provider orchestration primitives. Commercial offerings may add hosted operations, packaged compliance content, advanced analytics, or visual tooling.
 
 For more information, see [README.md](README.md).

@@ -3,9 +3,7 @@
 # https://orchintel.com | https://ioa.systems
 #
 # Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-
-
-
+"""
 Canonical JSON processing and hashing utilities.
 
 Ensures deterministic JSON serialization and SHA-256 hashing for
