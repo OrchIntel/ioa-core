@@ -13,6 +13,7 @@ requirements across all IOA systems.
 
 import json
 import hashlib
+import uuid
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Union
 from dataclasses import dataclass, asdict
@@ -40,6 +41,8 @@ class EvidenceBundle:
     metadata: Dict[str, Any] = None
     validations: List[Dict[str, Any]] = None
     model_provenance: List[Dict[str, Any]] = None
+    evidence_chain_id: Optional[str] = None
+    related_bundle_ids: List[str] = None
     signature: Optional[str] = None
     evidence_hash: str = ""
     
@@ -53,6 +56,10 @@ class EvidenceBundle:
             self.validations = []
         if self.model_provenance is None:
             self.model_provenance = []
+        if self.related_bundle_ids is None:
+            self.related_bundle_ids = []
+        if not self.evidence_chain_id:
+            self.evidence_chain_id = f"chain-{uuid.uuid4().hex}"
         if not self.evidence_hash:
             self.evidence_hash = self._calculate_hash()
     
@@ -85,6 +92,12 @@ class EvidenceBundle:
         """Add metadata to the bundle."""
         self.metadata[key] = value
         self.evidence_hash = self._calculate_hash()
+
+    def add_related_bundle(self, bundle_id: str) -> None:
+        """Link another evidence bundle in the same cross-domain chain."""
+        if bundle_id and bundle_id not in self.related_bundle_ids:
+            self.related_bundle_ids.append(bundle_id)
+            self.evidence_hash = self._calculate_hash()
 
     def add_model_provenance(self, provenance: Dict[str, Any]) -> None:
         """Add normalized model provenance metadata to the bundle."""
