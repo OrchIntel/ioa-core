@@ -254,8 +254,6 @@ def load_manifest(manifest_path: Optional[str] = None,
 
 def get_laws() -> SystemLaws:
     """Get the cached System Laws manifest, loading if necessary."""
-    global _manifest_instance
-    
     if _manifest_cache is None or _manifest_instance is None:
         # For development, disable signature verification
         return load_manifest(verify_signature_flag=False)
