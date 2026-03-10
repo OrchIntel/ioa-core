@@ -10,7 +10,7 @@ Last-Updated: 2025-10-09
 
 # IOA Module v0.1.2 | A17 | Last updated: 2025-08-07
 # Description: Terms of Use for Orchintel.com website and services
-# License: IOA Dev Confidential – Internal Use Only
+# License: Apache-2.0
 
 # Terms of Use
 

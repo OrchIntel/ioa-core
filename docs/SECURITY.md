@@ -5,7 +5,7 @@ Last-Updated: 2025-10-09
 Version: v2.5.0
 Last Updated: 2025-08-08
 Description: Security policy and vulnerability disclosure for IOA Core OSS
-License: IOA Dev Confidential – Internal Use Only
+License: Apache-2.0
 
 ## Project Security Scope
 

@@ -11,7 +11,7 @@ Last-Updated: 2025-10-09
 # IOA Core Performance Analysis
 Last Updated: 2025-10-02
 Description: Performance benchmarks, optimization guide, and comparative analysis for IOA Core
-License: IOA Dev Confidential – Internal Use Only
+License: Apache-2.0
 
 ## 🚀 Key4D Memory Fabric Performance (Latest Update)
 
@@ -552,6 +552,6 @@ Governance System   | 5-15%     | 500MB-1GB    | 200MB audit trails
 
 ---
 
-© 2025 OrchIntel Systems Ltd. Licensed under IOA Dev Confidential – Internal Use Only.
+© 2025 OrchIntel Systems Ltd. Licensed under the Apache License, Version 2.0.
 
 For technical performance questions, contact `engineering@orchintel.com`.

@@ -11,7 +11,7 @@ Last-Updated: 2025-10-09
 # IOA Core Governance Framework
 Last Updated: 2025-08-08
 Description: Governance principles, technical implementation, and compliance framework for IOA Core
-License: IOA Dev Confidential – Internal Use Only
+License: Apache-2.0
 
 The **Intelligent Orchestration Architecture (IOA) Core** implements a comprehensive governance system ensuring ethical operation, bias mitigation, and regulatory compliance across multi-agent orchestration workflows. This document outlines the technical implementation and validation of IOA's governance principles.
 
@@ -284,6 +284,6 @@ python setup_governance.py --enable-sentinel --law-registry-path ./governance/la
 
 ---
 
-© 2025 OrchIntel Systems Ltd. Licensed under IOA Dev Confidential – Internal Use Only.
+© 2025 OrchIntel Systems Ltd. Licensed under the Apache License, Version 2.0.
 
 For questions about IOA Core governance implementation, contact `governance@orchintel.com`.

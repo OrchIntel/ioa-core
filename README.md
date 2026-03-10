@@ -1,4 +1,4 @@
-# IOA Core v2.5.2-rc1
+# IOA Core v2.5.2
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10–3.12-brightgreen.svg)]()

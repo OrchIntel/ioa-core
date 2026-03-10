@@ -11,7 +11,7 @@ Last-Updated: 2025-10-09
 # Glossary
 Last Updated: 2025-08-08
 Description: Comprehensive glossary of IOA Core terminology and concepts
-License: IOA Dev Confidential – Internal Use Only
+License: Apache-2.0
 
 ## Core Concepts
 

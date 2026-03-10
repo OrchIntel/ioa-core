@@ -11,7 +11,7 @@ Last-Updated: 2025-10-09
 # Disclaimer
 Last Updated: 2025-08-08
 Description: Legal disclaimers and usage limitations for IOA Core OSS
-License: IOA Dev Confidential – Internal Use Only
+License: Apache-2.0
 
 ## Non-AGI Statement
 

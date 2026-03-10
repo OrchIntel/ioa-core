@@ -66,7 +66,7 @@ signal.alarm(0)
 
 **Configuration:**
 ```bash
-export GOOGLE_API_KEY=AIzaSyDFP5rkSNkXowWDd6zLlghgURd0JpxwKqQ
+export GOOGLE_API_KEY=AIzaSy...REDACTED...
 ```
 
 ### ✅ Ollama (Local)

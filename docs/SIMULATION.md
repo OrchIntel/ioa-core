@@ -11,7 +11,7 @@ Last-Updated: 2025-10-09
 # IOA Core v2.4.8 Phase 2 Synthesis Report - SIMULATION.md
 Last Updated: 2025-08-08
 Description: Comprehensive multi-agent validation synthesis for IOA Core Phase 2 testing
-License: IOA Dev Confidential – Internal Use Only
+License: Apache-2.0
 
 ## Executive Summary
 
