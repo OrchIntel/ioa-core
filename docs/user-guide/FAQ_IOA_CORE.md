@@ -32,7 +32,7 @@ Last-Updated: 2025-10-09
 pip install ioa-core
 
 # Install from source
-git clone https://github.com/your-org/ioa-core.git
+git clone https://github.com/OrchIntel/ioa-core.git
 cd ioa-core
 pip install -e .
 ```
@@ -75,7 +75,8 @@ export OPENAI_API_KEY=sk-your-key
 export ANTHROPIC_API_KEY=sk-ant-your-key
 
 # Performance testing
-export IOA_100K_N=100000
+export IOA_100K_N=20000
+export IOA_SCALE_RECORDS=50000
 ```
 
 ## Performance & Testing
@@ -87,19 +88,19 @@ export IOA_100K_N=100000
 > **Note**: Some commands below are examples for future functionality.
 
 ```bash
-# Run 100k performance tests
+# Run the bounded CI-scale 100k profile
 python -m pytest tests/performance/test_100k.py -v
 
-# Run with custom iterations
-# IOA_100K_N=50000 python -m pytest tests/performance/
+# Run the long-form performance suite with explicit overrides
+IOA_100K_N=100000 IOA_SCALE_RECORDS=500000 python -m pytest tests/performance/ -v
 ```
 
 ### Q: What's the expected performance for 100k tests?
 
-**A:** Performance varies by system, but typical results are:
-- **Fast systems (c5.4xlarge)**: 30-60 seconds
-- **Standard systems (c5.2xlarge)**: 60-120 seconds
-- **Development machines**: 2-5 minutes
+**A:** Performance varies by machine size and which profile you run:
+- **Bounded CI profile**: intended to complete on development hardware
+- **Expanded local profile**: enable larger record counts with env overrides
+- **True long-form benchmark**: run explicitly with `IOA_100K_N`, `IOA_SCALE_RECORDS`, and related perf env vars on a larger box
 
 ### Q: How do I optimize performance?
 

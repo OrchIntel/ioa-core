@@ -1,5 +1,5 @@
-**Version:** v2.5.0  
-Last-Updated: 2025-10-09
+**Version:** v2.6.0  
+Last-Updated: 2026-03-11
 
 <!-- SPDX-License-Identifier: Apache-2.0
 <!-- Copyright (c) 2025 OrchIntel Systems Ltd.
@@ -319,8 +319,8 @@ This document provides a comprehensive comparison of features available in the o
 ## Contact Information
 
 - **Open Source**: [GitHub Repository](https://github.com/orchintel/ioa-core)
-- **Organization Sales**: [sales@orchintel.com](mailto:sales@orchintel.com)
-- **Support**: [support@orchintel.com](mailto:support@orchintel.com)
+- **Organization Sales**: `sales@orchintel.com`
+- **Support**: `support@orchintel.com`
 - **Documentation**: [docs.orchintel.com](https://docs.orchintel.com)
 
 ---

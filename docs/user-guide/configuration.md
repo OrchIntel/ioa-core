@@ -43,7 +43,14 @@ IOA Core provides flexible configuration options through environment variables, 
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `IOA_100K_N` | `100000` | Number of iterations for performance tests |
+| `IOA_100K_N` | `20000` | Default bounded iteration count for the 100k performance profile |
+| `IOA_DURABILITY_RECORDS` | `2000` | Record count for bounded durability validation |
+| `IOA_SCALE_RECORDS` | `50000` | Default bounded record count for scale validation |
+| `IOA_SCALE_STRESS_OPERATIONS` | `5000` | Max stress operations for scale validation |
+| `IOA_SCALE_STRESS_DURATION_S` | `5.0` | Stress duration for scale validation |
+| `IOA_PERF_LATENCY_DOCS` | `500` | Document count for latency benchmark profile |
+| `IOA_PERF_COLD_RECALL_DOCS` | `2000` | Document count for cold-recall benchmark profile |
+| `IOA_PERF_BEIR_DOCS` | `300` | Document count for BEIR-style benchmark profile |
 | `IOA_REPORT_SUITE` | `pytest` | Test suite for reporting |
 | `PYTHONWARNINGS` | `default` | Python warning level |
 
