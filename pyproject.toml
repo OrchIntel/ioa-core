@@ -40,7 +40,7 @@ dependencies = [
     "pyyaml>=6.0",
     "requests>=2.28.0",
     "aiohttp>=3.8.0",
-    "asyncio-mqtt>=0.11.0",
+    "aiomqtt>=1.0.0",
     "cryptography>=3.4.0",
     "python-dotenv>=0.19.0",
     "structlog>=23.0.0",
@@ -108,7 +108,7 @@ ioa = "ioa_core.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/orchintel/ioa-core"
-Documentation = "https://ioa-core.readthedocs.io/"
+Documentation = "https://orchintel.com/docs"
 Repository = "https://github.com/orchintel/ioa-core.git"
 "Bug Tracker" = "https://github.com/orchintel/ioa-core/issues"
 "Source Code" = "https://github.com/orchintel/ioa-core"
