@@ -32,7 +32,7 @@ Key Features:
 import os
 import time
 import threading
-from typing import Dict, List, Any, Optional, Set, Callable, Union, Tuple
+from typing import TYPE_CHECKING, Dict, List, Any, Optional, Set, Callable, Union, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime, timedelta, timezone
@@ -46,6 +46,9 @@ from src.llm_adapter import LLMService, LLMServiceError
 from src.governance.audit_chain import get_audit_chain
 # PATCH: Cursor-2025-08-19 DISPATCH-GPT-20250819-022 <add domain schema enforcement>
 from src.config.domain_profile_template import DOMAIN_PROFILE_SCHEMA
+
+if TYPE_CHECKING:
+    from schemas.message_schema import AgentResponse, TaskMessage
 
 
 class AgentStatus(Enum):
@@ -844,7 +847,7 @@ class AgentRouter:
     # Add schema-based routing helper to support message schema migration
     # while preserving legacy API. This introduces a minimal dependency on
     # `src.schemas.message_schema` without changing existing call sites.
-    def route_task_message(self, message: 'TaskMessage') -> 'AgentResponse':
+    def route_task_message(self, message: TaskMessage) -> AgentResponse:
         """Route a canonical TaskMessage and return an AgentResponse.
 
         Uses 'execution' as the default capability and maps the legacy

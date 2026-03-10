@@ -17,7 +17,10 @@ Location: src/ioa/governance/reinforcement_config.py
 import os
 import json
 from pathlib import Path
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
+
+if TYPE_CHECKING:
+    from .reinforcement_policy import ReinforcementPolicyFramework
 
 
 class ReinforcementConfig:
@@ -167,8 +170,10 @@ class ReinforcementConfig:
 
 
 # Convenience function for easy framework setup
-def create_reinforcement_framework(custom_config: Optional[Dict] = None, 
-                                 base_dir: Optional[str] = None) -> 'ReinforcementPolicyFramework':
+def create_reinforcement_framework(
+    custom_config: Optional[Dict] = None,
+    base_dir: Optional[str] = None,
+) -> ReinforcementPolicyFramework:
     """
     Create a properly configured ReinforcementPolicyFramework
     
