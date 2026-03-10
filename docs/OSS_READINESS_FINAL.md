@@ -1,11 +1,11 @@
-# IOA Core v2.6.0 - OSS Release Readiness
+# IOA Core v2.6.1 - OSS Release Readiness
 
 **Date**: 2026-03-11  
 **Status**: Released and production-hardened
 
 ## Summary
 
-`ioa-core` v2.6.0 is now in a public-release state for the open-source repository.
+`ioa-core` v2.6.1 is now in a public-release state for the open-source repository.
 
 Validated outcomes:
 
@@ -21,7 +21,7 @@ The earlier OSS-readiness material in this repository described a pre-release po
 
 Current release posture:
 
-- public package metadata aligned to `v2.6.0`
+- public package metadata aligned to `v2.6.1`
 - compatibility shims restored for dependent repositories
 - repo-local artifact generation redirected out of tracked paths
 - benchmark/test defects fixed in the remaining slow and perf buckets

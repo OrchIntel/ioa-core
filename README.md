@@ -1,4 +1,4 @@
-# IOA Core v2.6.0
+# IOA Core v2.6.1
 
 [![PyPI version](https://img.shields.io/pypi/v/ioa-core.svg)](https://pypi.org/project/ioa-core/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
@@ -13,7 +13,7 @@ memory-backed orchestration, and multi-model review patterns.
 
 ## Release Status
 
-`ioa-core` v2.6.0 is the first stable public release, available on [PyPI](https://pypi.org/project/ioa-core/).
+`ioa-core` v2.6.1 is the current stable public release, available on [PyPI](https://pypi.org/project/ioa-core/).
 
 The core governance primitives (audit chains, evidence bundles, policy enforcement, memory fabric, multi-model quorum) are real and production-tested. Some advanced CLI surfaces and deeper docs continue to evolve — see [docs/OSS_LAUNCH_READINESS_CHECKLIST.md](docs/OSS_LAUNCH_READINESS_CHECKLIST.md) for the current status.
 

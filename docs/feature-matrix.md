@@ -1,4 +1,4 @@
-**Version:** v2.6.0  
+**Version:** v2.6.1  
 Last-Updated: 2026-03-11
 
 <!-- SPDX-License-Identifier: Apache-2.0

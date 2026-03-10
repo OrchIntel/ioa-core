@@ -10,4 +10,4 @@ Current canonical sources:
 - release posture: `docs/OSS_READINESS_FINAL.md`
 - public feature boundary: `docs/feature-matrix.md`
 
-As of `v2.6.0`, public status and release messaging should be taken from those files instead of this archived snapshot.
+As of `v2.6.1`, public status and release messaging should be taken from those files instead of this archived snapshot.
