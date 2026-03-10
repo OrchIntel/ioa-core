@@ -1,5 +1,6 @@
 # IOA Core v2.6.0
 
+[![PyPI version](https://img.shields.io/pypi/v/ioa-core.svg)](https://pypi.org/project/ioa-core/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10–3.12-brightgreen.svg)]()
 [![Build](https://img.shields.io/github/actions/workflow/status/OrchIntel/ioa-core/build.yml?branch=main)](https://github.com/OrchIntel/ioa-core/actions/workflows/build.yml)
@@ -12,15 +13,9 @@ memory-backed orchestration, and multi-model review patterns.
 
 ## Release Status
 
-`ioa-core` is currently documented here as a public release candidate, not a
-fully polished stable OSS release.
+`ioa-core` v2.6.0 is the first stable public release, available on [PyPI](https://pypi.org/project/ioa-core/).
 
-That means:
-
-- the core governance primitives are real and usable
-- the examples below are limited to commands verified in this checkout
-- some deeper docs still describe roadmap or partially implemented CLI surfaces
-- broad stable marketing should wait until the checklist in [docs/OSS_LAUNCH_READINESS_CHECKLIST.md](docs/OSS_LAUNCH_READINESS_CHECKLIST.md) is complete
+The core governance primitives (audit chains, evidence bundles, policy enforcement, memory fabric, multi-model quorum) are real and production-tested. Some advanced CLI surfaces and deeper docs continue to evolve — see [docs/OSS_LAUNCH_READINESS_CHECKLIST.md](docs/OSS_LAUNCH_READINESS_CHECKLIST.md) for the current status.
 
 ## What Is In Scope
 
@@ -35,16 +30,18 @@ For the current public feature boundary, see [FEATURE_MATRIX.md](FEATURE_MATRIX.
 
 ## Quick Start
 
-The commands below were verified in this repository checkout on 2026-03-07.
+```bash
+pip install ioa-core
+```
+
+Then clone the examples and run them:
 
 ```bash
 git clone https://github.com/orchintel/ioa-core.git
 cd ioa-core
-pip install -e ".[dev]"
 
 # Check the CLI entrypoint
-python -m ioa_core.cli --help
-python -m ioa_core.cli --version
+ioa --help
 
 # Scaffold a minimal project
 python examples/00_bootstrap/boot_project.py /tmp/ioa-core-demo-project
@@ -67,6 +64,14 @@ python examples/50_ollama/turbo_mode_demo.py turbo_cloud
 
 Examples run offline by default unless you explicitly enable live mode and set
 provider credentials.
+
+**For development** (editable install with dev tools):
+
+```bash
+git clone https://github.com/orchintel/ioa-core.git
+cd ioa-core
+pip install -e ".[dev]"
+```
 
 ## Example Outputs
 

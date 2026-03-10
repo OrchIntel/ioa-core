@@ -21,18 +21,18 @@ __all__ = [
 try:
     from .version import __version__  # type: ignore
 except Exception:
-    __version__ = "2.6.0-rc1"
+    __version__ = "2.6.0"
 
 
 """
 IOA Core Package
 
-Intelligent Orchestration Architecture Core - Open-source platform for 
-orchestrating modular AI agents with memory-driven collaboration and 
+Intelligent Orchestration Architecture Core - Open-source platform for
+orchestrating modular AI agents with memory-driven collaboration and
 governance mechanisms.
 """
 
-__version__ = "2.6.0-rc1"
+__version__ = "2.6.0"
 __author__ = "IOA Project Contributors"
 __license__ = "Apache-2.0"
 
