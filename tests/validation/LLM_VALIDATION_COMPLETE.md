@@ -177,7 +177,7 @@ result = test_roundtable(
 
 ### Quick Test (Current Config)
 ```bash
-cd ioa-core-internal
+cd ioa-core
 python3 tests/validation/llm_validator.py
 ```
 
@@ -369,5 +369,4 @@ export XAI_API_KEY=xai-...
 **Google API:** ✅ CONNECTED  
 **Round-Table:** ✅ READY  
 **IOA v2.5.0 Readiness:** 100% ✅
-
 

@@ -434,6 +434,11 @@ def smoketest(
     timeout_ms: int,
     skip_ollama: bool,
     max_usd: float,
+    openai_model: Optional[str],
+    anthropic_model: Optional[str],
+    google_model: Optional[str],
+    deepseek_model: Optional[str],
+    xai_model: Optional[str],
 ):
     # Override with environment variables if not provided via CLI
     if not live:
@@ -448,10 +453,15 @@ def smoketest(
         skip_ollama = os.getenv("IOA_SMOKETEST_SKIP_OLLAMA", "0") == "1"
     if max_usd == 0.10:
         max_usd = float(os.getenv("IOA_SMOKETEST_MAX_USD", "0.10"))
+    if openai_model is None:
         openai_model = os.getenv("OPENAI_MODEL")
+    if anthropic_model is None:
         anthropic_model = os.getenv("ANTHROPIC_MODEL")
+    if google_model is None:
         google_model = os.getenv("GEMINI_MODEL")
+    if deepseek_model is None:
         deepseek_model = os.getenv("DEEPSEEK_MODEL")
+    if xai_model is None:
         xai_model = os.getenv("XAI_MODEL")
     """Test provider connectivity and configuration.
     
@@ -489,6 +499,7 @@ def smoketest(
 
 
 def _estimate_cost_usd(
+    provider_id: str, model: str, tokens_in: int, tokens_out: int
 ) -> float:
     """Estimate cost in USD for a provider call.
 
@@ -681,6 +692,7 @@ def _prompt_for_missing_keys(
 
 def _run_provider_microcall(
     provider_id: str,
+    model: Optional[str] = None,
     max_tokens: int = 3,
     timeout_ms: int = 12000,
     model_overrides: Optional[Dict[str, str]] = None,
@@ -692,6 +704,7 @@ def _run_provider_microcall(
 
     Args:
         provider_id: Provider identifier (openai, anthropic, etc.)
+        model: Explicit model override (highest precedence)
         max_tokens: Maximum tokens for the call (default: 3)
         timeout_ms: Timeout in milliseconds (default: 12000)
         model_overrides: Dictionary of provider_id -> model_name overrides
@@ -718,14 +731,16 @@ def _run_provider_microcall(
     error = None
     tokens_in = 0
     tokens_out = 0
-    model_used = model
+    model_used: Optional[str] = None
     http_status = None
     estimated_usd = 0.0
 
-    # Apply model override if available
-    if model_overrides and provider_id in model_overrides:
-        model_used = model_overrides[provider_id]
+    # Resolve model with clear precedence:
+    # explicit model arg > per-provider overrides > built-in defaults.
+    if model:
         model_used = model
+    elif model_overrides and provider_id in model_overrides:
+        model_used = model_overrides[provider_id]
     else:
         # Use default models for each provider
         # PATCH: Cursor-2025-09-08 DISPATCH-OSS-20250908-SMOKETEST-LIVE-FIXUPS-FINAL2
@@ -829,7 +844,7 @@ def _run_provider_microcall(
             if os.getenv("PYTEST_CURRENT_TEST"):
                 manager = LLMManager()
                 service = manager.create_service(
-                    provider=provider_id, model=model, offline=False
+                    provider=provider_id, model=model_used, offline=False
                 )
                 try:
                     resp = service.execute(
@@ -960,16 +975,17 @@ def _run_provider_microcall(
                         "content-type": "application/json",
                     }
 
-                    _body = {
-                        "model": _model,
-                        "max_tokens": max(1, max_tokens),
-                        "messages": [{"role": "user", "content": test_prompt}],
-                    }
-                    # PATCH: Cursor-2025-09-19 - Explicit timeout to address Bandit B113 false positive
-                    timeout_seconds = max(1, timeout_ms // 1000)
-                    return _requests.post(
-                        _url, headers=_hdrs, json=_body, timeout=timeout_seconds
-                    )  # nosec B113
+                    def _http_call(_model: str):
+                        _body = {
+                            "model": _model,
+                            "max_tokens": max(1, max_tokens),
+                            "messages": [{"role": "user", "content": test_prompt}],
+                        }
+                        # PATCH: Cursor-2025-09-19 - Explicit timeout to address Bandit B113 false positive
+                        timeout_seconds = max(1, timeout_ms // 1000)
+                        return _requests.post(
+                            _url, headers=_hdrs, json=_body, timeout=timeout_seconds
+                        )  # nosec B113
 
                     fallback_models = [
                         model_used or "claude-3-5-sonnet-20241022",
@@ -1073,23 +1089,24 @@ def _run_provider_microcall(
                     "Content-Type": "application/json",
                 }
 
-                _body = {
-                    "model": _model,
-                    "stream": False,
-                    "temperature": 0,
-                    "messages": [
-                        {"role": "system", "content": "You are a test assistant."},
-                        {"role": "user", "content": test_prompt},
-                    ],
-                }
-                # PATCH: Cursor-2025-09-19 - Explicit timeout to address Bandit B113 false positive
-                timeout_seconds = max(1, timeout_ms // 1000)
-                return _requests.post(
-                    f"{_base}/chat/completions",
-                    headers=_hdrs,
-                    json=_body,
-                    timeout=timeout_seconds,
-                )  # nosec B113
+                def _call(_model: str):
+                    _body = {
+                        "model": _model,
+                        "stream": False,
+                        "temperature": 0,
+                        "messages": [
+                            {"role": "system", "content": "You are a test assistant."},
+                            {"role": "user", "content": test_prompt},
+                        ],
+                    }
+                    # PATCH: Cursor-2025-09-19 - Explicit timeout to address Bandit B113 false positive
+                    timeout_seconds = max(1, timeout_ms // 1000)
+                    return _requests.post(
+                        f"{_base}/chat/completions",
+                        headers=_hdrs,
+                        json=_body,
+                        timeout=timeout_seconds,
+                    )  # nosec B113
 
                 fallback_models = [
                     model_used or "grok-4-latest",
@@ -1193,7 +1210,7 @@ def _run_provider_microcall(
                 # Fallback to manager
                 manager = LLMManager()
                 service = manager.create_service(
-                    provider=provider_id, model=model, offline=False
+                    provider=provider_id, model=model_used, offline=False
                 )
                 try:
                     _resp = service.execute(
@@ -2118,6 +2135,8 @@ def stats(index: str):
             sys.exit(1)
 
         # Create index to load stats
+        from .vector_search import VectorIndex
+
         vector_index = VectorIndex(index)
         stats_data = vector_index.get_stats()
 
@@ -2325,7 +2344,7 @@ def verify(
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             with output_path.open("w") as f:
-                json.dump(result.dict(), f, indent=2, default=str)
+                json.dump(result.model_dump(), f, indent=2, default=str)
 
             if not quiet:
                 click.echo(f"\n📄 Report written: {output_path}")
@@ -2365,6 +2384,11 @@ def demo():
 @click.option("--xai-model", help="Override XAI model (e.g., grok-4-latest)")
 def roundtable(
     timeout_ms: int,
+    openai_model: Optional[str],
+    anthropic_model: Optional[str],
+    google_model: Optional[str],
+    deepseek_model: Optional[str],
+    xai_model: Optional[str],
 ):
     """Run a multi-agent roundtable demo for EcoLens pitch creation.
 
@@ -2415,6 +2439,11 @@ def roundtable(
 @click.option("--auditor", type=str, help="Auditor provider (auto if not specified)")
 @click.option("--task", type=str, required=True, help="Task description for roundtable")
 def vendor_neutral_roundtable(
+    quorum_config: Optional[str],
+    min_agents: Optional[int],
+    strong_quorum: Optional[int],
+    auditor: Optional[str],
+    task: str,
 ):
     """Run vendor-neutral roundtable with quorum policy and sibling weighting.
 

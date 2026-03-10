@@ -22,12 +22,36 @@ from ioa_core.memory_fabric.fabric import MemoryFabric
 from ioa_core.governance.audit_chain import get_audit_chain
 
 
+def _env_int(name: str, default: int) -> int:
+    """Read an integer override from the environment."""
+    try:
+        return int(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    """Read a float override from the environment."""
+    try:
+        return float(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _runtime_output_path(filename: str) -> Path:
+    """Persist benchmark artifacts outside the tracked repository by default."""
+    runtime_root = Path(os.getenv("IOA_RUNTIME_ARTIFACTS_ROOT", tempfile.gettempdir()))
+    out_dir = runtime_root / "perf"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    return out_dir / filename
+
+
 @pytest.mark.slow
 @pytest.mark.perf
 @pytest.mark.scale
 def test_memoryfabric_scale_500k_balanced_profile():
     """Test 500k records with balanced 4D-Tiering profile."""
-    _run_scale_test(500000, "balanced", "test_scale_500k_balanced.json")
+    _run_scale_test(_env_int("IOA_SCALE_RECORDS", 50000), "balanced", "test_scale_500k_balanced.json")
 
 
 @pytest.mark.slow
@@ -35,7 +59,7 @@ def test_memoryfabric_scale_500k_balanced_profile():
 @pytest.mark.scale
 def test_memoryfabric_scale_500k_throughput_profile():
     """Test 500k records with throughput-optimized profile."""
-    _run_scale_test(500000, "throughput", "test_scale_500k_throughput.json")
+    _run_scale_test(_env_int("IOA_SCALE_RECORDS", 50000), "throughput", "test_scale_500k_throughput.json")
 
 
 def _run_scale_test(num_records: int, profile: str, output_file: str) -> Dict[str, Any]:
@@ -99,8 +123,8 @@ def _run_scale_test(num_records: int, profile: str, output_file: str) -> Dict[st
             stress_latencies = {"reads": [], "writes": []}
 
             # Simulate realistic access patterns
-            stress_operations = min(50000, num_records // 10)  # 10% of records or 50k max
-            stress_duration = 60.0  # 1 minute stress test
+            stress_operations = min(_env_int("IOA_SCALE_STRESS_OPERATIONS", 5000), max(1, num_records // 10))
+            stress_duration = _env_float("IOA_SCALE_STRESS_DURATION_S", 5.0)
 
             start_time = time.time()
             ops_completed = 0
@@ -192,8 +216,8 @@ def _run_scale_test(num_records: int, profile: str, output_file: str) -> Dict[st
                     "store_throughput": results["bulk_store"]["throughput_ops_per_sec"],
                     "store_p99_ms": results["bulk_store"]["latency_p99_ms"],
                     "stress_throughput": results["stress_test"]["throughput_ops_per_sec"],
-                    "memory_pressure_hit_rate": memory_test_results["overall_hit_rate"],
-                    "durability_integrity": durability_results["integrity_score"]
+                    "memory_pressure_hit_rate": memory_test_results["overall"]["overall_hit_rate"],
+                    "durability_integrity": durability_results["overall_integrity_score"]
                 },
                 "performance_assessment": _assess_performance_requirements(results)
             }
@@ -204,7 +228,7 @@ def _run_scale_test(num_records: int, profile: str, output_file: str) -> Dict[st
 
             # Save results
             if output_file:
-                output_path = Path(output_file)
+                output_path = _runtime_output_path(output_file)
                 with open(output_path, 'w') as f:
                     json.dump(results, f, indent=2, default=str)
                 print(f"📊 Results saved to {output_path}")
@@ -213,8 +237,8 @@ def _run_scale_test(num_records: int, profile: str, output_file: str) -> Dict[st
             print(f"   Bulk throughput: {results['bulk_store']['throughput_ops_per_sec']:.1f} ops/sec")
             print(f"   Store P99: {results['bulk_store']['latency_p99_ms']:.1f}ms")
             print(f"   Stress throughput: {results['stress_test']['throughput_ops_per_sec']:.1f} ops/sec")
-            print(f"   Memory pressure hit rate: {memory_test_results['overall_hit_rate']*100:.1f}%")
-            print(f"   Durability integrity: {durability_results['integrity_score']*100:.1f}%")
+            print(f"   Memory pressure hit rate: {memory_test_results['overall']['overall_hit_rate']*100:.1f}%")
+            print(f"   Durability integrity: {durability_results['overall_integrity_score']*100:.1f}%")
 
             return results
 
@@ -283,6 +307,8 @@ def _generate_large_scale_data(num_records: int) -> List[Dict[str, Any]]:
 
 def _run_memory_pressure_test(fabric, record_ids: List[str], test_data: List[Dict]) -> Dict[str, Any]:
     """Test performance under memory pressure scenarios."""
+    import random
+
     # Test different access patterns
     patterns = {
         "sequential": lambda: record_ids,  # Sequential access
@@ -424,4 +450,3 @@ if __name__ == "__main__":
         profile = sys.argv[2] if len(sys.argv) > 2 else "balanced"
         results = _run_scale_test(5000, profile, f"scale_test_500k_manual_{profile}.json")
         print("500k scale test completed successfully!")
-

@@ -1,7 +1,7 @@
 # IOA Linkcheck Report
 
 **Date**: 2025-10-10 03:55:04 UTC
-**Workspace**: /Users/ryan/OrchIntelWorkspace/ioa-core-internal
+**Workspace**: /Users/ryan/OrchIntelWorkspace/ioa-core
 
 ---
 

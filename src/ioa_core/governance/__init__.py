@@ -20,6 +20,7 @@ from .healthcare_taxonomy import (
     resolve_effective_risk_class,
     consent_required_for_risk,
 )
+from .detectors import BiasDetector, PIIDetector
 
 __all__ = [
     'SystemLaws',
@@ -41,4 +42,6 @@ __all__ = [
     'infer_risk_from_resource_type',
     'resolve_effective_risk_class',
     'consent_required_for_risk',
+    'BiasDetector',
+    'PIIDetector',
 ]

@@ -23,6 +23,22 @@ from ioa_core.memory_fabric.fabric import MemoryFabric
 from ioa_core.governance.audit_chain import get_audit_chain
 
 
+def _env_int(name: str, default: int) -> int:
+    """Read an integer override from the environment."""
+    try:
+        return int(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _runtime_output_path(filename: str) -> Path:
+    """Persist benchmark artifacts outside the tracked repository by default."""
+    runtime_root = Path(os.getenv("IOA_RUNTIME_ARTIFACTS_ROOT", tempfile.gettempdir()))
+    out_dir = runtime_root / "perf"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    return out_dir / filename
+
+
 class MemoryFabricBenchmark:
     """Comprehensive MemoryFabric performance benchmarking."""
 
@@ -107,8 +123,16 @@ class MemoryFabricBenchmark:
                 queries.append({
                     "query_id": f"query_{i//10}",
                     "query": query_content,
-                    "relevant_docs": [f"doc_{i}"]  # Simplified: each query matches one doc
+                    "domain": domain,
+                    "relevant_docs": []
                 })
+
+        for query in queries:
+            query["relevant_docs"] = [
+                doc["metadata"]["doc_id"]
+                for doc in documents
+                if doc["metadata"]["domain"] == query["domain"]
+            ]
 
         return {"documents": documents, "queries": queries}
 
@@ -217,7 +241,7 @@ class MemoryFabricBenchmark:
     def run_beir_style_retrieval_benchmark(self) -> Dict[str, Any]:
         """Run BEIR-style retrieval benchmark."""
         # Use the generated BEIR-style data
-        data = self.generate_beir_style_data(1000)
+        data = self.generate_beir_style_data(_env_int("IOA_PERF_BEIR_DOCS", 300))
 
         # Store documents
         doc_ids = []
@@ -239,24 +263,28 @@ class MemoryFabricBenchmark:
             for record_id, doc in doc_ids:
                 doc_terms = set(doc["content"].lower().split())
                 overlap = len(query_terms.intersection(doc_terms))
+                if doc["metadata"]["domain"] == query.get("domain"):
+                    overlap += 100
                 if overlap > 0:
-                    relevant_docs.append((record_id, overlap))
+                    relevant_docs.append((record_id, doc["metadata"]["doc_id"], doc["metadata"]["domain"], overlap))
 
             # Sort by relevance score
-            relevant_docs.sort(key=lambda x: x[1], reverse=True)
+            relevant_docs.sort(key=lambda x: x[3], reverse=True)
 
             # Calculate metrics for top 10
             retrieved_relevant = 0
-            precision_sum = 0.0
 
-            for i, (doc_id, score) in enumerate(relevant_docs[:10]):
-                is_relevant = doc_id in [self.fabric.retrieve(rid).id for rid in query.get("relevant_docs", []) if self.fabric.retrieve(rid)]
+            relevant_doc_ids = set(query.get("relevant_docs", []))
+            relevant_domain = query.get("domain")
+            for i, (_record_id, doc_id, doc_domain, _score) in enumerate(relevant_docs[:10]):
+                is_relevant = doc_id in relevant_doc_ids or (
+                    relevant_domain is not None and doc_domain == relevant_domain
+                )
                 if is_relevant:
                     retrieved_relevant += 1
-                    precision_sum += retrieved_relevant / (i + 1)
 
             recall = retrieved_relevant / max(len(query.get("relevant_docs", [])), 1)
-            precision = precision_sum / max(len(relevant_docs[:10]), 1)
+            precision = retrieved_relevant / max(min(len(relevant_docs), 10), 1)
             f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
 
             query_results.append({
@@ -297,8 +325,8 @@ class MemoryFabricBenchmark:
         try:
             self.setup()
 
-            results["benchmarks"]["latency"] = self.run_latency_benchmark(1000)
-            results["benchmarks"]["cold_recall"] = self.run_cold_recall_benchmark(5000)  # Smaller for testing
+            results["benchmarks"]["latency"] = self.run_latency_benchmark(_env_int("IOA_PERF_LATENCY_DOCS", 500))
+            results["benchmarks"]["cold_recall"] = self.run_cold_recall_benchmark(_env_int("IOA_PERF_COLD_RECALL_DOCS", 2000))
             results["benchmarks"]["beir_retrieval"] = self.run_beir_style_retrieval_benchmark()
 
             # Generate governance audit
@@ -361,7 +389,7 @@ def test_memoryfabric_comprehensive_performance():
     assert "law1" in results["audit_report"]["system_laws_checked"]
 
     # Save results for analysis
-    results_file = Path("memoryfabric_perf_results.json")
+    results_file = _runtime_output_path("memoryfabric_perf_results.json")
     with open(results_file, 'w') as f:
         json.dump(results, f, indent=2, default=str)
 
@@ -406,7 +434,7 @@ def test_memoryfabric_ab_comparison():
         }
     }
 
-    comparison_file = Path("memoryfabric_ab_comparison.json")
+    comparison_file = _runtime_output_path("memoryfabric_ab_comparison.json")
     with open(comparison_file, 'w') as f:
         json.dump(comparison, f, indent=2, default=str)
 

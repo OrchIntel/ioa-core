@@ -5,13 +5,14 @@
 
 import json
 import subprocess
+import sys
 
 
 def test_ollama_turbo_mode():
     """Test that Ollama turbo demo returns performance metrics."""
     # Run turbo mode
     result_turbo = subprocess.run(
-        ["python", "examples/50_ollama/turbo_mode_demo.py", "turbo_cloud"],
+        [sys.executable, "examples/50_ollama/turbo_mode_demo.py", "turbo_cloud"],
         capture_output=True,
         text=True,
         check=True
@@ -35,7 +36,7 @@ def test_ollama_turbo_mode():
     
     # Run baseline mode
     result_baseline = subprocess.run(
-        ["python", "examples/50_ollama/turbo_mode_demo.py", "local_preset"],
+        [sys.executable, "examples/50_ollama/turbo_mode_demo.py", "local_preset"],
         capture_output=True,
         text=True,
         check=True
@@ -54,4 +55,3 @@ def test_ollama_turbo_mode():
 if __name__ == "__main__":
     test_ollama_turbo_mode()
     print("✅ Ollama turbo test passed")
-

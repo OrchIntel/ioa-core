@@ -1,9 +1,9 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+# https://orchintel.com | https://ioa.systems
+#
+# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+
 
 #!/usr/bin/env python3
 
@@ -26,7 +26,10 @@ from datetime import datetime, timezone
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from cli.ci_gates import load_config, create_runner
+try:
+    from cli.ci_gates import load_config, create_runner
+except ModuleNotFoundError:  # pragma: no cover - legacy import fallback
+    from src.cli.ci_gates import load_config, create_runner
 from cli.security_utils import create_security_scanner
 
 

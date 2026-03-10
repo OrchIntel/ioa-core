@@ -75,7 +75,7 @@ tests/validation/llm_validator.py
 
 **Usage:**
 ```bash
-cd /Users/ryan/OrchIntelWorkspace/ioa-core-internal
+cd /Users/ryan/OrchIntelWorkspace/ioa-core
 python3 tests/validation/llm_validator.py
 ```
 
@@ -226,4 +226,3 @@ The validation system successfully:
 
 **Validator Script:**
 - `tests/validation/llm_validator.py`
-

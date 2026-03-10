@@ -52,20 +52,20 @@ echo "Waiting for Docker installation to complete..."
 sleep 10
 
 # Step 2: Verify repo exists on instance
-echo "Verifying repo exists at /opt/ioa-run/ioa-core-internal..."
+echo "Verifying repo exists at /opt/ioa-run/ioa-core..."
 aws --profile "$AWS_PROFILE" --region "$AWS_REGION" ssm send-command \
   --instance-ids "$INSTANCE_ID" \
   --document-name "AWS-RunShellScript" \
   --parameters commands='[
 "#!/bin/bash",
 "set -e",
-"if [ ! -d /opt/ioa-run/ioa-core-internal ]; then",
-"  echo ERROR: Repository not found at /opt/ioa-run/ioa-core-internal",
+"if [ ! -d /opt/ioa-run/ioa-core ]; then",
+"  echo ERROR: Repository not found at /opt/ioa-run/ioa-core",
 "  echo Please ensure the repo is copied to the instance first",
 "  exit 1",
 "fi",
-"echo Repository verified: /opt/ioa-run/ioa-core-internal",
-"ls -la /opt/ioa-run/ioa-core-internal/ | head -10"
+"echo Repository verified: /opt/ioa-run/ioa-core",
+"ls -la /opt/ioa-run/ioa-core/ | head -10"
 ]' >/dev/null
 
 # Step 3: Run the performance test in Docker container
@@ -86,7 +86,7 @@ aws --profile "$AWS_PROFILE" --region "$AWS_REGION" ssm send-command \
 \"  -e PERF_MARKER=$PERF_MARKER \",
 \"  -e IOA_TEST_RECORDS=$IOA_TEST_RECORDS \",
 \"  -e IOA_4D_PROFILE=$IOA_4D_PROFILE \",
-\"  -v /opt/ioa-run/ioa-core-internal:/work \",
+\"  -v /opt/ioa-run/ioa-core:/work \",
 \"  -w /work \",
 \"  -t ioa-perf-runner:local \",
 \"  /work/scripts/run_perf.sh\"

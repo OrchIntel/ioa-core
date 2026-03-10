@@ -4,15 +4,19 @@
 #
 # Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-
+"""
+IOA Module: src/cli/onboard.py
+Version: v2.5.0
+Last-Updated: 2025-08-16
+Agents: Cursor assist
+Summary: Onboarding CLI for LLM provider setup with interactive wizard and provider management
+"""
 
 """
 Onboarding CLI Module for IOA Core
 
 Provides guided setup for LLM providers, API key management, and roundtable
 configuration through an interactive command-line interface with secure key entry.
-"""Onboard module."""
-
 """
 
 import argparse
@@ -489,6 +493,7 @@ MIT License
         model = input("Model (e.g., gpt-4o-mini): ").strip()
         _ = input("Base URL (optional): ").strip()
         config = {"api_key": api_key}
+        if model:
             config["model"] = model
         self.manager.add_provider(provider, config)
 
@@ -866,13 +871,16 @@ MIT License
                 for fix in fixes_applied:
                     print(f"  - {fix}")
         
+        print(f"\n📊 Summary: {len(all_providers)} providers total")
     
+    def smoke_test(self, provider: Optional[str] = None, model: Optional[str] = None, 
                    live: bool = False, offline: bool = False) -> None:
         """
         Test provider connectivity with smoke tests.
         
         Args:
             provider: Provider to test (default: all)
+            model: Model to test
             live: Whether to perform live API calls
             offline: Whether to force offline mode
         """
@@ -922,6 +930,7 @@ MIT License
                 # Show service info
                 info = service.get_provider_info()
                 print(f"  📊 Status: {info['available']}")
+                print(f"  🎯 Model: {info['model']}")
                 
             except Exception as e:
                 if test_offline:

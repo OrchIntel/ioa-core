@@ -11,8 +11,17 @@ Pytest configuration and fixtures for the IOA Core test suite.
 
 # PATCH: Cursor-2025-08-15 CL-LLM-Deterministic-Config <add test mode fixtures>
 import os
+import tempfile
 import pytest
 from unittest.mock import patch
+
+
+def _runtime_artifacts_root(repo_root):
+    """Return a repo-safe runtime artifacts root outside the tracked tree by default."""
+    override = os.getenv("IOA_RUNTIME_ARTIFACTS_ROOT")
+    if override:
+        return __import__("pathlib").Path(override)
+    return __import__("pathlib").Path(tempfile.gettempdir()) / "ioa-runtime" / repo_root.name
 
 def pytest_configure(config):
     """Configure pytest to handle plugins cleanly."""
@@ -54,7 +63,7 @@ def pytest_addoption(parser):
 def ioa_reports_setup(request):
     """Create standardized reports directory layout and configure logging capture.
 
-    Layout: /reports/<suite>/<YYYYMMDD-HHMMSS>/{summary.md, summary.json, logs/, schemas/, artifacts/}
+    Layout: <runtime-root>/reports/<suite>/<YYYYMMDD-HHMMSS>/{summary.md, summary.json, logs/, schemas/, artifacts/}
     """
     # PATCH: Cursor-2025-08-18 Reports-Normalization DISPATCH-GPT-20250818-008
     import json
@@ -70,7 +79,8 @@ def ioa_reports_setup(request):
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
 
     repo_root = Path(config.rootpath)
-    reports_root = repo_root / "reports"
+    runtime_root = _runtime_artifacts_root(repo_root)
+    reports_root = runtime_root / "reports"
     run_dir = reports_root / suite_name / timestamp
     logs_dir = run_dir / "logs"
     schemas_dir = run_dir / "schemas"
@@ -97,6 +107,7 @@ def ioa_reports_setup(request):
         "dispatch_code": dispatch_code,
         "suite": suite_name,
         "timestamp": timestamp,
+        "runtime_root": str(runtime_root),
         "reports_root": str(reports_root),
         "run_dir": str(run_dir),
         "logs_dir": str(logs_dir),
@@ -108,6 +119,7 @@ def ioa_reports_setup(request):
     # Export for hooks that don't have access to config
     os.environ["IOA_REPORTS_LOG_FILE"] = str(log_file)
     os.environ["IOA_DISPATCH_CODE"] = dispatch_code
+    os.environ.setdefault("IOA_RUNTIME_ARTIFACTS_ROOT", str(runtime_root))
 
     # Pre-create example topic folders for acceptance (doctor, roundtable)
     # These are lightweight placeholders to guide users; real runs can populate further.
@@ -266,14 +278,18 @@ def pytest_sessionfinish(session, exitstatus):
         encoding="utf-8",
     )
 
-    # Append an entry to docs/ops/Reports.md for this CI run
+    # Append an entry to a report ledger only when explicitly requested.
     try:
-        docs_reports = Path(config.rootpath) / "docs" / "ops" / "Reports.md"
-        run_stamp = meta.get("timestamp")
-        suffix_for_heading = f"DISPATCH-{dispatch_suffix}" if dispatch_suffix.isdigit() else dispatch_code
-        one_line = f"- Dispatch {dispatch_code} | {run_stamp} | {run_dir} | Totals: {passed}p/{failed}f/{skipped}s/{xfailed}xf/{xpassed}xp/{errors}e/{len(timeouts)}t | Warnings: {warnings_count}\n"
-        with docs_reports.open("a", encoding="utf-8") as f:
-            f.write(one_line)
+        ledger_path = os.getenv("IOA_REPORT_LEDGER_PATH")
+        if not ledger_path and os.getenv("IOA_WRITE_REPO_REPORT_LEDGER") == "1":
+            ledger_path = str(Path(config.rootpath) / "docs" / "ops" / "Reports.md")
+        if ledger_path:
+            docs_reports = Path(ledger_path)
+            docs_reports.parent.mkdir(parents=True, exist_ok=True)
+            run_stamp = meta.get("timestamp")
+            one_line = f"- Dispatch {dispatch_code} | {run_stamp} | {run_dir} | Totals: {passed}p/{failed}f/{skipped}s/{xfailed}xf/{xpassed}xp/{errors}e/{len(timeouts)}t | Warnings: {warnings_count}\n"
+            with docs_reports.open("a", encoding="utf-8") as f:
+                f.write(one_line)
     except Exception:
         # Non-fatal; documentation update should not fail the test session
         pass

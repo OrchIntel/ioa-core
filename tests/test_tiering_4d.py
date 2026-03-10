@@ -347,10 +347,10 @@ class TestTier4DAbTesting:
         store_time_delta = tiering_results["avg_store_time_ms"] - baseline_results["avg_store_time_ms"]
         retrieve_time_delta = tiering_results["avg_retrieve_time_ms"] - baseline_results["avg_retrieve_time_ms"]
 
-        # Assert reasonable performance delta (≤ 25% increase for experimental feature)
-        # Dispatch target was ≤10% but experimental features may have higher initial overhead
-        assert abs(store_time_delta) / baseline_results["avg_store_time_ms"] <= 0.25
-        assert abs(retrieve_time_delta) / baseline_results["avg_retrieve_time_ms"] <= 0.25
+        # Assert reasonable slowdown only. A faster optimized path is not a regression.
+        # Dispatch target was <=10% but experimental features may have higher initial overhead.
+        assert max(store_time_delta, 0.0) / baseline_results["avg_store_time_ms"] <= 0.25
+        assert max(retrieve_time_delta, 0.0) / baseline_results["avg_retrieve_time_ms"] <= 0.25
 
         # Assert tiering provides value
         assert tiering_results["tiering_accuracy"] >= 0.8  # Target: ≥ 80%

@@ -11,6 +11,8 @@ Pytest configuration and fixtures for IOA Core test suite.
 
 import sys
 import os
+import importlib.util
+import tempfile
 from pathlib import Path
 
 # PATCH: Cursor-2025-10-04 DISPATCH-GPT-20251004-002 - Add adapters to Python path for import compatibility
@@ -26,6 +28,33 @@ if not src_link.exists() and adapters_path.exists():
         os.symlink("adapters", "src")
     except OSError:
         pass  # Symlink may fail on some systems
+
+
+def _ensure_local_cli_package() -> None:
+    """Force `cli` imports to resolve to local `src/cli` package."""
+    cli_init = project_root / "src" / "cli" / "__init__.py"
+    if not cli_init.exists():
+        return
+    spec = importlib.util.spec_from_file_location(
+        "cli",
+        cli_init,
+        submodule_search_locations=[str(cli_init.parent)],
+    )
+    if spec and spec.loader:
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["cli"] = module
+        spec.loader.exec_module(module)
+
+
+_ensure_local_cli_package()
+
+
+def _runtime_artifacts_root() -> Path:
+    """Return a repo-safe runtime artifacts root outside the tracked tree by default."""
+    override = os.getenv("IOA_RUNTIME_ARTIFACTS_ROOT")
+    if override:
+        return Path(override)
+    return Path(tempfile.gettempdir()) / "ioa-runtime" / project_root.name
 
 # PATCH: Cursor-2025-08-15 CL-P4-Final-Green - Clean benchmark plugin handling
 
@@ -57,8 +86,11 @@ def pytest_configure(config):
             from datetime import datetime, timezone
             stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
             _os.environ.setdefault("IOA_REPORT_STAMP", stamp)
+            _os.environ.setdefault("IOA_RUNTIME_ARTIFACTS_ROOT", str(_runtime_artifacts_root()))
         except Exception:
             pass
+
+    _ensure_local_cli_package()
 
 def pytest_sessionfinish(session, exitstatus):
     """Emit a minimal summary artifact when IOA_REPORT_SUITE=pytest."""
@@ -67,9 +99,9 @@ def pytest_sessionfinish(session, exitstatus):
         try:
             from datetime import datetime, timezone
             stamp = _os.getenv("IOA_REPORT_STAMP") or datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-            out_dir = _os.path.join("reports", "pytest", stamp)
-            _os.makedirs(out_dir, exist_ok=True)
-            summary_path = _os.path.join(out_dir, "summary.md")
+            out_dir = _runtime_artifacts_root() / "reports" / "pytest" / stamp
+            out_dir.mkdir(parents=True, exist_ok=True)
+            summary_path = out_dir / "summary.md"
             with open(summary_path, "w", encoding="utf-8") as f:
                 f.write(f"# Pytest Summary\n\nExit status: {exitstatus}\n")
         except Exception:

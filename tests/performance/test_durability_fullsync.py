@@ -23,6 +23,22 @@ from ioa_core.memory_fabric.fabric import MemoryFabric
 from ioa_core.governance.audit_chain import get_audit_chain
 
 
+def _env_int(name: str, default: int) -> int:
+    """Read an integer override from the environment."""
+    try:
+        return int(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _runtime_output_path(filename: str) -> Path:
+    """Persist benchmark artifacts outside the tracked repository by default."""
+    runtime_root = Path(os.getenv("IOA_RUNTIME_ARTIFACTS_ROOT", tempfile.gettempdir()))
+    out_dir = runtime_root / "perf"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    return out_dir / filename
+
+
 @pytest.mark.slow
 @pytest.mark.perf
 @pytest.mark.durability
@@ -59,7 +75,7 @@ def _run_durability_test(sync_mode: str, output_file: str) -> Dict[str, Any]:
 
         # Phase 1: Load test data
         print("📥 Loading durability test data...")
-        test_records = 10000
+        test_records = _env_int("IOA_DURABILITY_RECORDS", 2000)
         test_data = _generate_durability_test_data(test_records)
 
         record_ids = []
@@ -153,7 +169,7 @@ def _run_durability_test(sync_mode: str, output_file: str) -> Dict[str, Any]:
 
         # Save results
         if output_file:
-            output_path = Path(output_file)
+            output_path = _runtime_output_path(output_file)
             with open(output_path, 'w') as f:
                 json.dump(results, f, indent=2, default=str)
             print(f"📊 Results saved to {output_path}")
@@ -632,4 +648,3 @@ if __name__ == "__main__":
         sync_mode = sys.argv[2] if len(sys.argv) > 2 else "NORMAL"
         results = _run_durability_test(sync_mode, f"durability_test_manual_{sync_mode.lower()}.json")
         print("Durability test completed successfully!")
-

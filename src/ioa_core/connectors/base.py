@@ -15,7 +15,13 @@ from datetime import datetime, timezone
 
 from typing import Dict, Any, Optional, List, Callable
 
-from ..governance.policy_engine import PolicyEngine, ActionContext, ValidationStatus, ActionRiskLevel
+from ..governance.policy_engine import (
+    PolicyEngine,
+    ActionContext,
+    ValidationResult,
+    ValidationStatus,
+    ActionRiskLevel,
+)
 from ..governance.system_laws import SystemLawsError
 
 logger = logging.getLogger(__name__)
@@ -25,6 +31,7 @@ logger = logging.getLogger(__name__)
 class ConnectorCapabilities:
     """Capabilities and constraints of a connector."""
     name: str
+    version: str = "1.0.0"
     supported_actions: List[str] = field(default_factory=list)
     data_classifications: List[str] = field(default_factory=list)
     jurisdictions: List[str] = field(default_factory=list)

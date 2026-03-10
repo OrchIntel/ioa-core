@@ -20,11 +20,6 @@ routes:
     repo: "OrchIntel/ioa-saas"
     branch: "main"
     mode: "pr"
-  internal:
-    repo: "OrchIntel/ioa-core-internal"
-    branch: "dev"
-    mode: "direct"
-
 guards:
   protected_branches: ["main", "release/*"]
   require_ci_green: true

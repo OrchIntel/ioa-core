@@ -61,6 +61,7 @@ def test_invalid_key_yields_captured_error(monkeypatch):
         assert "sk-" not in msg  # ensure no secret leakage pattern
 
 
+@patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}, clear=True)
 def test_openai_payload_has_no_metadata_booleans(monkeypatch):
     """Fail if any metadata.* boolean keys are passed in payload to v1 client."""
     from ioa_core.llm_adapter import OpenAIService
@@ -78,5 +79,4 @@ def test_openai_payload_has_no_metadata_booleans(monkeypatch):
         _, kwargs = mock_client.chat.completions.create.call_args
         forbidden = [k for k, v in kwargs.items() if k.startswith('metadata.') and isinstance(v, bool)]
         assert not forbidden, f"Forbidden metadata booleans found: {forbidden}"
-
 

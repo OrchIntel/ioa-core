@@ -562,4 +562,4 @@ After completing live smoke tests:
 
 ---
 
-*For more information about specific providers, see the [Provider Configuration](../user-guide/configuration.md#llm-provider-configuration) section*
+*For more information about specific providers, see [Configuration](../user-guide/configuration.md).*

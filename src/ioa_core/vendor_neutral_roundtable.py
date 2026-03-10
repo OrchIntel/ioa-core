@@ -1,14 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 OrchIntel Systems Ltd.
-# https://orchintel.com | https://ioa.systems
-#
-# Part of IOA Core (Open Source Edition). See LICENSE at repo root.
+# IOA Module: src/vendor_neutral_roundtable.py
+# Version: v2.5.0
+# Last-Updated: 2025-09-09
+# Agents: Cursor assist
+# Summary: Vendor-neutral quorum policy implementation for roundtable consensus
 
 """
 Vendor-Neutral Roundtable Executor
 
 Implements vendor-neutral quorum policy with sibling weighting, auditor fallback,
-and graceful scaling from 1 to N providers for multi-agent consensus.
+and graceful scaling from 1→N providers for multi-agent consensus.
 
 Key Features:
 - Provider-agnostic roster building with sibling detection
@@ -33,10 +35,62 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Union, Literal, Tuple
 from dataclasses import dataclass
 
+try:
+    from ioa_core.governance.audit_chain import get_audit_chain
+except Exception:  # pragma: no cover - compatibility fallback
+    def get_audit_chain():
+        return None
+
 # IOA imports
-from llm_providers.factory import create_provider, list_available_providers
-from llm_manager import LLMManager
-from roundtable_executor import RoundtableExecutor, VoteRecord, FinalReport, RoundtableError
+try:
+    from llm_providers.factory import create_provider, list_available_providers
+except Exception:  # pragma: no cover - compatibility fallback
+    def list_available_providers() -> List[str]:
+        return []
+
+    def create_provider(*args, **kwargs):
+        raise RuntimeError("llm_providers factory is unavailable")
+
+try:
+    from llm_manager import LLMManager
+except Exception:  # pragma: no cover - compatibility fallback
+    from ioa_core.llm_manager import LLMManager  # type: ignore
+
+try:
+    from roundtable_executor import (
+        RoundtableExecutor,
+        VoteRecord,
+        FinalReport,
+        RoundtableError,
+    )
+except Exception:  # pragma: no cover - compatibility fallback
+    from dataclasses import dataclass as _fallback_dataclass
+
+    class RoundtableError(Exception):
+        pass
+
+    @_fallback_dataclass
+    class VoteRecord:  # minimal fallback for optional runtime path
+        agent_id: str
+        vote: str
+        confidence: float
+        rationale: str
+        weight: float
+
+    @_fallback_dataclass
+    class FinalReport:  # minimal fallback for optional runtime path
+        task_id: str
+        consensus_achieved: bool
+        consensus_score: float
+        winning_option: str
+        voting_algorithm: str
+        tie_breaker_rule: Optional[str]
+        votes: List[VoteRecord]
+        reports: Dict[str, Any]
+
+    class RoundtableExecutor:
+        def __init__(self, *args, **kwargs):
+            pass
 
 
 class QuorumConfigError(RoundtableError):
@@ -58,6 +112,7 @@ class AuditorError(RoundtableError):
 class QuorumConfig:
     """Quorum configuration loaded from YAML."""
     fallback_order: List[str]
+    min_agents: int
     strong_quorum: Dict[str, int]
     sibling_weight: float
     auditor_fallback_order: List[str]
@@ -71,6 +126,7 @@ class AgentRoster:
     """Agent roster with provider and weight information."""
     agent_id: str
     provider: str
+    model: str
     weight: float
     is_sibling: bool
     persona: Optional[str] = None
@@ -122,12 +178,14 @@ class RosterBuilder:
         self.logger = logging.getLogger(__name__)
     
     def build_roster(self, available_providers: List[str], 
+                    min_agents: Optional[int] = None,
                     strong_quorum: Optional[bool] = None) -> Tuple[List[AgentRoster], QuorumDiagnostics]:
         """
         Build agent roster with vendor-neutral logic.
         
         Args:
             available_providers: List of available provider names
+            min_agents: Override minimum agents (uses config default if None)
             strong_quorum: Force strong quorum mode (auto-detect if None)
         
         Returns:
@@ -171,6 +229,7 @@ class RosterBuilder:
         
         return roster, diagnostics
     
+    def _build_single_provider_roster(self, provider: str, min_agents: int) -> List[AgentRoster]:
         """Build roster for single provider with siblings."""
         roster = []
         
@@ -200,6 +259,7 @@ class RosterBuilder:
         
         return roster
     
+    def _build_two_provider_roster(self, providers: List[str], min_agents: int) -> List[AgentRoster]:
         """Build roster for two providers."""
         roster = []
         
@@ -217,6 +277,7 @@ class RosterBuilder:
             ))
         
         # Add additional agents if needed
+        while len(roster) < min_agents:
             provider = providers[len(roster) % len(providers)]
             available_models = self._get_available_models(provider)
             model = available_models[len(roster) % len(available_models)] if available_models else "default"
@@ -231,6 +292,7 @@ class RosterBuilder:
         
         return roster
     
+    def _build_multi_provider_roster(self, providers: List[str], min_agents: int, strong_quorum: bool) -> List[AgentRoster]:
         """Build roster for 3+ providers."""
         roster = []
         
@@ -289,6 +351,7 @@ class RosterBuilder:
             return []
 
 
+class AuditorAgent:
     """Auditor agent with M2 baseline validation and fallback selection."""
     
     def __init__(self, quorum_config: QuorumConfig, llm_manager: LLMManager):
@@ -308,7 +371,8 @@ class RosterBuilder:
         
         raise AuditorError("No providers available for auditor")
     
-    async def validate_response(self, response: str, task: str) -> dict:
+    async def validate_response(self, response: str, task: str, 
+                              provider: str, model: str) -> Dict[str, Any]:
         """
         Validate response using M2 baseline auditor.
         
@@ -434,6 +498,7 @@ class VendorNeutralRoundtableExecutor(RoundtableExecutor):
     async def execute_vendor_neutral_roundtable(
         self,
         task: str,
+        min_agents: Optional[int] = None,
         strong_quorum: Optional[bool] = None,
         auditor_provider: Optional[str] = None,
         **kwargs
@@ -443,6 +508,7 @@ class VendorNeutralRoundtableExecutor(RoundtableExecutor):
         
         Args:
             task: Task description
+            min_agents: Override minimum agents
             strong_quorum: Force strong quorum mode
             auditor_provider: Override auditor provider selection
         

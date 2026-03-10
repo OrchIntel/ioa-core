@@ -6,6 +6,7 @@
 import json
 import subprocess
 import os
+import sys
 
 
 def test_provider_smoketest_mock():
@@ -14,7 +15,7 @@ def test_provider_smoketest_mock():
     env["IOA_PROVIDER"] = "mock"
     
     result = subprocess.run(
-        ["python", "examples/40_providers/provider_smoketest.py"],
+        [sys.executable, "examples/40_providers/provider_smoketest.py"],
         capture_output=True,
         text=True,
         check=True,
@@ -38,4 +39,3 @@ def test_provider_smoketest_mock():
 if __name__ == "__main__":
     test_provider_smoketest_mock()
     print("✅ Provider smoketest test passed")
-

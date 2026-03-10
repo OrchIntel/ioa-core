@@ -5,12 +5,13 @@
 
 import json
 import subprocess
+import sys
 
 
 def test_workflow_runs():
     """Test that workflow runner executes and returns JSON."""
     result = subprocess.run(
-        ["python", "examples/10_workflows/run_workflow.py"],
+        [sys.executable, "examples/10_workflows/run_workflow.py"],
         capture_output=True,
         text=True,
         check=True
@@ -35,4 +36,3 @@ def test_workflow_runs():
 if __name__ == "__main__":
     test_workflow_runs()
     print("✅ Workflow test passed")
-

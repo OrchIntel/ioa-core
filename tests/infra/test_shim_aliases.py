@@ -250,18 +250,21 @@ class TestMonorepoStructure:
     """Test the monorepo directory structure."""
     
     def test_package_directories_exist(self):
-        """Test that all required package directories exist."""
+        """Test that required compatibility packages are available."""
         import os
+        import packages.core
+        import ioa
+        import ioa.core
         
-        # Check that package directories exist
-        assert os.path.exists("packages/core")
-        assert os.path.exists("ioa")
-        assert os.path.exists("ioa/core")
+        # Check that the shim packages resolve from allowed source locations.
+        assert packages.core.__version__ is not None
+        assert ioa is not None
+        assert ioa.core is not None
         
-        # Check that __init__.py files exist
-        assert os.path.exists("packages/core/__init__.py")
-        assert os.path.exists("ioa/__init__.py")
-        assert os.path.exists("ioa/core/__init__.py")
+        # The public repo keeps these shims under src/, not as top-level monorepo folders.
+        assert os.path.exists("src/packages/core.py")
+        assert os.path.exists("src/ioa/__init__.py")
+        assert os.path.exists("src/ioa/core/__init__.py")
         
         # Organization and SaaS packages are excluded in OSS mode (as per .gitignore)
         # This is the correct behavior for OSS distribution

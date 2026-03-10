@@ -5,12 +5,13 @@
 
 import json
 import subprocess
+import sys
 
 
 def test_doctor_check():
     """Test that doctor check runs and returns health status."""
     result = subprocess.run(
-        ["python", "examples/30_doctor/doctor_check.py"],
+        [sys.executable, "examples/30_doctor/doctor_check.py"],
         capture_output=True,
         text=True,
         check=True
@@ -35,4 +36,3 @@ def test_doctor_check():
 if __name__ == "__main__":
     test_doctor_check()
     print("✅ Doctor test passed")
-

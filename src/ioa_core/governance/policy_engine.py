@@ -10,7 +10,7 @@ import logging
 import re
 import uuid
 import json
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, List, Tuple, Union
 from dataclasses import dataclass, field
 """Policy Engine module."""
 
@@ -76,11 +76,32 @@ class ValidationResult:
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "status": self.status.value,
+            "action_id": self.action_id,
+            "audit_id": self.audit_id,
+            "laws_checked": self.laws_checked,
+            "violations": self.violations,
+            "required_approvals": self.required_approvals,
+            "fairness_score": self.fairness_score,
+            "mitigation_applied": self.mitigation_applied,
+            "timestamp": self.timestamp.isoformat(),
+            "metadata": self.metadata,
+        }
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.to_dict().get(key, default)
+
+    def __getitem__(self, key: str) -> Any:
+        return self.to_dict()[key]
+
 
 class PolicyEngine:
     """Engine for enforcing System Laws and policy decisions."""
     
-    def __init__(self):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
         self.laws = get_laws()
         self.fairness_threshold = self.laws.get_fairness_threshold()
         self.conflict_resolution_order = self.laws.get_conflict_resolution_order()
@@ -107,7 +128,7 @@ class PolicyEngine:
         
         logger.info("Policy Engine initialized with System Laws and jurisdiction conflict resolution")
 
-    def validate_action(self, action_ctx: ActionContext) -> ValidationResult:
+    def validate_action(self, action_ctx: Union[ActionContext, Dict[str, Any]]) -> ValidationResult:
         """
         Public entrypoint used by callers (e.g., governance-proxy).
         Thin wrapper around validate_against_laws to preserve existing API.
@@ -164,8 +185,9 @@ class PolicyEngine:
         
         return highest_priority
     
-    def validate_against_laws(self, action_ctx: ActionContext) -> ValidationResult:
+    def validate_against_laws(self, action_ctx: Union[ActionContext, Dict[str, Any]]) -> ValidationResult:
         """Validate an action against all System Laws."""
+        action_ctx = self._coerce_action_context(action_ctx)
         audit_id = str(uuid.uuid4())
         laws_checked = []
         violations = []
@@ -238,6 +260,76 @@ class PolicyEngine:
         })
         
         return result
+
+    def enforce(
+        self,
+        *,
+        action: str,
+        context: Optional[Dict[str, Any]] = None,
+        actor_id: Optional[str] = None,
+        resource_type: Optional[str] = None,
+        resource_id: Optional[str] = None,
+        risk_level: Union[str, ActionRiskLevel, None] = None,
+        **metadata: Any,
+    ) -> Dict[str, Any]:
+        """Legacy enforcement API used by dependent repositories."""
+        result = self.validate_against_laws(
+            {
+                "action": action,
+                "context": context or {},
+                "actor": actor_id or "unknown",
+                "resource": resource_type,
+                "resource_id": resource_id,
+                "risk_level": risk_level,
+                "metadata": metadata,
+            }
+        )
+        payload = result.to_dict()
+        payload["allowed"] = result.status in {
+            ValidationStatus.APPROVED,
+            ValidationStatus.MITIGATED,
+        }
+        return payload
+
+    async def validate_content(self, content: str) -> Dict[str, Any]:
+        """Lightweight async content check used by dependent chat applications."""
+        result = self.enforce(
+            action="content_validation",
+            context={"content": content},
+            actor_id="content-validator",
+            resource_type="content",
+        )
+        return {
+            "valid": result.get("allowed", True),
+            "violations": result.get("violations", []),
+            "status": result.get("status", ValidationStatus.APPROVED.value),
+            "audit_id": result.get("audit_id"),
+        }
+
+    def _coerce_action_context(self, action_ctx: Union[ActionContext, Dict[str, Any]]) -> ActionContext:
+        if isinstance(action_ctx, ActionContext):
+            return action_ctx
+
+        context = action_ctx.get("context", {}) or {}
+        metadata = dict(action_ctx.get("metadata", {}) or {})
+        metadata.update(context)
+        if action_ctx.get("resource_id") is not None:
+            metadata.setdefault("resource_id", action_ctx["resource_id"])
+
+        risk_level = action_ctx.get("risk_level", ActionRiskLevel.LOW)
+        if isinstance(risk_level, str):
+            risk_level = ActionRiskLevel.__members__.get(risk_level.upper(), ActionRiskLevel.LOW)
+
+        return ActionContext(
+            action_id=action_ctx.get("action_id", ""),
+            action_type=action_ctx.get("action_type") or action_ctx.get("action", "unknown"),
+            actor_id=action_ctx.get("actor_id") or action_ctx.get("actor", "unknown"),
+            target_entity=action_ctx.get("target_entity") or action_ctx.get("resource"),
+            data_classification=action_ctx.get("data_classification"),
+            jurisdiction=action_ctx.get("jurisdiction"),
+            risk_level=risk_level,
+            metadata=metadata,
+        )
     
     def _check_single_law(self, law: Dict[str, Any], action_ctx: ActionContext) -> Dict[str, Any]:
         """Check a single law against the action context."""
@@ -538,7 +630,10 @@ class PolicyEngine:
         """
         try:
             # Import sustainability manager
-            from ...sustainability import SustainabilityManager, BudgetContext, EnforcementMode
+            try:
+                from ioa.sustainability import SustainabilityManager, BudgetContext, EnforcementMode
+            except ImportError:
+                from ioa_core.sustainability import SustainabilityManager, BudgetContext, EnforcementMode
             
             # Load sustainability configuration from file
             import json
@@ -810,7 +905,10 @@ class PolicyEngine:
         """
         try:
             # Import sustainability manager
-            from ...sustainability import SustainabilityManager, BudgetContext
+            try:
+                from ioa.sustainability import SustainabilityManager, BudgetContext
+            except ImportError:
+                from ioa_core.sustainability import SustainabilityManager, BudgetContext
             
             # Get sustainability configuration from laws
             sustainability_config = self.laws.policy.get("sustainability", {})
@@ -900,9 +998,9 @@ class PolicyEngine:
             else:
                 logger.warning("Ethics Pack v0 configuration not found, using defaults")
                 self._ethics_config = {
-                    "privacy": {"enabled": False},
-                    "safety": {"enabled": False},
-                    "fairness": {"enabled": False}
+                    "privacy": {"enabled": False, "mode": "monitor"},
+                    "safety": {"enabled": True, "mode": "monitor"},
+                    "fairness": {"enabled": True, "mode": "monitor"}
                 }
             
             # Initialize detectors
@@ -911,16 +1009,19 @@ class PolicyEngine:
         except Exception as e:
             logger.error(f"Failed to load Ethics Pack v0: {e}")
             self._ethics_config = {
-                "privacy": {"enabled": False},
-                "safety": {"enabled": False},
-                "fairness": {"enabled": False}
+                "privacy": {"enabled": False, "mode": "monitor"},
+                "safety": {"enabled": True, "mode": "monitor"},
+                "fairness": {"enabled": True, "mode": "monitor"}
             }
     
     def _initialize_ethics_detectors(self):
         """Initialize ethics detectors based on configuration."""
         try:
             # Import detectors
-            from ...governance.detectors import PrivacyDetector, SafetyDetector, FairnessDetector
+            try:
+                from ioa.governance.detectors import PrivacyDetector, SafetyDetector, FairnessDetector
+            except ImportError:
+                from ioa_core.governance.detectors import PrivacyDetector, SafetyDetector, FairnessDetector
             
             # Initialize privacy detector
             if self._ethics_config.get("privacy", {}).get("enabled", False):

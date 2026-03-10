@@ -1,11 +1,11 @@
 {
   "manifest_version": "1.0",
   "generated": "2025-10-10T23:00:00Z",
-  "dispatch": "DISPATCH-Cursor-20251021-IOA-CORE-INTERNAL-OSS-PRUNE",
+  "dispatch": "DISPATCH-Cursor-20251021-IOA-CORE-OSS-PRUNE",
   "repository": {
-    "name": "ioa-core-internal",
+    "name": "ioa-core",
     "version": "2.5.0",
-    "path": "/Users/ryan/OrchIntelWorkspace/ioa-core-internal",
+    "path": "/Users/ryan/OrchIntelWorkspace/ioa-core",
     "size_mb": 181,
     "target_size_mb": 400,
     "size_status": "PASS"
@@ -129,4 +129,3 @@
     "docs/LINKCHECK_RESULTS.txt"
   ]
 }
-

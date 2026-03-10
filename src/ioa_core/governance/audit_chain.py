@@ -23,7 +23,7 @@ from dataclasses import asdict, dataclass
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 try:
     from jsonschema import validate
@@ -449,7 +449,7 @@ class AuditChain:
                 # Try to import via adapters path; fallback to file-based import
                 import sys
                 from pathlib import Path as _P
-                core_root = _P(__file__).resolve().parents[4]  # .../ioa-core-internal
+                core_root = _P(__file__).resolve().parents[4]  # repo root
                 if str(core_root) not in sys.path:
                     sys.path.insert(0, str(core_root))
                 from adapters.audit.timestamping import request_timestamp  # type: ignore

@@ -4,15 +4,19 @@
 #
 # Part of IOA Core (Open Source Edition). See LICENSE at repo root.
 
-
+"""
+IOA Module: src/llm_providers/ollama_utils.py
+Version: v2.5.0
+Last-Updated: 2025-09-07
+Agents: Cursor assist
+Summary: Ollama utilities for deterministic model selection and turbo preset
+"""
 
 """
 Ollama Utilities Module for IOA Core
 
 Provides deterministic model selection, turbo preset configuration, and
 diagnostic utilities for Ollama service integration.
-"""Ollama Utils module."""
-
 """
 
 import os
@@ -158,11 +162,13 @@ class OllamaModelSelector:
         # Policy 1: Prefer llama3.1:8b
         for model in models:
             if "llama3.1:8b" in model.get("name", ""):
+                logger.info(f"Selected model: {model['name']} (policy 1)")
                 return model["name"]
         
         # Policy 2: Prefer gpt-oss:20b
         for model in models:
             if "gpt-oss:20b" in model.get("name", ""):
+                logger.info(f"Selected model: {model['name']} (policy 2)")
                 return model["name"]
         
         # Policy 3: Any other model (prefer smaller by size)
@@ -170,6 +176,7 @@ class OllamaModelSelector:
             # Sort by size (ascending) to prefer smaller models
             sorted_models = sorted(models, key=lambda x: x.get("size", float('inf')))
             selected = sorted_models[0]
+            logger.info(f"Selected model: {selected['name']} (policy 3, size: {selected.get('size', 'unknown')})")
             return selected["name"]
         
         return None
@@ -268,12 +275,14 @@ class OllamaWarmLoader:
         self.artifacts_dir = artifacts_dir
         self.artifacts_dir.mkdir(parents=True, exist_ok=True)
     
+    def warm_load_model(self, model: str, host: str = None) -> Dict[str, Any]:
         """
         Warm-load a model with a tiny prompt to pre-cache pages.
         
         PATCH: Cursor-2025-09-08 DISPATCH-OSS-20250908-SMOKETEST-LIVE-FIXUPS add IOA_OLLAMA_WARM_TIMEOUT support
         
         Args:
+            model: Model name to warm-load
             host: Ollama host (defaults to OLLAMA_HOST or localhost:11434)
             
         Returns:
@@ -392,6 +401,7 @@ class OllamaInferenceTester:
         self.artifacts_dir = artifacts_dir
         self.artifacts_dir.mkdir(parents=True, exist_ok=True)
     
+    def test_inference(self, model: str, host: str = None, mode: str = "turbo") -> Dict[str, Any]:
         """
         Test Ollama inference with hardened timeouts and error handling.
         
@@ -399,6 +409,7 @@ class OllamaInferenceTester:
         Enhanced with configurable timeouts and deterministic model selection.
         
         Args:
+            model: Model name to test
             host: Ollama host (defaults to OLLAMA_HOST or localhost:11434)
             mode: Inference mode ("local_preset", "turbo_cloud", "turbo_local", "turbo", or "standard")
             
@@ -452,6 +463,7 @@ class OllamaInferenceTester:
         
         return results
     
+    def _run_inference_test(self, model: str, host: str, options: Dict[str, Any], 
                           attempt: str, mode: str = "turbo") -> Dict[str, Any]:
         """Run a single inference test attempt with configurable timeout."""
         # Get timeout from environment
@@ -546,6 +558,7 @@ class OllamaInferenceTester:
         
         return results
     
+    def _write_error_log(self, model: str, host: str, payload: Dict[str, Any], 
                         error: str, latency_ms: int) -> None:
         """Write detailed error log for debugging."""
         try:
@@ -724,6 +737,7 @@ def check_ollama_health(host: str = None) -> Dict[str, Any]:
             data = response.json()
             results["status"] = "success"
             results["version"] = data.get("version", "unknown")
+            logger.info(f"Ollama health check successful: {elapsed_ms}ms, version: {results['version']}")
         else:
             results["error"] = f"HTTP {response.status_code}: {response.text}"
             logger.warning(f"Ollama health check failed: {results['error']}")
@@ -738,5 +752,7 @@ def check_ollama_health(host: str = None) -> Dict[str, Any]:
     return results
 
 
+def export_smoketest_model(model: str) -> None:
     """Export selected model for smoketest session."""
     os.environ["IOA_SMOKETEST_OLLAMA_MODEL"] = model
+    logger.info(f"Exported smoketest model: {model}")

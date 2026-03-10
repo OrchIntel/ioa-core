@@ -5,13 +5,9 @@
     "internal": {
       "note": "Pre-launch: websites pull canonical files from private internal repos.",
       "repos": {
-        "core-internal": {
-          "base_url": "https://github.com/OrchIntel/ioa-core-internal",
-          "description": "Private development + full audit history (regulator view)"
-        },
         "core": {
           "base_url": "https://github.com/OrchIntel/ioa-core",
-          "description": "Public OSS baseline (unused in internal mode, kept for reference)"
+          "description": "Public OSS baseline used by the staging mirror as well"
         },
         "enterprise": {
           "base_url": "https://github.com/OrchIntel/ioa-enterprise",
@@ -45,11 +41,11 @@
         "docs.ioa.systems": "https://preview.docs.ioa.systems"
       },
       "path_mappings": {
-        "core-laws": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/SYSTEM_LAWS.md",
-        "core-assurance": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/ASSURANCE_SCORE.md",
-        "core-feature-matrix": "https://raw.githubusercontent.com/OrchIntel/ioa-core-internal/main/docs/ops/feature_matrix.md",
-        "core-src": "https://github.com/OrchIntel/ioa-core-internal/tree/main/src/",
-        "core-tests": "https://github.com/OrchIntel/ioa-core-internal/tree/main/tests/",
+        "core-laws": "https://raw.githubusercontent.com/OrchIntel/ioa-core/main/SYSTEM_LAWS.md",
+        "core-assurance": "https://raw.githubusercontent.com/OrchIntel/ioa-core/main/ASSURANCE_SCORE.md",
+        "core-feature-matrix": "https://raw.githubusercontent.com/OrchIntel/ioa-core/main/docs/ops/feature_matrix.md",
+        "core-src": "https://github.com/OrchIntel/ioa-core/tree/main/src/",
+        "core-tests": "https://github.com/OrchIntel/ioa-core/tree/main/tests/",
         "examples-root": "https://github.com/OrchIntel/ioa-examples/",
         "websites-root": "https://github.com/OrchIntel/ioa-websites/"
       }

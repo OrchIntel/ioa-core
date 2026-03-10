@@ -20,7 +20,7 @@ Reference: https://www.rolls-royce.com/innovation/the-aletheia-framework.aspx
 import sys
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any
 
 # Add IOA Core to path
@@ -87,7 +87,7 @@ class IndustrialInspectionEthics:
             metadata={
                 "inspection_type": request.get("type", "unknown"),
                 "equipment_id": request.get("equipment_id", "unknown"),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "ethics_checks": [
                     "safety_authorization",
                     "data_minimization", 
@@ -101,7 +101,7 @@ class IndustrialInspectionEthics:
         self.inspection_history.append({
             "request": request,
             "decision": decision,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
         
         if not allow:
@@ -159,7 +159,7 @@ class IndustrialInspectionEthics:
         compliance_rate = (total_inspections - violations) / total_inspections if total_inspections > 0 else 1.0
         
         return {
-            "report_timestamp": datetime.utcnow().isoformat(),
+            "report_timestamp": datetime.now(timezone.utc).isoformat(),
             "total_inspections": total_inspections,
             "ethics_violations": violations,
             "compliance_rate": compliance_rate,

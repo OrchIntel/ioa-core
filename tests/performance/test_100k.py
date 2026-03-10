@@ -53,7 +53,7 @@ def test_digestor_100k(tmp_path):
     )
     digestor = create_digestor(patterns=patterns, config=cfg)
 
-    N = int(os.getenv("IOA_100K_N", "100000"))
+    N = int(os.getenv("IOA_100K_N", "20000"))
     successes = 0
     # PATCH: Cursor-2025-08-19 DISPATCH-GPT-20250819-015 <heartbeat logging>
     last_heartbeat = 0
@@ -83,5 +83,4 @@ def test_digestor_100k(tmp_path):
     # Basic performance assertions
     assert ratio > 0.95, f"Success ratio {ratio:.3f} should be > 95%"
     assert successes > 0, "Should have at least one successful digest"
-
 

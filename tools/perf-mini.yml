@@ -115,7 +115,7 @@ Resources:
         - Key: Purpose
           Value: memoryfabric-performance-testing
         - Key: Project
-          Value: ioa-core-internal
+          Value: ioa-core
 
 Outputs:
   InstanceId:

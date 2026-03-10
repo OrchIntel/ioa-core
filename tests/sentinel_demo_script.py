@@ -1,10 +1,4 @@
-""" SPDX-License-Identifier: Apache-2.0
-""" Copyright (c) 2025 OrchIntel Systems Ltd.
-""" https://orchintel.com | https://ioa.systems
-"""
-""" Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-"""
-
+# Module: sentinel_demo_script.py | Version: v2.4.8 | License: Apache-2.0
 # IOA Module v2.4.8 | IOA Contributors | Last updated: 2025-08-05
 # Description: Script for demonstrating IOA sentinel functionality
 # License: Apache-2.0 – IOA Project
@@ -305,6 +299,7 @@ class SentinelDemo:
         stats = self.reinforcement_framework.get_framework_stats()
         print(f"\n🧠 Reinforcement Framework:")
         print(f"  Total events: {stats['total_events']}")
+        print(f"  Unique agents: {stats['unique_agents']}")
         
         # Show sentinel statistics
         sentinel_stats = self.sentinel.get_enforcement_statistics()
@@ -384,6 +379,7 @@ class SentinelDemo:
         scenario = self.scenarios[-1]  # Escalation test scenario
         agent_id = scenario['agent_id']
         
+        print(f"🎯 Testing progressive escalation for agent: {agent_id}")
         
         # Add agent to reinforcement registry
         if agent_id not in self.reinforcement_framework.agent_metrics_registry:
@@ -510,6 +506,7 @@ class SentinelDemo:
         
         # Audit trail summary
         audit_summary = self.sentinel.audit_logger.get_audit_summary()
+        print(f"\n📋 Audit Trail Summary:")
         print(f"  Total violations logged: {audit_summary['total_violations']}")
         print(f"  Total actions logged: {audit_summary['total_enforcement_actions']}")
         
@@ -518,6 +515,7 @@ class SentinelDemo:
             print(f"\n🚨 Recent Violations (Last 3):")
             for violation in audit_summary['recent_violations'][-3:]:
                 print(f"  {violation['law_code']}: {violation['violation_type']} "
+                      f"({violation['severity']}) - Agent: {violation.get('agent_id', 'Unknown')}")
         
         # Show file locations
         print(f"\n📁 Generated Files:")

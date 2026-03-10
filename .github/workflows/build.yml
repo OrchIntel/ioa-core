@@ -33,12 +33,12 @@ jobs:
     - name: Lint with flake8 (basic)
       run: |
         pip install flake8
-        flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics || true
+        flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
     
     - name: Test with pytest
       run: |
-        pytest tests/smoke -v || true
-        pytest tests/cli tests/framework -v || true
+        pytest tests/smoke -v || rc=$?; if [ "${rc:-0}" -ne 0 ] && [ "${rc:-0}" -ne 5 ]; then exit "${rc}"; fi
+        pytest tests/cli tests/framework -v
     
     - name: Build distribution
       run: |
@@ -58,4 +58,3 @@ jobs:
           > badge.sig || echo "Badge signing failed, continuing..."
         curl -s ${{ env.CERT_SERVICE_URL || 'https://api.orchintel.com/cert' }}/badge/gold.svg -o badge.svg || echo "Badge download failed, continuing..."
         echo "![Governed by IOA](badge.svg)" >> README.md
-

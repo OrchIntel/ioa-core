@@ -5,12 +5,13 @@
 
 import json
 import subprocess
+import sys
 
 
 def test_roundtable_quorum():
     """Test that roundtable executes and calculates quorum."""
     result = subprocess.run(
-        ["python", "examples/20_roundtable/roundtable_quorum.py", 
+        [sys.executable, "examples/20_roundtable/roundtable_quorum.py",
          "Test task that is ok"],
         capture_output=True,
         text=True,
@@ -43,4 +44,3 @@ def test_roundtable_quorum():
 if __name__ == "__main__":
     test_roundtable_quorum()
     print("✅ Roundtable test passed")
-

@@ -21,7 +21,7 @@ This separation ensures the public repository remains professional and focused o
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                                                             │
-│  ioa-core-internal (Staging)                               │
+│  private staging checkout                                 │
 │  ├── .git/hooks/pre-push  ────────────────┐               │
 │  └── Source code                           │               │
 │                                             │               │
@@ -147,7 +147,7 @@ bash ../ioa-ops/ci_gates/local/local_ci_gate.sh
 The pre-push hook automatically runs local CI gate:
 
 ```bash
-# In ioa-core-internal
+# In the staging checkout
 git push origin main
 # → Pre-push hook runs local CI gate
 # → If all checks pass, push proceeds
@@ -243,8 +243,8 @@ These checks are **only** run locally through `ioa-ops/ci_gates/local/`.
 ### Pre-Push Hook Not Running
 ```bash
 # Verify hook exists and is executable
-ls -la ioa-core-internal/.git/hooks/pre-push
-chmod +x ioa-core-internal/.git/hooks/pre-push
+ls -la .git/hooks/pre-push
+chmod +x .git/hooks/pre-push
 ```
 
 ### Local CI Gate Failing
@@ -272,7 +272,7 @@ act -j build  # Requires 'act' tool
 ## References
 
 - **Local CI Gate Script**: `ioa-ops/ci_gates/local/local_ci_gate.sh`
-- **Pre-Push Hook**: `ioa-core-internal/.git/hooks/pre-push`
+- **Pre-Push Hook**: `.git/hooks/pre-push`
 - **Public Workflows**: `ioa-core/.github/workflows/`
 - **Results Log**: `ioa-ops/ci_gates/LOCAL_GATE_RESULTS.md`
 
@@ -288,4 +288,3 @@ act -j build  # Requires 'act' tool
 
 **Maintained By**: IOA Core Team  
 **Contact**: https://github.com/OrchIntel/ioa-core/issues
-

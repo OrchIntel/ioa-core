@@ -1,11 +1,5 @@
-"""
-SPDX-License-Identifier: Apache-2.0
-Copyright (c) 2025 OrchIntel Systems Ltd.
-https://orchintel.com | https://ioa.systems
-
-Part of IOA Core (Open Source Edition). See LICENSE at repo root.
-
-"""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
 
 import argparse
 import json
@@ -42,6 +36,7 @@ def load_template(template_path: str) -> Template:
         sys.exit(1)
 
 
+def transform_summary(summary: Dict[str, Any]) -> Dict[str, Any]:
     """Transform summary data for template rendering."""
     # Convert results array to dict for easier template access
     results = {}
@@ -57,6 +52,7 @@ def load_template(template_path: str) -> Template:
         }
         
         # Add artifact links if available
+        if 'artifacts_dir' in summary:
             artifacts_dir = summary['artifacts_dir']
             if gate_name == 'governance':
                 results[gate_name]['links'].append({

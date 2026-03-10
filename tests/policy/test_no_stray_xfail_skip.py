@@ -116,14 +116,15 @@ def test_no_stray_xfail_skip_markers():
                 # Allowlist specific skip that depends on backend capability
                 candidate = f"{test_file}:{line_num} - {marker_type}: {marker_code}"
                 allowlist_suffixes = {
-                    "/tests/memory/test_cold_bridge.py:75 - skip: Cold storage retrieval not supported",
-                    "tests/memory/test_cold_bridge.py:75 - skip: Cold storage retrieval not supported",
-                    "/tests/memory_fabric/test_s3_live.py:131 - skip: IOA_FABRIC_KEY not set - skipping encryption test",
-                    "tests/memory_fabric/test_s3_live.py:131 - skip: IOA_FABRIC_KEY not set - skipping encryption test",
+                    "/tests/memory/test_cold_bridge.py - skip: Cold storage retrieval not supported",
+                    "tests/memory/test_cold_bridge.py - skip: Cold storage retrieval not supported",
+                    "/tests/memory_fabric/test_s3_live.py - skip: IOA_FABRIC_KEY not set - skipping encryption test",
+                    "tests/memory_fabric/test_s3_live.py - skip: IOA_FABRIC_KEY not set - skipping encryption test",
                 }
                 # Normalize paths to POSIX style to compare reliably
                 norm_candidate = candidate.replace(str(Path.cwd()), "").replace("\\", "/")
-                if not any(norm_candidate.endswith(suffix) for suffix in allowlist_suffixes):
+                norm_candidate_no_line = norm_candidate.replace(f":{line_num} - ", " - ")
+                if not any(norm_candidate_no_line.endswith(suffix) for suffix in allowlist_suffixes):
                     # If we get here, it's a potential violation
                     violations.append(norm_candidate)
     

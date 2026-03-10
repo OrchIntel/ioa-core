@@ -5,6 +5,7 @@
 
 import json
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -13,7 +14,7 @@ def test_bootstrap_creates_project():
     """Test that bootstrap creates project files."""
     with tempfile.TemporaryDirectory() as tmpdir:
         result = subprocess.run(
-            ["python", "examples/00_bootstrap/boot_project.py", "test-project"],
+            [sys.executable, "examples/00_bootstrap/boot_project.py", "test-project"],
             cwd=Path.cwd(),
             capture_output=True,
             text=True,
@@ -37,4 +38,3 @@ def test_bootstrap_creates_project():
 if __name__ == "__main__":
     test_bootstrap_creates_project()
     print("✅ Bootstrap test passed")
-

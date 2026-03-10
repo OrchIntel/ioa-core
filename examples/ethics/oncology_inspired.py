@@ -20,7 +20,7 @@ Reference: https://www.rolls-royce.com/innovation/the-aletheia-framework.aspx
 import sys
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any
 
 # Add IOA Core to path
@@ -97,7 +97,7 @@ class MedicalAIEthics:
             metadata={
                 "analysis_type": request.get("analysis_type", "unknown"),
                 "patient_id": request.get("patient_id", "anonymous"),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "ethics_checks": [
                     "patient_consent",
                     "data_minimization",
@@ -113,7 +113,7 @@ class MedicalAIEthics:
         self.medical_requests.append({
             "request": request,
             "decision": decision,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
         
         if not allow:
@@ -235,7 +235,7 @@ class MedicalAIEthics:
         compliance_rate = (total_requests - violations) / total_requests if total_requests > 0 else 1.0
         
         return {
-            "report_timestamp": datetime.utcnow().isoformat(),
+            "report_timestamp": datetime.now(timezone.utc).isoformat(),
             "total_medical_requests": total_requests,
             "ethics_violations": violations,
             "compliance_rate": compliance_rate,

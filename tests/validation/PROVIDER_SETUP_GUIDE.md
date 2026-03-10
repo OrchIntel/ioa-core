@@ -23,7 +23,7 @@ export DEEPSEEK_API_KEY="sk-..."
 ### 2. Run the Validator
 
 ```bash
-cd /Users/ryan/OrchIntelWorkspace/ioa-core-internal
+cd /Users/ryan/OrchIntelWorkspace/ioa-core
 python3 tests/validation/llm_validator.py
 ```
 
@@ -160,7 +160,7 @@ source ~/.zshrc
 
 ```bash
 # Create .env file
-cat > /Users/ryan/OrchIntelWorkspace/ioa-core-internal/.env << 'EOF'
+cat > /Users/ryan/OrchIntelWorkspace/ioa-core/.env << 'EOF'
 OPENAI_API_KEY=sk-proj-...
 ANTHROPIC_API_KEY=sk-ant-...
 GOOGLE_API_KEY=AIzaSy...
@@ -417,4 +417,3 @@ cat tests/validation/LLM_CONNECTIVITY_REPORT.md
 ---
 
 **IOA v2.5.0 — Ready for Multi-Provider Orchestration** ✅
-
