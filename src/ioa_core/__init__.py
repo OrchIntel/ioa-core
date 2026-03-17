@@ -21,7 +21,7 @@ __all__ = [
 try:
     from .version import __version__  # type: ignore
 except Exception:
-    __version__ = "2.6.1"
+    __version__ = "2.7.0"
 
 
 """
@@ -32,7 +32,7 @@ orchestrating modular AI agents with memory-driven collaboration and
 governance mechanisms.
 """
 
-__version__ = "2.6.1"
+__version__ = "2.7.0"
 __author__ = "IOA Project Contributors"
 __license__ = "Apache-2.0"
 
