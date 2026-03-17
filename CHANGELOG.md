@@ -1,10 +1,12 @@
-**Version:** v2.5.0  
-**Last-Updated:** 2025-10-09
+**Version:** v2.7.0  
+**Last-Updated:** 2026-03-17
 
 # Changelog
 ## [Unreleased]
 ### Added
 - CI Remediation v1: profile-aware workflows (monitor PRs, release RC full), provider smoketest stub, docs hardening, assurance artifacts, audit CLI fixes, sustainability mock, detect-secrets PR-fast.
+- AU healthcare policy pack manifest and policy-pack selection via `IOA_POLICY_PACK` / `IOA_LAWS_POLICY_PACK`.
+- Governance manifest loader now supports policy-pack-specific manifest selection.
 
 ### Security
 - Secret detection: PR incremental scan; nightly full scan remains available.

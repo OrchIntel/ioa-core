@@ -36,6 +36,42 @@ logger = logging.getLogger(__name__)
 _manifest_cache: Optional[Dict[str, Any]] = None
 _manifest_loaded_at: Optional[datetime] = None
 _manifest_instance: Optional["SystemLaws"] = None  # Reusable instance cache
+_manifest_policy_pack: Optional[str] = None
+_manifest_path: Optional[Path] = None
+
+_PACK_MANIFESTS = {
+    "healthcare_au": "system_laws_au_health.json",
+    "qixhealth_au": "system_laws_au_health.json",
+    "au_healthcare": "system_laws_au_health.json",
+    "au_health": "system_laws_au_health.json",
+    "qixhealth": "system_laws_au_health.json",
+}
+
+
+def _normalize_policy_pack(value: Optional[str]) -> Optional[str]:
+    text = str(value or "").strip().lower()
+    return text if text else None
+
+
+def _resolve_manifest_path(
+    *,
+    manifest_path: Optional[str] = None,
+    policy_pack: Optional[str] = None,
+) -> Path:
+    if manifest_path:
+        return Path(manifest_path)
+
+    env_path = os.getenv("IOA_LAWS_MANIFEST_PATH")
+    if env_path:
+        return Path(env_path)
+
+    pack = _normalize_policy_pack(policy_pack) or _normalize_policy_pack(
+        os.getenv("IOA_POLICY_PACK") or os.getenv("IOA_LAWS_POLICY_PACK")
+    )
+    if pack and pack in _PACK_MANIFESTS:
+        return Path(__file__).parent / _PACK_MANIFESTS[pack]
+
+    return Path(__file__).parent / "system_laws.json"
 
 
 class SystemLaws:
@@ -188,17 +224,17 @@ def verify_signature(manifest_data: Dict[str, Any], key_path: Optional[str] = No
         raise SignatureVerificationError(f"Signature verification error: {e}")
 
 
-def load_manifest(manifest_path: Optional[str] = None, 
-                  verify_signature_flag: bool = True,
-                  key_path: Optional[str] = None) -> SystemLaws:
+def load_manifest(
+    manifest_path: Optional[str] = None,
+    verify_signature_flag: bool = True,
+    key_path: Optional[str] = None,
+    policy_pack: Optional[str] = None,
+) -> SystemLaws:
     """Load and validate the System Laws manifest."""
-    global _manifest_cache, _manifest_loaded_at
-    
-    if manifest_path is None:
-        current_dir = Path(__file__).parent
-        manifest_path = current_dir / "system_laws.json"
-    
-    manifest_path = Path(manifest_path)
+    global _manifest_cache, _manifest_loaded_at, _manifest_policy_pack, _manifest_path
+
+    manifest_path = _resolve_manifest_path(manifest_path=manifest_path, policy_pack=policy_pack)
+
     if not manifest_path.exists():
         raise SystemIntegrityError(f"System Laws manifest not found: {manifest_path}")
     
@@ -237,6 +273,10 @@ def load_manifest(manifest_path: Optional[str] = None,
         # Cache the manifest (data and reusable instance)
         _manifest_cache = manifest_data
         _manifest_loaded_at = datetime.now(timezone.utc)
+        _manifest_policy_pack = _normalize_policy_pack(policy_pack) or _normalize_policy_pack(
+            os.getenv("IOA_POLICY_PACK") or os.getenv("IOA_LAWS_POLICY_PACK")
+        )
+        _manifest_path = manifest_path
         # Reuse the same SystemLaws instance for callers to avoid re-instantiation
         global _manifest_instance
         _manifest_instance = system_laws
@@ -252,25 +292,38 @@ def load_manifest(manifest_path: Optional[str] = None,
         raise SystemIntegrityError(f"Failed to load manifest: {e}")
 
 
-def get_laws() -> SystemLaws:
+def get_laws(policy_pack: Optional[str] = None) -> SystemLaws:
     """Get the cached System Laws manifest, loading if necessary."""
+    desired_pack = _normalize_policy_pack(policy_pack) or _normalize_policy_pack(
+        os.getenv("IOA_POLICY_PACK") or os.getenv("IOA_LAWS_POLICY_PACK")
+    )
+    desired_path = _resolve_manifest_path(policy_pack=desired_pack)
+
     if _manifest_cache is None or _manifest_instance is None:
         # For development, disable signature verification
-        return load_manifest(verify_signature_flag=False)
+        return load_manifest(verify_signature_flag=False, policy_pack=desired_pack)
+
+    if desired_pack != _manifest_policy_pack or (
+        _manifest_path is not None and desired_path != _manifest_path
+    ):
+        logger.info("Reloading System Laws manifest (policy pack change)")
+        return load_manifest(verify_signature_flag=False, policy_pack=desired_pack)
     
     # Check if cache is still valid (reload every hour)
     if _manifest_loaded_at and (datetime.now(timezone.utc) - _manifest_loaded_at).total_seconds() > 3600:
         logger.info("Reloading System Laws manifest (cache expired)")
-        return load_manifest(verify_signature_flag=False)
+        return load_manifest(verify_signature_flag=False, policy_pack=desired_pack)
     
     # Return the cached instance to ensure reuse
     return _manifest_instance
 
 
-def reload_laws() -> SystemLaws:
+def reload_laws(policy_pack: Optional[str] = None) -> SystemLaws:
     """Force reload of the System Laws manifest."""
-    global _manifest_cache, _manifest_loaded_at, _manifest_instance
+    global _manifest_cache, _manifest_loaded_at, _manifest_instance, _manifest_policy_pack, _manifest_path
     _manifest_cache = None
     _manifest_loaded_at = None
     _manifest_instance = None
-    return load_manifest()
+    _manifest_policy_pack = None
+    _manifest_path = None
+    return load_manifest(policy_pack=policy_pack)
