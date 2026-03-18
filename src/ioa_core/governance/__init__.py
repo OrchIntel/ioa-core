@@ -20,6 +20,12 @@ from .healthcare_taxonomy import (
     resolve_effective_risk_class,
     consent_required_for_risk,
 )
+from .policy_packs import (
+    list_policy_packs,
+    normalize_policy_pack,
+    resolve_manifest_filename,
+    resolve_policy_pack_definition,
+)
 from .detectors import BiasDetector, PIIDetector
 
 __all__ = [
@@ -42,6 +48,10 @@ __all__ = [
     'infer_risk_from_resource_type',
     'resolve_effective_risk_class',
     'consent_required_for_risk',
+    'list_policy_packs',
+    'normalize_policy_pack',
+    'resolve_manifest_filename',
+    'resolve_policy_pack_definition',
     'BiasDetector',
     'PIIDetector',
 ]

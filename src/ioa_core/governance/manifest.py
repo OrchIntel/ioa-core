@@ -29,6 +29,7 @@ except ImportError:
 from .system_laws import (
     SystemIntegrityError, SignatureVerificationError, SystemLawsError
 )
+from .policy_packs import normalize_policy_pack, resolve_manifest_filename
 
 logger = logging.getLogger(__name__)
 
@@ -38,20 +39,6 @@ _manifest_loaded_at: Optional[datetime] = None
 _manifest_instance: Optional["SystemLaws"] = None  # Reusable instance cache
 _manifest_policy_pack: Optional[str] = None
 _manifest_path: Optional[Path] = None
-
-_PACK_MANIFESTS = {
-    "healthcare_au": "system_laws_au_health.json",
-    "qixhealth_au": "system_laws_au_health.json",
-    "au_healthcare": "system_laws_au_health.json",
-    "au_health": "system_laws_au_health.json",
-    "qixhealth": "system_laws_au_health.json",
-}
-
-
-def _normalize_policy_pack(value: Optional[str]) -> Optional[str]:
-    text = str(value or "").strip().lower()
-    return text if text else None
-
 
 def _resolve_manifest_path(
     *,
@@ -65,11 +52,12 @@ def _resolve_manifest_path(
     if env_path:
         return Path(env_path)
 
-    pack = _normalize_policy_pack(policy_pack) or _normalize_policy_pack(
+    pack = normalize_policy_pack(policy_pack) or normalize_policy_pack(
         os.getenv("IOA_POLICY_PACK") or os.getenv("IOA_LAWS_POLICY_PACK")
     )
-    if pack and pack in _PACK_MANIFESTS:
-        return Path(__file__).parent / _PACK_MANIFESTS[pack]
+    filename = resolve_manifest_filename(pack)
+    if filename:
+        return Path(__file__).parent / filename
 
     return Path(__file__).parent / "system_laws.json"
 
@@ -273,7 +261,7 @@ def load_manifest(
         # Cache the manifest (data and reusable instance)
         _manifest_cache = manifest_data
         _manifest_loaded_at = datetime.now(timezone.utc)
-        _manifest_policy_pack = _normalize_policy_pack(policy_pack) or _normalize_policy_pack(
+        _manifest_policy_pack = normalize_policy_pack(policy_pack) or normalize_policy_pack(
             os.getenv("IOA_POLICY_PACK") or os.getenv("IOA_LAWS_POLICY_PACK")
         )
         _manifest_path = manifest_path
@@ -294,7 +282,7 @@ def load_manifest(
 
 def get_laws(policy_pack: Optional[str] = None) -> SystemLaws:
     """Get the cached System Laws manifest, loading if necessary."""
-    desired_pack = _normalize_policy_pack(policy_pack) or _normalize_policy_pack(
+    desired_pack = normalize_policy_pack(policy_pack) or normalize_policy_pack(
         os.getenv("IOA_POLICY_PACK") or os.getenv("IOA_LAWS_POLICY_PACK")
     )
     desired_path = _resolve_manifest_path(policy_pack=desired_pack)
