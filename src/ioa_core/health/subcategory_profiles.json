@@ -1,0 +1,254 @@
+[
+  {
+    "id": "gp_nz",
+    "label": "General practice - New Zealand",
+    "subcategory": "general_practice",
+    "jurisdiction": {
+      "primary": "NZ",
+      "templates": ["nz_hipc_2020_standard", "nz_ipp3a_ai_disclosure"]
+    },
+    "consent": {
+      "flow": "in_session",
+      "renewal_days": 365,
+      "in_session_confirm": true,
+      "pre_session_sms": false,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "standard",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": [],
+    "roles": ["clinician", "admin"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": ["gp", "general practice", "general_clinic"]
+  },
+  {
+    "id": "gp_au",
+    "label": "General practice - Australia",
+    "subcategory": "general_practice",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+    },
+    "consent": {
+      "flow": "in_session",
+      "renewal_days": 365,
+      "in_session_confirm": true,
+      "pre_session_sms": false,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "standard",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": [],
+    "roles": ["clinician", "admin"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": ["gp", "general practice", "general_clinic"]
+  },
+  {
+    "id": "mental_health_au",
+    "label": "Mental health - Australia",
+    "subcategory": "mental_health",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+    },
+    "consent": {
+      "flow": "longitudinal",
+      "renewal_days": 365,
+      "in_session_confirm": false,
+      "pre_session_sms": false,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "elevated",
+      "psychotherapy_note_separation": true,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": ["crisis_mandatory_reporting"],
+    "roles": ["clinician", "supervisor"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": ["mental health", "psychology", "psychotherapy"]
+  },
+  {
+    "id": "mental_health_nz",
+    "label": "Mental health - New Zealand",
+    "subcategory": "mental_health",
+    "jurisdiction": {
+      "primary": "NZ",
+      "templates": ["nz_hipc_2020_standard", "nz_ipp3a_ai_disclosure"]
+    },
+    "consent": {
+      "flow": "longitudinal",
+      "renewal_days": 365,
+      "in_session_confirm": false,
+      "pre_session_sms": false,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "elevated",
+      "psychotherapy_note_separation": true,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": ["crisis_mandatory_reporting"],
+    "roles": ["clinician", "supervisor"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": ["mental health", "psychology", "psychotherapy"]
+  },
+  {
+    "id": "telehealth_au",
+    "label": "Telehealth - Australia",
+    "subcategory": "telehealth",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+    },
+    "consent": {
+      "flow": "pre_session_sms",
+      "renewal_days": 30,
+      "in_session_confirm": true,
+      "pre_session_sms": true,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "standard",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": [],
+    "roles": ["clinician", "admin"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": ["telehealth", "virtual care"]
+  },
+  {
+    "id": "telehealth_nz",
+    "label": "Telehealth - New Zealand",
+    "subcategory": "telehealth",
+    "jurisdiction": {
+      "primary": "NZ",
+      "templates": [
+        "nz_hipc_2020_standard",
+        "nz_ipp3a_ai_disclosure",
+        "nz_hipc_rule12_offshore"
+      ]
+    },
+    "consent": {
+      "flow": "pre_session_sms",
+      "renewal_days": 30,
+      "in_session_confirm": true,
+      "pre_session_sms": true,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "standard",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": [],
+    "roles": ["clinician", "admin"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": ["telehealth", "virtual care"]
+  },
+  {
+    "id": "allied_health_au",
+    "label": "Allied health - Australia",
+    "subcategory": "allied_health",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+    },
+    "consent": {
+      "flow": "in_session",
+      "renewal_days": 180,
+      "in_session_confirm": true,
+      "pre_session_sms": false,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "standard",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": ["ndis_report"],
+    "roles": ["clinician", "admin"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": ["allied health", "physio", "ot", "speech"]
+  },
+  {
+    "id": "aged_care_au",
+    "label": "Aged care - Australia",
+    "subcategory": "aged_care",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+    },
+    "consent": {
+      "flow": "proxy",
+      "renewal_days": 180,
+      "in_session_confirm": false,
+      "pre_session_sms": false,
+      "proxy_allowed": true
+    },
+    "deid": {
+      "tier": "standard",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": true
+    },
+    "content_gates": ["restrictive_practice"],
+    "roles": ["care_worker", "clinician", "guardian"],
+    "roundtable": {
+      "enabled": false,
+      "trigger": "disabled"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": ["aged care", "care home", "residential care"]
+  }
+]
