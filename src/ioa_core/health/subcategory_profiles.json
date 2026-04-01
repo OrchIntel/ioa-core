@@ -1,11 +1,11 @@
 [
   {
     "id": "gp_nz",
-    "label": "General practice - New Zealand",
+    "label": "General Practice - New Zealand",
     "subcategory": "general_practice",
     "jurisdiction": {
       "primary": "NZ",
-      "templates": ["nz_hipc_2020_standard", "nz_ipp3a_ai_disclosure"]
+      "templates": ["nz_hipc", "nz_ipp3a_ai_disclosure"]
     },
     "consent": {
       "flow": "in_session",
@@ -32,11 +32,11 @@
   },
   {
     "id": "gp_au",
-    "label": "General practice - Australia",
+    "label": "General Practice - Australia",
     "subcategory": "general_practice",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
     },
     "consent": {
       "flow": "in_session",
@@ -63,11 +63,11 @@
   },
   {
     "id": "mental_health_au",
-    "label": "Mental health - Australia",
+    "label": "Mental Health - Australia",
     "subcategory": "mental_health",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
     },
     "consent": {
       "flow": "longitudinal",
@@ -94,11 +94,11 @@
   },
   {
     "id": "mental_health_nz",
-    "label": "Mental health - New Zealand",
+    "label": "Mental Health - New Zealand",
     "subcategory": "mental_health",
     "jurisdiction": {
       "primary": "NZ",
-      "templates": ["nz_hipc_2020_standard", "nz_ipp3a_ai_disclosure"]
+      "templates": ["nz_hipc", "nz_ipp3a_ai_disclosure"]
     },
     "consent": {
       "flow": "longitudinal",
@@ -129,7 +129,7 @@
     "subcategory": "telehealth",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
     },
     "consent": {
       "flow": "pre_session_sms",
@@ -160,11 +160,7 @@
     "subcategory": "telehealth",
     "jurisdiction": {
       "primary": "NZ",
-      "templates": [
-        "nz_hipc_2020_standard",
-        "nz_ipp3a_ai_disclosure",
-        "nz_hipc_rule12_offshore"
-      ]
+      "templates": ["nz_hipc", "nz_ipp3a_ai_disclosure", "nz_hipc_rule12_offshore"]
     },
     "consent": {
       "flow": "pre_session_sms",
@@ -191,11 +187,11 @@
   },
   {
     "id": "allied_health_au",
-    "label": "Allied health - Australia",
+    "label": "Allied Health - Australia",
     "subcategory": "allied_health",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
     },
     "consent": {
       "flow": "in_session",
@@ -222,11 +218,11 @@
   },
   {
     "id": "aged_care_au",
-    "label": "Aged care - Australia",
+    "label": "Aged Care - Australia",
     "subcategory": "aged_care",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act_ai", "au_ahpra_ai_guidance"]
+      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
     },
     "consent": {
       "flow": "proxy",
@@ -250,5 +246,160 @@
     "policy_pack": "healthcare-au",
     "default_governance_mode": "enforce",
     "aliases": ["aged care", "care home", "residential care"]
+  },
+  {
+    "id": "telehealth_au_nz",
+    "label": "Telehealth",
+    "subcategory": "telehealth",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act", "nz_hipc", "hipaa"]
+    },
+    "consent": {
+      "flow": "pre_session_sms",
+      "renewal_days": 90,
+      "in_session_confirm": true,
+      "pre_session_sms": true,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "full",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": ["crisis_detection", "prescribing_boundary"],
+    "roles": ["telehealth_clinician", "telehealth_admin", "patient"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "diagnostic_uncertainty"
+    },
+    "governance_pack_id": "qixhealth_telehealth_v1",
+    "policy_pack": "telehealth_default",
+    "default_governance_mode": "supervised",
+    "aliases": ["telehealth", "virtual_care", "remote_consult", "video_consult"]
+  },
+  {
+    "id": "allied_health_au_nz",
+    "label": "Allied Health",
+    "subcategory": "allied_health",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act", "nz_hipc"]
+    },
+    "consent": {
+      "flow": "standard",
+      "renewal_days": 365,
+      "in_session_confirm": false,
+      "pre_session_sms": false,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "standard",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": ["scope_of_practice_boundary"],
+    "roles": ["physiotherapist", "occupational_therapist", "speech_pathologist", "dietitian", "podiatrist", "allied_health_admin"],
+    "roundtable": {
+      "enabled": false,
+      "trigger": ""
+    },
+    "governance_pack_id": "qixhealth_allied_v1",
+    "policy_pack": "allied_health_default",
+    "default_governance_mode": "assisted",
+    "aliases": ["allied_health", "allied", "physio", "OT", "speech_therapy"]
+  },
+  {
+    "id": "aged_care_au_nz",
+    "label": "Aged Care",
+    "subcategory": "aged_care",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act", "au_aged_care_act", "nz_hipc"]
+    },
+    "consent": {
+      "flow": "proxy_guardian",
+      "renewal_days": 180,
+      "in_session_confirm": false,
+      "pre_session_sms": false,
+      "proxy_allowed": true
+    },
+    "deid": {
+      "tier": "full",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": true
+    },
+    "content_gates": ["capacity_assessment_gate", "mandatory_reporting_gate"],
+    "roles": ["aged_care_nurse", "care_coordinator", "aged_care_admin", "guardian", "family_contact"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "capacity_concern"
+    },
+    "governance_pack_id": "qixhealth_aged_care_v1",
+    "policy_pack": "aged_care_default",
+    "default_governance_mode": "supervised",
+    "aliases": ["aged_care", "residential_care", "rest_home", "nursing_home", "racf"]
+  },
+  {
+    "id": "midwifery_au_nz",
+    "label": "Midwifery",
+    "subcategory": "midwifery",
+    "jurisdiction": {
+      "primary": "NZ",
+      "templates": ["nz_hipc", "au_privacy_act"]
+    },
+    "consent": {
+      "flow": "longitudinal_episode",
+      "renewal_days": null,
+      "in_session_confirm": true,
+      "pre_session_sms": true,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "full",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": ["maternal_safety_gate", "fetal_monitoring_boundary"],
+    "roles": ["lead_maternity_carer", "midwife", "obstetric_nurse", "obstetrician", "midwifery_admin"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "maternal_risk_flag"
+    },
+    "governance_pack_id": "qixhealth_midwifery_v1",
+    "policy_pack": "midwifery_default",
+    "default_governance_mode": "supervised",
+    "aliases": ["midwifery", "lmc", "maternity", "antenatal", "postnatal", "obstetrics"]
+  },
+  {
+    "id": "dental_au_nz",
+    "label": "Dental",
+    "subcategory": "dental",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act", "nz_hipc"]
+    },
+    "consent": {
+      "flow": "standard",
+      "renewal_days": 365,
+      "in_session_confirm": false,
+      "pre_session_sms": false,
+      "proxy_allowed": false
+    },
+    "deid": {
+      "tier": "standard",
+      "psychotherapy_note_separation": false,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": ["prescribing_boundary"],
+    "roles": ["dentist", "dental_specialist", "oral_health_therapist", "dental_assistant", "dental_admin"],
+    "roundtable": {
+      "enabled": false,
+      "trigger": ""
+    },
+    "governance_pack_id": "qixhealth_dental_v1",
+    "policy_pack": "dental_default",
+    "default_governance_mode": "assisted",
+    "aliases": ["dental", "dentistry", "oral_health", "orthodontics", "endodontics"]
   }
 ]

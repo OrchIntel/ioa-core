@@ -1,5 +1,17 @@
 [
   {
+    "template_id": "nz_hipc",
+    "version": "1.0",
+    "effective_date": "2020-07-01",
+    "jurisdiction": "NZ",
+    "language": "en",
+    "title": "NZ Health Information Privacy Code disclosure",
+    "body": "This clinic may use governed AI tools to support clinical queries and documentation. Identifying details should be protected before information is processed, and a record of the session is kept for safety and audit.",
+    "requires_explicit_confirm": true,
+    "auto_renew_days": 365,
+    "audit_field": "nz_hipc_v1"
+  },
+  {
     "template_id": "nz_hipc_2020_standard",
     "version": "1.0",
     "effective_date": "2020-07-01",
@@ -36,6 +48,18 @@
     "audit_field": "nz_hipc_rule12_offshore_v1"
   },
   {
+    "template_id": "au_privacy_act",
+    "version": "1.0",
+    "effective_date": "2025-01-01",
+    "jurisdiction": "AU",
+    "language": "en",
+    "title": "AI-assisted care disclosure",
+    "body": "This provider may use governed AI to support clinical queries and documentation. Patient information should be handled under the Privacy Act and Australian Privacy Principles, with controls applied before any external processing.",
+    "requires_explicit_confirm": true,
+    "auto_renew_days": 365,
+    "audit_field": "au_privacy_act_v1"
+  },
+  {
     "template_id": "au_privacy_act_ai",
     "version": "1.0",
     "effective_date": "2025-01-01",
@@ -58,6 +82,30 @@
     "requires_explicit_confirm": false,
     "auto_renew_days": 365,
     "audit_field": "au_ahpra_ai_guidance_v1"
+  },
+  {
+    "template_id": "au_aged_care_act",
+    "version": "1.0",
+    "effective_date": "2025-07-01",
+    "jurisdiction": "AU",
+    "language": "en",
+    "title": "Aged care resident and guardian disclosure",
+    "body": "This aged care service may use governed AI support under staff supervision. Proxy or guardian consent workflows, patient capacity concerns, and reportable safety issues must be handled under the clinic or facility's approved governance process.",
+    "requires_explicit_confirm": true,
+    "auto_renew_days": 180,
+    "audit_field": "au_aged_care_act_v1"
+  },
+  {
+    "template_id": "hipaa",
+    "version": "1.0",
+    "effective_date": "2025-01-01",
+    "jurisdiction": "US",
+    "language": "en",
+    "title": "HIPAA-aligned AI disclosure",
+    "body": "This provider may use governed AI support during care delivery. Protected health information should be handled through approved paths with de-identification or minimum necessary controls and audit logging.",
+    "requires_explicit_confirm": true,
+    "auto_renew_days": 365,
+    "audit_field": "hipaa_v1"
   },
   {
     "template_id": "us_hipaa_safe_harbor",

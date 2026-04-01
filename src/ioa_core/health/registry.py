@@ -175,13 +175,25 @@ class SubcategoryContextProfileRegistry:
     def __init__(self, profiles: Mapping[str, SubcategoryContextProfile]):
         self._profiles = dict(profiles)
         self._aliases: Dict[tuple[str, str], str] = {}
+        self._alias_scores: Dict[tuple[str, str], int] = {}
         for profile in self._profiles.values():
             keys = {profile.subcategory, *profile.aliases}
-            jurisdiction = _normalize_jurisdiction_code(profile.jurisdiction.primary)
+            supported_jurisdictions = _supported_jurisdictions(profile)
+            primary = _normalize_jurisdiction_code(profile.jurisdiction.primary)
             for key in keys:
                 alias = _normalize_alias(key)
-                if alias:
-                    self._aliases[(alias, jurisdiction)] = profile.id
+                if not alias:
+                    continue
+                for jurisdiction in supported_jurisdictions:
+                    score = _profile_recommendation_score(
+                        profile,
+                        jurisdiction=jurisdiction,
+                        primary_jurisdiction=primary,
+                    )
+                    current_score = self._alias_scores.get((alias, jurisdiction), -1)
+                    if score >= current_score:
+                        self._aliases[(alias, jurisdiction)] = profile.id
+                        self._alias_scores[(alias, jurisdiction)] = score
 
     @classmethod
     def from_builtin(cls) -> "SubcategoryContextProfileRegistry":
@@ -377,6 +389,55 @@ def _normalize_alias(value: Any) -> str:
 def _normalize_jurisdiction_code(value: Any) -> str:
     text = str(value or "").strip().upper()
     return text or "NZ"
+
+
+def _template_implied_jurisdiction(template_id: str) -> Optional[str]:
+    normalized = str(template_id or "").strip().lower()
+    if normalized.startswith("nz_"):
+        return "NZ"
+    if normalized.startswith("au_"):
+        return "AU"
+    if normalized.startswith("us_") or normalized == "hipaa":
+        return "US"
+    if normalized.startswith("uk_"):
+        return "UK"
+    if normalized.startswith("eu_"):
+        return "EU"
+    return None
+
+
+def _supported_jurisdictions(profile: SubcategoryContextProfile) -> List[str]:
+    supported = {_normalize_jurisdiction_code(profile.jurisdiction.primary)}
+    for template_id in profile.jurisdiction.templates:
+        implied = _template_implied_jurisdiction(template_id)
+        if implied:
+            supported.add(implied)
+    return sorted(supported)
+
+
+def _profile_recommendation_score(
+    profile: SubcategoryContextProfile,
+    *,
+    jurisdiction: str,
+    primary_jurisdiction: str,
+) -> int:
+    normalized_id = profile.id.lower()
+    score = 0
+    if normalized_id.endswith("_au_nz"):
+        score += 8
+    if jurisdiction == primary_jurisdiction:
+        score += 4
+    if profile.subcategory in {
+        "telehealth",
+        "allied_health",
+        "aged_care",
+        "midwifery",
+        "dental",
+    }:
+        score += 2
+    if jurisdiction in _supported_jurisdictions(profile):
+        score += 1
+    return score
 
 
 def _optional_int(value: Any) -> Optional[int]:

@@ -14,8 +14,11 @@ from ioa_core.health import (
 def test_recommend_profile_matches_dispatch_launch_profiles():
     assert recommend_subcategory_profile("General Practice", "NZ").id == "gp_nz"
     assert recommend_subcategory_profile("Mental Health", "AU").id == "mental_health_au"
-    assert recommend_subcategory_profile("Telehealth", "NZ").id == "telehealth_nz"
-    assert recommend_subcategory_profile("Allied Health", "AU").id == "allied_health_au"
+    assert recommend_subcategory_profile("Telehealth", "NZ").id == "telehealth_au_nz"
+    assert recommend_subcategory_profile("Allied Health", "AU").id == "allied_health_au_nz"
+    assert recommend_subcategory_profile("Aged Care", "NZ").id == "aged_care_au_nz"
+    assert recommend_subcategory_profile("Midwifery", "NZ").id == "midwifery_au_nz"
+    assert recommend_subcategory_profile("Dental", "AU").id == "dental_au_nz"
 
 
 def test_builtin_profile_registry_exposes_launch_profiles():
@@ -26,10 +29,11 @@ def test_builtin_profile_registry_exposes_launch_profiles():
         "gp_au",
         "mental_health_au",
         "mental_health_nz",
-        "telehealth_au",
-        "telehealth_nz",
-        "allied_health_au",
-        "aged_care_au",
+        "telehealth_au_nz",
+        "allied_health_au_nz",
+        "aged_care_au_nz",
+        "midwifery_au_nz",
+        "dental_au_nz",
     }.issubset(profile_ids)
 
 
@@ -37,7 +41,8 @@ def test_builtin_template_registry_contains_cross_jurisdiction_templates():
     registry = get_jurisdiction_template_registry()
     assert get_jurisdiction_template("nz_ipp3a_ai_disclosure").jurisdiction == "NZ"
     assert get_jurisdiction_template("au_ahpra_ai_guidance").jurisdiction == "AU"
-    assert get_jurisdiction_template("us_hipaa_safe_harbor").jurisdiction == "US"
+    assert get_jurisdiction_template("hipaa").jurisdiction == "US"
+    assert get_jurisdiction_template("au_aged_care_act").jurisdiction == "AU"
     assert get_jurisdiction_template("eu_ai_act_high_risk").jurisdiction == "EU"
     assert any(
         template.template_id == "uk_ico_ai_dpia"
@@ -61,8 +66,8 @@ def test_build_health_session_context_stacks_patient_templates_without_duplicate
 
 
 def test_profile_runtime_defaults_include_consent_and_deid_controls():
-    profile = get_subcategory_profile("aged_care_au")
+    profile = get_subcategory_profile("aged_care_au_nz")
     runtime_defaults = profile.to_runtime_defaults()
-    assert runtime_defaults["consent"]["flow"] == "proxy"
+    assert runtime_defaults["consent"]["flow"] == "proxy_guardian"
     assert runtime_defaults["deid"]["incapacitated_patient_flag"] is True
-    assert "restrictive_practice" in runtime_defaults["content_gates"]
+    assert "mandatory_reporting_gate" in runtime_defaults["content_gates"]
