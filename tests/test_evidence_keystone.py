@@ -175,6 +175,8 @@ def test_k4g_clean_machine_verifier_from_pypi(tmp_path: Path):
             "install",
             "--disable-pip-version-check",
             "--no-cache-dir",
+            "--index-url",
+            "https://pypi.org/simple",
             "ioa-core==2.9.0",
         ],
         check=True,
