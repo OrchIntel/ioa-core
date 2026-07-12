@@ -1,0 +1,29 @@
+{
+  "bundle_id": "example-signed-bundle",
+  "version": "1.0.0",
+  "framework": "IOA_7LAWS",
+  "generated_at": "2026-07-12T10:36:12.945576+00:00",
+  "validations_count": 1,
+  "metadata": {},
+  "validations": [
+    {
+      "validation_id": "synthetic-pass",
+      "result": "pass",
+      "source": "synthetic",
+      "timestamp": "2026-07-12T10:36:12.946104+00:00"
+    }
+  ],
+  "model_provenance": [],
+  "evidence_chain_id": "chain-8501d0daa5b44f15baadd59fde6baf86",
+  "related_bundle_ids": [],
+  "signature": {
+    "sig_version": "ed25519-v1",
+    "algo": "Ed25519",
+    "public_key_id": "e83dc485b0ca6ac5",
+    "signature": "p9AicfouVGuUink6CsMbQa8/XCKsyR5dDJlHmCE2mS0igxSPdNpSbGcTgkW0B8NKesXtgXpa8oblSXZY3m/+DA==",
+    "canonical_hash": "588e4ec99d8757b977fbe75727e52f4477c86079b67811ff79c0e52c348aa23a",
+    "signed_at": "2026-07-12T10:36:12.949906+00:00"
+  },
+  "signature_status": "signed",
+  "evidence_hash": "9d3c91c132bb588b6795d5e0b817182036f9704c25c0645aea5110d76452a6a3"
+}
