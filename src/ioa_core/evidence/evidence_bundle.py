@@ -21,6 +21,7 @@ from dataclasses import dataclass, asdict
 
 class EvidenceBundleError(Exception):
     """Base exception for evidence bundle operations."""
+
     pass
 
 
@@ -28,11 +29,11 @@ class EvidenceBundleError(Exception):
 class EvidenceBundle:
     """
     Canonical evidence bundle for compliance and audit requirements.
-    
+
     Provides standardized evidence generation with cryptographic signatures
     and audit trail capabilities across all IOA systems.
     """
-    
+
     bundle_id: str
     version: str = "1.0.0"
     framework: str = "IOA_7LAWS"
@@ -43,9 +44,10 @@ class EvidenceBundle:
     model_provenance: List[Dict[str, Any]] = None
     evidence_chain_id: Optional[str] = None
     related_bundle_ids: List[str] = None
-    signature: Optional[str] = None
+    signature: Optional[Union[str, Dict[str, str]]] = None
+    signature_status: str = "unsigned"
     evidence_hash: str = ""
-    
+
     def __post_init__(self):
         """Initialize default values after dataclass creation."""
         if not self.generated_at:
@@ -62,40 +64,45 @@ class EvidenceBundle:
             self.evidence_chain_id = f"chain-{uuid.uuid4().hex}"
         if not self.evidence_hash:
             self.evidence_hash = self._calculate_hash()
-    
+
     def _calculate_hash(self) -> str:
         """Calculate SHA256 hash of the evidence bundle."""
         # Create a copy without the hash field for calculation
         bundle_data = asdict(self)
-        bundle_data.pop('evidence_hash', None)
-        
+        bundle_data.pop("evidence_hash", None)
+        bundle_data.pop("signature", None)
+        bundle_data.pop("signature_status", None)
+
         # Sort keys for consistent hashing
         bundle_json = json.dumps(bundle_data, sort_keys=True)
         return hashlib.sha256(bundle_json.encode()).hexdigest()
-    
+
     def add_validation(self, validation: Dict[str, Any]) -> None:
         """Add a validation result to the bundle."""
         if not isinstance(validation, dict):
             raise EvidenceBundleError("Validation must be a dictionary")
-        
+
         # Ensure required fields
         if "validation_id" not in validation:
             validation["validation_id"] = f"val_{len(self.validations) + 1}"
         if "timestamp" not in validation:
             validation["timestamp"] = datetime.now(timezone.utc).isoformat()
-        
+
+        self._invalidate_signature()
         self.validations.append(validation)
         self.validations_count = len(self.validations)
         self.evidence_hash = self._calculate_hash()
-    
+
     def add_metadata(self, key: str, value: Any) -> None:
         """Add metadata to the bundle."""
+        self._invalidate_signature()
         self.metadata[key] = value
         self.evidence_hash = self._calculate_hash()
 
     def add_related_bundle(self, bundle_id: str) -> None:
         """Link another evidence bundle in the same cross-domain chain."""
         if bundle_id and bundle_id not in self.related_bundle_ids:
+            self._invalidate_signature()
             self.related_bundle_ids.append(bundle_id)
             self.evidence_hash = self._calculate_hash()
 
@@ -114,7 +121,9 @@ class EvidenceBundle:
                 "model_id",
                 provenance.get("model_name", provenance.get("model", "unknown")),
             ),
-            "model_version": provenance.get("model_version", provenance.get("model_snapshot")),
+            "model_version": provenance.get(
+                "model_version", provenance.get("model_snapshot")
+            ),
             "endpoint": provenance.get("endpoint", provenance.get("deployment_id")),
             "temperature": provenance.get("temperature"),
             "top_p": provenance.get("top_p"),
@@ -147,81 +156,83 @@ class EvidenceBundle:
         for key, value in provenance.items():
             normalized.setdefault(key, value)
 
+        self._invalidate_signature()
         self.model_provenance.append(normalized)
         self.evidence_hash = self._calculate_hash()
-    
-    def generate_signature(self, signer: str = "ioa-core") -> str:
-        """Generate a cryptographic signature for the bundle."""
-        sig_payload = {
-            "version": "SIGv1",
-            "algorithm": "SHA256",
-            "evidence_hash": self.evidence_hash,
-            "signer": signer,
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
-        
-        sig_data = json.dumps(sig_payload, sort_keys=True).encode()
-        signature = f"SIGv1:{hashlib.sha256(sig_data).hexdigest()}"
-        self.signature = signature
-        
-        return signature
-    
+
+    def _invalidate_signature(self) -> None:
+        if self.signature is not None or self.signature_status == "signed":
+            self.signature = None
+            self.signature_status = "unsigned"
+
+    def generate_signature(
+        self,
+        signer: str = "ioa-core",
+        private_key_path: Optional[str] = None,
+    ) -> Dict[str, str]:
+        """Generate a real Ed25519 signature using an operator-provided key."""
+        del signer  # Kept for source compatibility; key identity is in the envelope.
+        from .signing import sign_bundle
+
+        envelope = sign_bundle(self, private_key_path=private_key_path)
+        self.signature = envelope
+        self.signature_status = "signed"
+        return envelope
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert bundle to dictionary."""
         return asdict(self)
-    
+
     def to_json(self, indent: int = 2) -> str:
         """Convert bundle to JSON string."""
         return json.dumps(self.to_dict(), indent=indent)
-    
+
     def save_to_file(self, filepath: str) -> None:
         """Save bundle to JSON file."""
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             f.write(self.to_json())
-    
-    def verify_signature(self) -> bool:
-        """Verify the bundle's signature."""
+
+    def verify_signature(self, public_key_path: Optional[str] = None) -> bool:
+        """Verify a new signature, or classify a legacy checksum as unsigned."""
         if not self.signature:
+            self.signature_status = "unsigned"
             return False
-        
+        if isinstance(self.signature, str) and self.signature.startswith("SIGv1:"):
+            self.signature_status = "unsigned_legacy"
+            return False
+        if not isinstance(self.signature, dict) or not public_key_path:
+            self.signature_status = "unverified"
+            return False
+        from .signing import load_public_key, verify_bundle
+
         try:
-            # Extract signature components
-            if not self.signature.startswith("SIGv1:"):
-                return False
-            
-            sig_hash = self.signature[6:]  # Remove "SIGv1:" prefix
-            
-            # Recreate signature payload
-            sig_payload = {
-                "version": "SIGv1",
-                "algorithm": "SHA256", 
-                "evidence_hash": self.evidence_hash,
-                "signer": "ioa-core",  # This should be stored in metadata
-                "timestamp": self.generated_at
-            }
-            
-            # Calculate expected hash
-            sig_data = json.dumps(sig_payload, sort_keys=True).encode()
-            expected_hash = hashlib.sha256(sig_data).hexdigest()
-            
-            return sig_hash == expected_hash
-            
+            verified = verify_bundle(self, load_public_key(public_key_path))
         except Exception:
-            return False
-    
+            verified = False
+        self.signature_status = "signed" if verified else "invalid"
+        return verified
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'EvidenceBundle':
+    def from_dict(cls, data: Dict[str, Any]) -> "EvidenceBundle":
         """Create EvidenceBundle from dictionary."""
-        return cls(**data)
-    
+        normalized = dict(data)
+        signature = normalized.get("signature")
+        if isinstance(signature, str) and signature.startswith("SIGv1:"):
+            normalized["signature_status"] = "unsigned_legacy"
+        elif isinstance(signature, dict):
+            normalized["signature_status"] = "unverified"
+        else:
+            normalized["signature_status"] = "unsigned"
+        return cls(**normalized)
+
     @classmethod
-    def from_json(cls, json_str: str) -> 'EvidenceBundle':
+    def from_json(cls, json_str: str) -> "EvidenceBundle":
         """Create EvidenceBundle from JSON string."""
         data = json.loads(json_str)
         return cls.from_dict(data)
-    
+
     @classmethod
-    def from_file(cls, filepath: str) -> 'EvidenceBundle':
+    def from_file(cls, filepath: str) -> "EvidenceBundle":
         """Create EvidenceBundle from JSON file."""
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             return cls.from_json(f.read())

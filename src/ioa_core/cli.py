@@ -20,18 +20,20 @@ from typing import Any, Dict, Optional
 
 import click
 
+
 # Lazy imports for optional features
 def get_vector_search_engine():
     """Lazy import for vector search engine."""
     try:
         from .vector_search import VectorSearchEngine
+
         return VectorSearchEngine()
     except ImportError:
         return None
 
 
 @click.group()
-@click.version_option(version="2.5.0", prog_name="IOA Core")
+@click.version_option(version="2.9.0", prog_name="IOA Core")
 def app():
     """IOA Core - Intelligent Orchestration Architecture Core
 
@@ -44,7 +46,46 @@ def app():
 @app.command()
 def version():
     """Show IOA Core version."""
-    click.echo("IOA Core v2.5.0")
+    click.echo("IOA Core v2.9.0")
+
+
+@app.command("verify")
+@click.argument(
+    "bundle_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "public_key_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+def verify_bundle_command(bundle_path: Path, public_key_path: Path) -> None:
+    """Verify an evidence bundle offline with an Ed25519 public key."""
+    try:
+        with bundle_path.open(encoding="utf-8") as handle:
+            bundle_data = json_lib.load(handle)
+    except (OSError, json_lib.JSONDecodeError) as exc:
+        click.echo(f"FAIL: unable to read bundle: {exc}")
+        raise click.exceptions.Exit(1) from exc
+
+    legacy_signature = bundle_data.get("signature")
+    if isinstance(legacy_signature, str) and legacy_signature.startswith("SIGv1:"):
+        click.echo("UNSIGNED_LEGACY: SIGv1 was a checksum label, not a signature")
+        return
+
+    try:
+        from ioa_core.evidence.signing import load_public_key, verify_bundle
+
+        public_key = load_public_key(public_key_path)
+        verified = verify_bundle(bundle_data, public_key)
+    except Exception as exc:
+        click.echo(f"FAIL: {exc}")
+        raise click.exceptions.Exit(1) from exc
+
+    if not verified:
+        click.echo(
+            "FAIL: signature, key identity, or canonical bundle hash did not verify"
+        )
+        raise click.exceptions.Exit(1)
+
+    click.echo("PASS: Ed25519 evidence signature verified offline")
 
 
 @app.command()
@@ -819,12 +860,8 @@ def _run_provider_microcall(
 
                 if isinstance(response, str) and len(response) >= 0:
                     # Estimate token usage (rough approximation)
-                    tokens_in = (
-                        len(test_prompt.split()) + 1
-                    )  # +1 for prompt overhead
-                    tokens_out = (
-                        len(response.split()) + 1
-                    )  # +1 for response overhead
+                    tokens_in = len(test_prompt.split()) + 1  # +1 for prompt overhead
+                    tokens_out = len(response.split()) + 1  # +1 for response overhead
                     http_status = 200
                 else:
                     status = "failed"
@@ -1757,9 +1794,9 @@ def providers(provider: Optional[str], non_interactive: bool, ollama_mode: str):
                     "estimated_usd": metric["estimated_usd"],
                 }
             else:
-                results[provider_id]["live_test"] = (
-                    f"failed: {metric.get('error') or 'unknown error'}"
-                )
+                results[provider_id][
+                    "live_test"
+                ] = f"failed: {metric.get('error') or 'unknown error'}"
                 results[provider_id]["live_metrics"] = {
                     "latency_ms": metric["latency_ms"],
                     "error": metric["error"],
@@ -2083,11 +2120,15 @@ def search(index: str, query: str, k: int, backend: str, verbose: bool):
         for i, result in enumerate(results, 1):
             click.echo(f"\n{i}. {result.id} (score: {result.score:.3f})")
             if verbose:
-                click.echo(f"   Content: {result.content[:100]}{'...' if len(result.content) > 100 else ''}")
+                click.echo(
+                    f"   Content: {result.content[:100]}{'...' if len(result.content) > 100 else ''}"
+                )
                 if result.metadata:
                     click.echo(f"   Metadata: {result.metadata}")
             else:
-                click.echo(f"   Content: {result.content[:50]}{'...' if len(result.content) > 50 else ''}")
+                click.echo(
+                    f"   Content: {result.content[:50]}{'...' if len(result.content) > 50 else ''}"
+                )
 
     except Exception as e:
         click.echo(f"❌ Vector search failed: {e}")

@@ -12,7 +12,6 @@ and cryptographic signatures.
 """
 
 import json
-import hashlib
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Literal
 from pathlib import Path
@@ -26,50 +25,50 @@ BundleFormat = Literal["json", "html", "sig"]
 class EvidenceExporter:
     """
     Export evidence bundles in multiple formats.
-    
+
     Supports JSON, HTML, and cryptographic signature formats for
     compliance and audit requirements.
     """
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Initialize evidence exporter.
-        
+
         Args:
             config: Configuration options for export behavior
         """
         self.config = config or {}
         self.version = "1.0.0"
         self.frameworks = ["IOA_7LAWS", "GDPR", "HIPAA", "SOX", "CCPA"]
-    
+
     def export_bundle(
         self,
         bundle: EvidenceBundle,
         formats: Optional[List[BundleFormat]] = None,
-        output_dir: Optional[str] = None
+        output_dir: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Export evidence bundle in requested formats.
-        
+
         Args:
             bundle: Evidence bundle to export
             formats: List of export formats (json, html, sig)
             output_dir: Directory to save exported files
-            
+
         Returns:
             Dictionary with export results and file paths
         """
         formats = formats or ["json", "html", "sig"]
         output_dir = Path(output_dir) if output_dir else Path(".")
         output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         results = {
             "bundle_id": bundle.bundle_id,
             "exported_at": datetime.now(timezone.utc).isoformat(),
             "formats": {},
-            "files": {}
+            "files": {},
         }
-        
+
         # Export in each requested format
         for format_type in formats:
             try:
@@ -81,73 +80,79 @@ class EvidenceExporter:
                     result = self._export_signature(bundle, output_dir)
                 else:
                     raise EvidenceBundleError(f"Unsupported format: {format_type}")
-                
+
                 results["formats"][format_type] = result["status"]
                 results["files"][format_type] = result["filepath"]
-                
+
             except Exception as e:
                 results["formats"][format_type] = f"error: {str(e)}"
                 results["files"][format_type] = None
-        
+
         return results
-    
+
     def _export_json(self, bundle: EvidenceBundle, output_dir: Path) -> Dict[str, Any]:
         """Export bundle as JSON file."""
         filename = f"{bundle.bundle_id}.json"
         filepath = output_dir / filename
-        
-        with open(filepath, 'w') as f:
+
+        with open(filepath, "w") as f:
             f.write(bundle.to_json())
-        
+
         return {
             "status": "success",
             "filepath": str(filepath),
-            "size_bytes": filepath.stat().st_size
+            "size_bytes": filepath.stat().st_size,
         }
-    
+
     def _export_html(self, bundle: EvidenceBundle, output_dir: Path) -> Dict[str, Any]:
         """Export bundle as HTML report."""
         filename = f"{bundle.bundle_id}.html"
         filepath = output_dir / filename
-        
+
         html_content = self._generate_html_report(bundle)
-        
-        with open(filepath, 'w') as f:
+
+        with open(filepath, "w") as f:
             f.write(html_content)
-        
+
         return {
             "status": "success",
             "filepath": str(filepath),
-            "size_bytes": filepath.stat().st_size
+            "size_bytes": filepath.stat().st_size,
         }
-    
-    def _export_signature(self, bundle: EvidenceBundle, output_dir: Path) -> Dict[str, Any]:
+
+    def _export_signature(
+        self, bundle: EvidenceBundle, output_dir: Path
+    ) -> Dict[str, Any]:
         """Export bundle signature file."""
         filename = f"{bundle.bundle_id}.sig"
         filepath = output_dir / filename
-        
+
         # Generate signature if not present
         if not bundle.signature:
             bundle.generate_signature()
-        
+        if not isinstance(bundle.signature, dict):
+            raise EvidenceBundleError(
+                "Legacy evidence is unsigned and cannot be exported as a new signature"
+            )
+
         sig_data = {
             "bundle_id": bundle.bundle_id,
             "evidence_hash": bundle.evidence_hash,
             "signature": bundle.signature,
-            "signed_at": datetime.now(timezone.utc).isoformat(),
-            "algorithm": "SHA256",
-            "version": "SIGv1"
+            "signed_at": bundle.signature.get("signed_at"),
+            "algorithm": bundle.signature.get("algo", "Ed25519"),
+            "version": bundle.signature.get("sig_version", "ed25519-v1"),
         }
-        
-        with open(filepath, 'w') as f:
+
+        with open(filepath, "w") as f:
             json.dump(sig_data, f, indent=2)
-        
+
         return {
             "status": "success",
             "filepath": str(filepath),
-            "size_bytes": filepath.stat().st_size
+            "size_bytes": filepath.stat().st_size,
         }
-    
+
     def _generate_html_report(self, bundle: EvidenceBundle) -> str:
         """Generate HTML report for evidence bundle."""
         html_template = """
@@ -213,7 +218,7 @@ class EvidenceExporter:
 </body>
 </html>
         """
-        
+
         # Generate validations HTML
         validations_html = ""
         for i, validation in enumerate(bundle.validations):
@@ -225,23 +230,25 @@ class EvidenceExporter:
                 <pre>{json.dumps(validation, indent=2)}</pre>
             </div>
             """
-        
+
         # Generate signature section
         signature_section = ""
         if bundle.signature:
+            signature_display = json.dumps(bundle.signature, indent=2)
+            signature_status = bundle.signature_status
             signature_section = f"""
             <div class="section">
                 <h2>Digital Signature</h2>
                 <div class="signature">
-                    <p><strong>Signature:</strong> <code>{bundle.signature}</code></p>
-                    <p><strong>Algorithm:</strong> SHA256</p>
-                    <p><strong>Status:</strong> <span class="status {'success' if bundle.verify_signature() else 'error'}">
-                        {'Valid' if bundle.verify_signature() else 'Invalid'}
+                    <p><strong>Signature:</strong></p><pre>{signature_display}</pre>
+                    <p><strong>Algorithm:</strong> Ed25519</p>
+                    <p><strong>Status:</strong> <span class="status {'success' if signature_status == 'signed' else 'error'}">
+                        {signature_status}
                     </span></p>
                 </div>
             </div>
             """
-        
+
         # Fill template
         return html_template.format(
             bundle_id=bundle.bundle_id,
@@ -251,11 +258,13 @@ class EvidenceExporter:
             validations_count=bundle.validations_count,
             model_provenance_count=len(bundle.model_provenance),
             evidence_hash=bundle.evidence_hash,
-            signature_status="success" if bundle.signature else "error",
-            signature_status_text="Present" if bundle.signature else "Missing",
+            signature_status=(
+                "success" if bundle.signature_status == "signed" else "error"
+            ),
+            signature_status_text=bundle.signature_status,
             validations_html=validations_html,
             metadata_json=json.dumps(bundle.metadata, indent=2),
             model_provenance_json=json.dumps(bundle.model_provenance, indent=2),
             signature_section=signature_section,
-            bundle_json=bundle.to_json()
+            bundle_json=bundle.to_json(),
         )

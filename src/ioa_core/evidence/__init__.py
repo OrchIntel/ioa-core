@@ -13,9 +13,14 @@ and audit requirements across all IOA systems.
 
 from .evidence_bundle import EvidenceBundle, EvidenceBundleError
 from .exporters import EvidenceExporter
+from .signing import EvidenceSigningError, load_public_key, sign_bundle, verify_bundle
 
 __all__ = [
     "EvidenceBundle",
-    "EvidenceBundleError", 
-    "EvidenceExporter"
+    "EvidenceBundleError",
+    "EvidenceExporter",
+    "EvidenceSigningError",
+    "load_public_key",
+    "sign_bundle",
+    "verify_bundle",
 ]
