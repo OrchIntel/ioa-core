@@ -514,8 +514,64 @@ class AuditChain:
         )
         return entry
 
+    def log_signed_bundle(self, bundle: Dict[str, Any]) -> Dict[str, Any]:
+        """Append a signed bundle membership event and flush it immediately.
+
+        The evidence sink currently supports both the IOA Core Ed25519 envelope
+        and an existing certificate-service signature string. The chain records
+        the signature metadata without pretending to verify provider-specific
+        signatures. Offline signature verification remains the responsibility of
+        the matching verifier.
+        """
+        signature = bundle.get("signature")
+        signature_status = str(bundle.get("signature_status") or "").lower()
+        if signature_status != "signed" or not signature:
+            raise ValueError("Only signed bundles can be added to the evidence chain")
+
+        signature_value = signature
+        signature_algorithm = bundle.get("signature_algorithm")
+        canonical_hash = bundle.get("canonical_hash") or bundle.get("evidence_hash")
+        public_key_id = bundle.get("public_key_id")
+        sig_version = bundle.get("sig_version")
+
+        if isinstance(signature, dict):
+            signature_value = signature.get("signature")
+            signature_algorithm = signature.get("algo") or signature_algorithm
+            canonical_hash = signature.get("canonical_hash") or canonical_hash
+            public_key_id = signature.get("public_key_id") or public_key_id
+            sig_version = signature.get("sig_version") or sig_version
+
+        if not signature_value:
+            raise ValueError("Signed bundle has no signature value")
+        if not canonical_hash:
+            from ioa_core.audit.canonical import compute_hash
+
+            unsigned_bundle = {
+                key: value
+                for key, value in bundle.items()
+                if key not in {"signature", "signature_status"}
+            }
+            canonical_hash = compute_hash(unsigned_bundle)
+
+        entry = self.log(
+            "evidence.bundle_signed",
+            {
+                "bundle_id": bundle.get("bundle_id"),
+                "evidence_chain_id": bundle.get("evidence_chain_id"),
+                "canonical_hash": canonical_hash,
+                "signature": signature_value,
+                "signature_algorithm": signature_algorithm,
+                "public_key_id": public_key_id,
+                "sig_version": sig_version,
+            },
+        )
+        # A signed bundle must never be acknowledged as emitted while its
+        # membership event is still waiting in the normal audit batch.
+        self.flush()
+        return entry
+
     def log_evidence_bundle(self, bundle: Dict[str, Any]) -> Dict[str, Any]:
-        """Append signed evidence membership to this chain."""
+        """Append an Ed25519 signed evidence membership event to this chain."""
         signature = bundle.get("signature")
         if (
             not isinstance(signature, dict)
@@ -524,17 +580,7 @@ class AuditChain:
             raise ValueError(
                 "Only ed25519-v1 signed bundles can be added to the evidence chain"
             )
-        return self.log(
-            "evidence.bundle_signed",
-            {
-                "bundle_id": bundle.get("bundle_id"),
-                "evidence_chain_id": bundle.get("evidence_chain_id"),
-                "canonical_hash": signature.get("canonical_hash"),
-                "signature": signature.get("signature"),
-                "public_key_id": signature.get("public_key_id"),
-                "sig_version": signature.get("sig_version"),
-            },
-        )
+        return self.log_signed_bundle(bundle)
 
     def verify_chain(self, bundle_id: Optional[str] = None) -> Dict[str, Any]:
         """Verify hash continuity and optional signed-bundle membership offline."""

@@ -184,3 +184,23 @@ def test_signed_bundle_is_added_to_and_verified_in_audit_chain(tmp_path: Path):
     tampered["data"]["bundle_id"] = "tampered"
     chain_path.write_text(json.dumps(tampered) + "\n", encoding="utf-8")
     assert chain.verify_chain(bundle_id=bundle.bundle_id)["valid"] is False
+
+
+def test_generic_signed_bundle_membership_flushes_without_rotation(tmp_path: Path):
+    chain_path = tmp_path / "keystone-chain.jsonl"
+    chain = AuditChain(str(chain_path), rotate_bytes=1, disable_rotation=True)
+    bundle = {
+        "bundle_id": "certificate-synthetic-001",
+        "evidence_chain_id": "chain-synthetic-001",
+        "signature": "certificate-signature",
+        "signature_algorithm": "RS256",
+        "signature_status": "signed",
+    }
+
+    chain.log_signed_bundle(bundle)
+
+    assert chain.verify_chain(bundle_id=bundle["bundle_id"])["valid"] is True
+    entry = json.loads(chain_path.read_text(encoding="utf-8").splitlines()[0])
+    assert len(entry["data"]["canonical_hash"]) == 64
+    assert chain_path.exists()
+    assert not list(tmp_path.glob("keystone-chain-*.jsonl"))
