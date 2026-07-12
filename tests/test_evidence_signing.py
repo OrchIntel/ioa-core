@@ -16,6 +16,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from ioa_core.cli import app
 from ioa_core.evidence import EvidenceBundle, EvidenceSigningError
+from ioa_core.governance.audit_chain import AuditChain
 
 
 def _write_keypair(directory: Path) -> tuple[Path, Path]:
@@ -148,3 +149,38 @@ def test_cli_verifies_good_bundle_and_rejects_tampering(tmp_path: Path):
     result = runner.invoke(app, ["verify", str(bundle_path), str(public_path)])
     assert result.exit_code != 0
     assert "FAIL" in result.output
+
+
+def test_signed_bundle_is_added_to_and_verified_in_audit_chain(tmp_path: Path):
+    private_path, public_path = _write_keypair(tmp_path)
+    bundle = _bundle()
+    bundle.generate_signature(private_key_path=str(private_path))
+    chain_path = tmp_path / "audit-chain.jsonl"
+    chain = AuditChain(str(chain_path), disable_rotation=True)
+
+    chain.log_evidence_bundle(bundle.to_dict())
+    chain.flush()
+    bundle_path = tmp_path / "bundle.json"
+    bundle_path.write_text(bundle.to_json(), encoding="utf-8")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "verify",
+            "--chain",
+            "--chain-path",
+            str(chain_path),
+            str(bundle_path),
+            str(public_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "audit chain verified" in result.output
+
+    lines = chain_path.read_text(encoding="utf-8").splitlines()
+    tampered = json.loads(lines[0])
+    tampered["data"]["bundle_id"] = "tampered"
+    chain_path.write_text(json.dumps(tampered) + "\n", encoding="utf-8")
+    assert chain.verify_chain(bundle_id=bundle.bundle_id)["valid"] is False

@@ -50,13 +50,30 @@ def version():
 
 
 @app.command("verify")
+@click.option(
+    "--chain",
+    "verify_chain_flag",
+    is_flag=True,
+    help="Also verify the append-only audit chain and bundle membership.",
+)
+@click.option(
+    "--chain-path",
+    type=click.Path(exists=False, dir_okay=False, path_type=Path),
+    default=None,
+    help="Audit chain JSONL path; defaults to IOA_AUDIT_LOG or logs/audit_chain.jsonl.",
+)
 @click.argument(
     "bundle_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
 @click.argument(
     "public_key_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
-def verify_bundle_command(bundle_path: Path, public_key_path: Path) -> None:
+def verify_bundle_command(
+    bundle_path: Path,
+    public_key_path: Path,
+    verify_chain_flag: bool,
+    chain_path: Optional[Path],
+) -> None:
     """Verify an evidence bundle offline with an Ed25519 public key."""
     try:
         with bundle_path.open(encoding="utf-8") as handle:
@@ -84,6 +101,18 @@ def verify_bundle_command(bundle_path: Path, public_key_path: Path) -> None:
             "FAIL: signature, key identity, or canonical bundle hash did not verify"
         )
         raise click.exceptions.Exit(1)
+
+    if verify_chain_flag:
+        from ioa_core.governance.audit_chain import verify_chain_file
+
+        result = verify_chain_file(
+            chain_path or os.getenv("IOA_AUDIT_LOG", "./logs/audit_chain.jsonl"),
+            bundle_id=bundle_data.get("bundle_id"),
+        )
+        if not result["valid"]:
+            click.echo(f"FAIL: {result['reason']}")
+            raise click.exceptions.Exit(1)
+        click.echo(f"PASS: audit chain verified ({result['entries']} entries)")
 
     click.echo("PASS: Ed25519 evidence signature verified offline")
 

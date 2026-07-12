@@ -40,8 +40,14 @@ AUDIT_ROTATE_BYTES = int(
 )
 # PATCH: Cursor-2025-10-08 Add batching and backpressure configuration
 AUDIT_BATCH_SIZE = int(os.environ.get("IOA_AUDIT_BATCH_SIZE", "10"))
-AUDIT_BACKPRESSURE_ENABLED = os.environ.get("IOA_AUDIT_BACKPRESSURE", "1") in ("1", "true", "TRUE")
-AUDIT_BACKPRESSURE_THRESHOLD = int(os.environ.get("IOA_AUDIT_BACKPRESSURE_THRESHOLD", "100"))
+AUDIT_BACKPRESSURE_ENABLED = os.environ.get("IOA_AUDIT_BACKPRESSURE", "1") in (
+    "1",
+    "true",
+    "TRUE",
+)
+AUDIT_BACKPRESSURE_THRESHOLD = int(
+    os.environ.get("IOA_AUDIT_BACKPRESSURE_THRESHOLD", "100")
+)
 
 AUDIT_SCHEMA: Dict[str, Any] = {
     "type": "object",
@@ -92,12 +98,20 @@ class AuditChain:
     """
 
     def __init__(
-        self, log_path: str = AUDIT_LOG_PATH, rotate_bytes: int = AUDIT_ROTATE_BYTES
+        self,
+        log_path: str = AUDIT_LOG_PATH,
+        rotate_bytes: int = AUDIT_ROTATE_BYTES,
+        disable_rotation: Optional[bool] = None,
     ) -> None:
         self.log_path = Path(log_path)
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         self.prev_hash = self._recover_tail_hash() or ("0" * 64)
         self.rotate_bytes = rotate_bytes
+        self.disable_rotation = (
+            os.environ.get("IOA_AUDIT_DISABLE_ROTATION", "0") in ("1", "true", "TRUE")
+            if disable_rotation is None
+            else disable_rotation
+        )
 
         # PATCH: Cursor-2025-10-08 Add batching and backpressure support
         self._batch_size = AUDIT_BATCH_SIZE
@@ -107,8 +121,16 @@ class AuditChain:
         self._batch_lock = False  # Simple mutex for batch operations
 
         # Replay protection controls
-        self._require_nonce = os.environ.get("IOA_AUDIT_REQUIRE_NONCE", "1") in ("1", "true", "TRUE")
-        self._strict_replay_check = os.environ.get("IOA_AUDIT_REPLAY_STRICT", "0") in ("1", "true", "TRUE")
+        self._require_nonce = os.environ.get("IOA_AUDIT_REQUIRE_NONCE", "1") in (
+            "1",
+            "true",
+            "TRUE",
+        )
+        self._strict_replay_check = os.environ.get("IOA_AUDIT_REPLAY_STRICT", "0") in (
+            "1",
+            "true",
+            "TRUE",
+        )
         self._nonce_index_path = self.log_path.with_suffix(".nonce")
         self._seen_nonces: set[str] = set()
         self._seq_counter = self._recover_next_sequence()
@@ -214,7 +236,9 @@ class AuditChain:
         except Exception:
             return "[REDACTED]"
 
-    def _extract_model_provenance(self, data: Dict[str, Any]) -> Optional[list[Dict[str, Any]]]:
+    def _extract_model_provenance(
+        self, data: Dict[str, Any]
+    ) -> Optional[list[Dict[str, Any]]]:
         """Build a normalized model provenance list from existing event data."""
         provenance = data.get("model_provenance")
         if isinstance(provenance, dict):
@@ -239,7 +263,9 @@ class AuditChain:
                     "provider": provider or "unknown",
                     "model_name": model_name or data.get("model_id", "unknown"),
                     "model_id": data.get("model_id", model_name or "unknown"),
-                    "model_version": data.get("model_version", data.get("model_snapshot")),
+                    "model_version": data.get(
+                        "model_version", data.get("model_snapshot")
+                    ),
                     "endpoint": data.get("endpoint", data.get("deployment_id")),
                     "temperature": data.get("temperature"),
                     "top_p": data.get("top_p"),
@@ -267,7 +293,9 @@ class AuditChain:
             )
         ]
 
-    def _normalize_model_provenance_entry(self, entry: Dict[str, Any]) -> Dict[str, Any]:
+    def _normalize_model_provenance_entry(
+        self, entry: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Normalize a single model provenance record."""
         normalized = {
             "provider": entry.get("provider", "unknown"),
@@ -311,6 +339,8 @@ class AuditChain:
 
     # PATCH: Cursor-2025-08-19 Implement size-based rotation with SHA-256 suffix
     def _maybe_rotate(self) -> None:
+        if self.disable_rotation:
+            return
         try:
             if not self.log_path.exists():
                 return
@@ -404,7 +434,9 @@ class AuditChain:
     def log(self, event: str, data: Dict[str, Any]) -> Dict[str, Any]:
         # PATCH: Cursor-2025-10-08 Check backpressure before logging
         if self._should_apply_backpressure():
-            raise RuntimeError(f"Audit backpressure triggered (pending={len(self._pending_batch)}, threshold={self._backpressure_threshold})")
+            raise RuntimeError(
+                f"Audit backpressure triggered (pending={len(self._pending_batch)}, threshold={self._backpressure_threshold})"
+            )
 
         model_provenance = self._extract_model_provenance(data)
 
@@ -449,6 +481,7 @@ class AuditChain:
                 # Try to import via adapters path; fallback to file-based import
                 import sys
                 from pathlib import Path as _P
+
                 core_root = _P(__file__).resolve().parents[4]  # repo root
                 if str(core_root) not in sys.path:
                     sys.path.insert(0, str(core_root))
@@ -474,8 +507,38 @@ class AuditChain:
         self._seen_nonces.add(nonce)
         self._persist_nonce(nonce)
         self._seq_counter = seq + 1
-        logger.info("audit_chain: batched %s (pending=%d)", self.prev_hash, len(self._pending_batch))
+        logger.info(
+            "audit_chain: batched %s (pending=%d)",
+            self.prev_hash,
+            len(self._pending_batch),
+        )
         return entry
+
+    def log_evidence_bundle(self, bundle: Dict[str, Any]) -> Dict[str, Any]:
+        """Append signed evidence membership to this chain."""
+        signature = bundle.get("signature")
+        if (
+            not isinstance(signature, dict)
+            or signature.get("sig_version") != "ed25519-v1"
+        ):
+            raise ValueError(
+                "Only ed25519-v1 signed bundles can be added to the evidence chain"
+            )
+        return self.log(
+            "evidence.bundle_signed",
+            {
+                "bundle_id": bundle.get("bundle_id"),
+                "evidence_chain_id": bundle.get("evidence_chain_id"),
+                "canonical_hash": signature.get("canonical_hash"),
+                "signature": signature.get("signature"),
+                "public_key_id": signature.get("public_key_id"),
+                "sig_version": signature.get("sig_version"),
+            },
+        )
+
+    def verify_chain(self, bundle_id: Optional[str] = None) -> Dict[str, Any]:
+        """Verify hash continuity and optional signed-bundle membership offline."""
+        return verify_chain_file(self.log_path, bundle_id=bundle_id)
 
     def log_sustainability_event(
         self, event: str, data: Dict[str, Any]
@@ -528,3 +591,72 @@ def get_audit_chain() -> AuditChain:
     if _audit_chain_instance is None:
         _audit_chain_instance = AuditChain()
     return _audit_chain_instance
+
+
+def verify_chain_file(
+    log_path: str | Path, bundle_id: Optional[str] = None
+) -> Dict[str, Any]:
+    """Verify a JSONL audit chain without mutating it."""
+    path = Path(log_path)
+    if not path.exists():
+        return {
+            "valid": False,
+            "reason": "audit chain file does not exist",
+            "entries": 0,
+        }
+
+    previous_hash = "0" * 64
+    entries = 0
+    bundle_found = False
+    try:
+        for line_number, line in enumerate(
+            path.read_text(encoding="utf-8").splitlines(), 1
+        ):
+            if not line.strip():
+                continue
+            entry = json.loads(line)
+            if entry.get("prev_hash") != previous_hash:
+                return {
+                    "valid": False,
+                    "reason": f"prev_hash mismatch at line {line_number}",
+                    "entries": entries,
+                }
+            stored_hash = entry.get("hash")
+            material = {
+                key: value for key, value in entry.items() if key not in {"hash", "tsa"}
+            }
+            computed_hash = _compute_audit_entry_hash(material)
+            if stored_hash != computed_hash:
+                return {
+                    "valid": False,
+                    "reason": f"hash mismatch at line {line_number}",
+                    "entries": entries,
+                }
+            if (
+                bundle_id
+                and entry.get("event") == "evidence.bundle_signed"
+                and entry.get("data", {}).get("bundle_id") == bundle_id
+            ):
+                bundle_found = True
+            previous_hash = stored_hash
+            entries += 1
+    except (OSError, json.JSONDecodeError, TypeError):
+        return {
+            "valid": False,
+            "reason": "audit chain could not be parsed",
+            "entries": entries,
+        }
+
+    if bundle_id and not bundle_found:
+        return {
+            "valid": False,
+            "reason": "signed bundle membership was not found",
+            "entries": entries,
+        }
+    return {"valid": True, "reason": "audit chain verified", "entries": entries}
+
+
+def _compute_audit_entry_hash(material: Dict[str, Any]) -> str:
+    from ioa_core.audit.canonical import compute_hash
+
+    return compute_hash(material)
