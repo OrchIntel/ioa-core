@@ -127,6 +127,13 @@ class EvidenceExporter:
         filename = f"{bundle.bundle_id}.sig"
         filepath = output_dir / filename
 
+        if bundle.signature_status == "unsigned_legacy" or (
+            isinstance(bundle.signature, str) and bundle.signature.startswith("SIGv1:")
+        ):
+            raise EvidenceBundleError(
+                "Legacy evidence has only a checksum marker and cannot be exported as a signature"
+            )
+
         # Generate signature if not present
         if not bundle.signature:
             bundle.generate_signature()
@@ -163,16 +170,16 @@ class EvidenceExporter:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IOA Evidence Bundle Report</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-        .header { background: #f4f4f4; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-        .section { margin: 20px 0; }
-        .validation { background: #f9f9f9; padding: 10px; margin: 10px 0; border-left: 4px solid #007cba; }
-        .metadata { background: #f0f8ff; padding: 15px; border-radius: 3px; }
-        .signature { background: #fff3cd; padding: 15px; border-radius: 3px; border: 1px solid #ffeaa7; }
-        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
-        .status { font-weight: bold; }
-        .success { color: #28a745; }
-        .error { color: #dc3545; }
+        body {{ font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }}
+        .header {{ background: #f4f4f4; padding: 20px; border-radius: 5px; margin-bottom: 20px; }}
+        .section {{ margin: 20px 0; }}
+        .validation {{ background: #f9f9f9; padding: 10px; margin: 10px 0; border-left: 4px solid #007cba; }}
+        .metadata {{ background: #f0f8ff; padding: 15px; border-radius: 3px; }}
+        .signature {{ background: #fff3cd; padding: 15px; border-radius: 3px; border: 1px solid #ffeaa7; }}
+        pre {{ background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }}
+        .status {{ font-weight: bold; }}
+        .success {{ color: #28a745; }}
+        .error {{ color: #dc3545; }}
     </style>
 </head>
 <body>
@@ -233,7 +240,20 @@ class EvidenceExporter:
 
         # Generate signature section
         signature_section = ""
-        if bundle.signature:
+        is_legacy = bundle.signature_status == "unsigned_legacy" or (
+            isinstance(bundle.signature, str) and bundle.signature.startswith("SIGv1:")
+        )
+        if is_legacy:
+            signature_section = """
+            <div class="section">
+                <h2>Legacy checksum marker</h2>
+                <div class="signature">
+                    <p><strong>Status:</strong> This record is unsigned legacy evidence.</p>
+                    <p>The previous checksum marker is retained for forensic reference only. It is not a cryptographic signature.</p>
+                </div>
+            </div>
+            """
+        elif bundle.signature:
             signature_display = json.dumps(bundle.signature, indent=2)
             signature_status = bundle.signature_status
             signature_section = f"""

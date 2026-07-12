@@ -23,6 +23,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from ioa_core.cli import app
 from ioa_core.evidence import EvidenceBundle, EvidenceSigningError
+from ioa_core.evidence.exporters import EvidenceExporter
 
 
 def _write_keypair(directory: Path) -> tuple[Path, Path]:
@@ -189,3 +190,22 @@ def test_k4g_clean_machine_verifier_from_pypi(tmp_path: Path):
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert "PASS: Ed25519 evidence signature verified offline" in result.stdout
+
+
+def test_legacy_bundle_export_never_claims_a_digital_signature(tmp_path: Path):
+    bundle = EvidenceBundle.from_dict(
+        {
+            "bundle_id": "k6-legacy-001",
+            "signature": "SIGv1:deadbeef",
+        }
+    )
+
+    result = EvidenceExporter().export_bundle(
+        bundle, formats=["html", "sig"], output_dir=str(tmp_path)
+    )
+    html = (tmp_path / "k6-legacy-001.html").read_text(encoding="utf-8")
+
+    assert result["formats"]["sig"].startswith("error:")
+    assert "Legacy checksum marker" in html
+    assert "not a cryptographic signature" in html
+    assert "<h2>Digital Signature</h2>" not in html
