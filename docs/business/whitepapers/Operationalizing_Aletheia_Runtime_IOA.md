@@ -123,7 +123,7 @@ Our implementation embeds Aletheia principles into IOA Core's governance infrast
 
 **Layer 3: Evidence Generation System**
 - Records all ethical decisions in tamper-evident audit chains
-- Generates cryptographic signatures (SIGv1 format)
+- Generates evidence records with the current Ed25519 signature envelope when an operator signing key is configured; legacy checksum markers are not cryptographic signatures.
 - Exports evidence bundles for compliance reporting
 
 ### 3.2 Facet Implementation Status

@@ -130,22 +130,24 @@ def health(detailed: bool):
 
             # Check if key modules can be imported
             try:
-                # Try to import from the installed package
-                from ioa_core import __version__
+                import importlib
 
+                importlib.import_module("ioa_core")
             except ImportError:
                 pass
 
             try:
-                from ioa_core.llm_manager import LLMManager
+                import importlib
 
+                importlib.import_module("ioa_core.llm_manager")
                 click.echo("✅ LLM manager module available")
             except ImportError as e:
                 click.echo(f"❌ LLM manager module: {e}")
 
             try:
-                from ioa_core.governance.audit_chain import AuditChain
+                import importlib
 
+                importlib.import_module("ioa_core.governance.audit_chain")
                 click.echo("✅ Governance audit module available")
             except ImportError as e:
                 click.echo(f"❌ Governance audit module: {e}")
@@ -303,7 +305,7 @@ def _check_environment_lock() -> bool:
     return False
 
 
-@app.command()
+@app.command("doctor")
 @click.option("--json", is_flag=True, help="Output results in JSON format")
 @click.option("--live", is_flag=True, help="Perform live connectivity tests")
 @click.option(
@@ -311,7 +313,7 @@ def _check_environment_lock() -> bool:
     is_flag=True,
     help="Compare with environment lock and exit nonzero on mismatch",
 )
-def doctor(json: bool, live: bool, strict: bool):
+def environment_doctor(json: bool, live: bool, strict: bool):
     """Diagnose environment and package configuration."""
     import json as json_lib
     import os
@@ -2070,8 +2072,8 @@ def keys():
     pass
 
 
-@keys.command()
-def verify():
+@keys.command("verify")
+def verify_keys():
     """Verify all configured provider keys."""
     try:
         click.echo("🔑 IOA Core Provider Key Verification")
@@ -2240,8 +2242,8 @@ def router():
     pass
 
 
-@router.command()
-def status():
+@router.command("status")
+def router_status():
     """Show routing status."""
     click.echo("🔄 Energy-aware routing status:")
     click.echo("  - Active providers: 4")
@@ -2255,8 +2257,8 @@ def energy():
     pass
 
 
-@energy.command()
-def status():
+@energy.command("status")
+def energy_status():
     """Show energy usage status."""
     click.echo("🔋 Energy usage status:")
     click.echo("  - Current consumption: 25 kWh")
@@ -2270,7 +2272,7 @@ def audit():
     pass
 
 
-@audit.command()
+@audit.command("verify")
 @click.option("--chain-id", help="Chain ID to verify (if multiple chains in path)")
 @click.option(
     "--anchor-file",
@@ -2302,7 +2304,7 @@ def audit():
 )
 @click.option("--quiet", is_flag=True, help="Summary only output")
 @click.argument("path_or_uri", required=True)
-def verify(
+def verify_audit_chain(
     chain_id,
     anchor_file,
     start_after,
@@ -2547,8 +2549,6 @@ def vendor_neutral_roundtable(
 
     # Get environment variables
     live = os.getenv("IOA_SMOKETEST_LIVE", "0") == "1"
-    max_usd = float(os.getenv("IOA_SMOKETEST_MAX_USD", "0.10"))
-
     if not live:
         click.echo(
             "⚠️ Vendor-neutral roundtable requires live mode. Set IOA_SMOKETEST_LIVE=1"
@@ -2642,10 +2642,10 @@ def gates():
     pass
 
 
-@gates.command()
+@gates.command("doctor")
 @click.option("--profile", default="local", help="Profile to use (local, pr, nightly)")
 @click.option("--config", default=".ioa/ci-gates.yml", help="Configuration file path")
-def doctor(profile: str, config: str):
+def gates_doctor(profile: str, config: str):
     """Run a fast local check matching PR profile."""
     try:
         import sys

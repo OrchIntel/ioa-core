@@ -103,7 +103,7 @@ The following capabilities require **IOA Enterprise** commercial licensing:
 
 IOA Core OSS includes **development-grade security implementations** that are **NOT suitable for production use**:
 
-- **Trust signatures use placeholder keys** with no cryptographic security
+- **Legacy agent-trust examples may use placeholder checksum keys** with no cryptographic security. Evidence bundles use the separate operator-provided Ed25519 signing path documented in [Evidence Bundle Signing](evidence-signing.md).
 - **Agent code execution is NOT sandboxed** and can access system resources
 - **Memory data is stored in plaintext** without encryption
 - **GDPR data erasure methods are stub implementations** and not legally compliant

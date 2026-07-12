@@ -1,4 +1,4 @@
-# IOA Core v2.6.1
+# IOA Core v2.9.0
 
 [![PyPI version](https://img.shields.io/pypi/v/ioa-core.svg)](https://pypi.org/project/ioa-core/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
@@ -13,7 +13,8 @@ memory-backed orchestration, and multi-model review patterns.
 
 ## Release Status
 
-`ioa-core` v2.6.1 is the current stable public release, available on [PyPI](https://pypi.org/project/ioa-core/).
+This checkout targets `ioa-core` v2.9.0. The release is held for the final
+GATE0 checks before publication to [PyPI](https://pypi.org/project/ioa-core/).
 
 The core governance primitives (audit chains, evidence bundles, policy enforcement, memory fabric, multi-model quorum) are real and production-tested. Some advanced CLI surfaces and deeper docs continue to evolve — see [docs/OSS_LAUNCH_READINESS_CHECKLIST.md](docs/OSS_LAUNCH_READINESS_CHECKLIST.md) for the current status.
 
@@ -21,6 +22,7 @@ The core governance primitives (audit chains, evidence bundles, policy enforceme
 
 - hash-chained audit logging
 - evidence bundle generation
+- operator-provided Ed25519 evidence signatures with offline verification
 - policy and system-law framing
 - memory fabric primitives
 - offline and live provider smoke testing
@@ -134,6 +136,7 @@ Roundtable example:
 - [docs/examples/ROUNDTABLE.md](docs/examples/ROUNDTABLE.md)
 - [docs/examples/PROVIDERS.md](docs/examples/PROVIDERS.md)
 - [docs/examples/OLLAMA.md](docs/examples/OLLAMA.md)
+- [docs/evidence-signing.md](docs/evidence-signing.md)
 - [docs/OSS_LAUNCH_READINESS_CHECKLIST.md](docs/OSS_LAUNCH_READINESS_CHECKLIST.md)
 
 ## Live Provider Usage

@@ -95,7 +95,7 @@ Data processing system that cleans, organizes, and optimizes memory storage for 
 Configuration system that defines which agents and adapters are authorized to operate within the IOA environment. The Trust Registry includes cryptographic signatures, capability restrictions, and audit trails.
 
 ### Signature Verification
-Security mechanism that validates agent authenticity using cryptographic signatures. Note that IOA Core OSS uses demonstration-grade SHA-256 signatures while IOA Organization implements HSM-based verification.
+Security mechanism that validates agent authenticity using cryptographic signatures. Legacy agent-trust examples may describe demonstration-grade SHA-256 checksums; `EvidenceBundle` signing uses operator-provided Ed25519 keys and the `ed25519-v1` envelope documented in [Evidence Bundle Signing](evidence-signing.md).
 
 ### Tenant Isolation
 Security feature that separates different user environments or projects within a shared IOA deployment. Tenant isolation ensures data privacy and prevents cross-contamination between different use cases.

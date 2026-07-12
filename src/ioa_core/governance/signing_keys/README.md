@@ -1,9 +1,24 @@
-**Version:** v2.5.0  
-**Last-Updated:** 2025-10-09
+**Version:** v2.9.0
+**Last-Updated:** 2026-07-13
 
 # IOA System Laws Signing Keys
 
 This directory contains cryptographic keys for signing and verifying the IOA System Laws manifest.
+
+## Evidence Bundle Signing Is Separate
+
+This directory's legacy RSA examples apply to the IOA System Laws manifest.
+They do not configure `EvidenceBundle` signing. Evidence bundles use the
+operator-provided Ed25519 configuration below:
+
+- `IOA_EVIDENCE_PRIVATE_KEY_PATH` points to a protected PEM private key; or
+- `IOA_EVIDENCE_PRIVATE_KEY_B64` contains the PEM bytes as a secret-manager
+  base64 value.
+
+IOA Core never generates an evidence private key at startup and never stores it
+in a bundle. See [docs/evidence-signing.md](../../../../docs/evidence-signing.md)
+for the envelope, offline verifier, chain behavior, legacy handling, and the
+synthetic public sample.
 
 ## Development Keys
 
