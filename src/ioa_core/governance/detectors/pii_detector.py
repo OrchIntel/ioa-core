@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from ioa.governance.detectors.privacy_presidio import PrivacyDetector
+from ioa.governance.detectors.privacy_presidio import PrivacyDetector, get_shared_analyzer
 
 
 class PIIDetector:

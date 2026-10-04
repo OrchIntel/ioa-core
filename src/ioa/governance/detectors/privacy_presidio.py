@@ -25,6 +25,8 @@ certified text as clean. This version:
 """
 
 import logging
+from functools import lru_cache
+from threading import RLock
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -53,6 +55,35 @@ STATUS_CHECKED = "checked"
 STATUS_UNAVAILABLE = "unavailable"
 STATUS_ERROR = "error"
 STATUS_DISABLED = "disabled"
+
+_analyzer_lock = RLock()
+
+
+@lru_cache(maxsize=1)
+def _analyzer_for_factory(factory):
+    """Load one NLP model per process, keyed by the actual engine factory.
+
+    Call only while holding _analyzer_lock: lru_cache alone can initialize
+    twice when cold calls overlap. Exceptions are never cached as success.
+    Factory identity also isolates alternate engines used by callers/tests.
+    """
+    analyzer = factory()
+    if not callable(getattr(analyzer, "analyze", None)):
+        raise RuntimeError("presidio AnalyzerEngine has no usable analyze()")
+    return analyzer
+
+
+def get_shared_analyzer():
+    """Canonical analyzer shared by privacy checks and clinical extraction.
+
+    Registry and NLP configuration are read-only after initialization. Callers
+    must not mutate shared recognizers. Different requested detection entities
+    and score thresholds remain per-call arguments, not shared mutable state.
+    """
+    if AnalyzerEngine is None:
+        raise RuntimeError(f"presidio_analyzer not importable ({ANALYZER_IMPORT_ERROR})")
+    with _analyzer_lock:
+        return _analyzer_for_factory(AnalyzerEngine)
 
 
 @dataclass
@@ -137,7 +168,7 @@ class PrivacyDetector:
             logger.error("Presidio analyzer unavailable: %s", self.unavailable_reason)
             return False
         try:
-            analyzer = AnalyzerEngine()  # type: ignore[misc]
+            analyzer = get_shared_analyzer()
         except Exception as e:
             self.unavailable_reason = f"Presidio initialization failed: {type(e).__name__}: {e}"
             logger.error("Failed to initialize Presidio: %s", e)
