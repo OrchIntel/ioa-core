@@ -11,6 +11,7 @@
 ### Security
 - Secret detection: PR incremental scan; nightly full scan remains available.
 - Renewed the bundled System Laws manifest (`system_laws.json`): laws and policy unchanged, term 2026-10-04 to 2027-10-04. The previous term ended 2026-09-03, after which `PolicyEngine()` raised at startup and dependent governance checks stopped. A new test fails 60 days before any bundled manifest expires. The manifest signature remains the development placeholder; production signing is not yet in place.
+- PrivacyDetector (`ioa.governance.detectors.privacy_presidio`) no longer reports a missing or placeholder Presidio engine as available. The analyzer is required to check text; a missing anonymizer yields `action_taken="mask_unavailable"` with `masking_error` instead of returning raw text as masked. Results and evidence carry a `status` (`checked`, `unavailable`, `error`, `disabled`) and `has_pii` is None when the text was not checked. Strict mode fails closed when the detector cannot check. `PIIDetector.detect_pii` returns `status`, `checked`, `should_block` and `pii_detected=None` when unchecked; `get_status()` added. New optional extra `privacy` (presidio-analyzer, presidio-anonymizer). Production incident 2026-10-04: the QiXChat image lacked presidio_anonymizer and every privacy check was recorded as "no PII".
 
 
 All notable changes to IOA Core will be documented in this file.

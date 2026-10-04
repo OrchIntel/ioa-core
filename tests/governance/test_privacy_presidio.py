@@ -199,4 +199,4 @@ class TestPrivacyDetector:
         assert status["mode"] == "monitor"
         assert status["pii_entities"] == ["PERSON", "EMAIL_ADDRESS"]
         assert status["action"] == "mask"
-        assert status["version"] == "v2.5.0"
+        assert status["version"] == "v2.6.2"
