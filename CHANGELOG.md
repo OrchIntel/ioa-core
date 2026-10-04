@@ -10,6 +10,7 @@
 
 ### Security
 - Secret detection: PR incremental scan; nightly full scan remains available.
+- Renewed the bundled System Laws manifest (`system_laws.json`): laws and policy unchanged, term 2026-10-04 to 2027-10-04. The previous term ended 2026-09-03, after which `PolicyEngine()` raised at startup and dependent governance checks stopped. A new test fails 60 days before any bundled manifest expires. The manifest signature remains the development placeholder; production signing is not yet in place.
 
 
 All notable changes to IOA Core will be documented in this file.

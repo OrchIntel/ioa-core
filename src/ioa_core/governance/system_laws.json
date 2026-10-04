@@ -87,11 +87,11 @@
     "alg": "RS256",
     "kid": "dev-key-2025-09",
     "value": "dev-signature-placeholder",
-    "timestamp": "2025-09-03T00:00:00Z"
+    "timestamp": "2026-10-04T00:00:00Z"
   },
   "metadata": {
-    "created": "2025-09-03T00:00:00Z",
-    "expires": "2026-09-03T00:00:00Z",
+    "created": "2026-10-04T00:00:00Z",
+    "expires": "2027-10-04T00:00:00Z",
     "issuer": "IOA Governance Council",
     "audience": "IOA Core v2.5.0"
   }
