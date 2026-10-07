@@ -11,7 +11,7 @@ import os
 import sqlite3
 import uuid
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
+from typing import Tuple, List, Optional, Dict, Any
 """Sqlite module."""
 
 from pathlib import Path
@@ -211,29 +211,90 @@ class SQLiteStore(BaseMemoryStore):
             self._update_stats("reads", False)
             return None
     
-    def search(self, query: str, limit: int = 10, memory_type: Optional[str] = None) -> List[MemoryRecordV1]:
-        """Search for memory records using FTS."""
+    @staticmethod
+    def _sql_scalar(value: Any) -> Any:
+        """json_extract() yields 1/0 for JSON booleans; match that in parameters."""
+        if isinstance(value, bool):
+            return 1 if value else 0
+        return value
+
+    def _scope_clauses(
+        self,
+        metadata_filter: Optional[Dict[str, Any]],
+        tags: Optional[List[str]],
+    ) -> Tuple[List[str], List[Any]]:
+        """Translate scope filters into SQL applied before LIMIT.
+
+        metadata_filter: exact match per key; a value of ``{"$ne": v}`` keeps
+        rows where the key is absent or differs; ``None`` matches an absent or
+        null key. tags: a row matches when it carries ANY of the tags (the
+        same semantics the SDK used client-side).
+        """
+        clauses: List[str] = []
+        params: List[Any] = []
+        for key, value in (metadata_filter or {}).items():
+            path = '$."' + str(key).replace('"', '') + '"'
+            if isinstance(value, dict) and "$ne" in value:
+                clauses.append(f"COALESCE(json_extract(m.metadata, '{path}') != ?, 1)")
+                params.append(self._sql_scalar(value["$ne"]))
+            elif value is None:
+                clauses.append(f"json_extract(m.metadata, '{path}') IS NULL")
+            else:
+                clauses.append(f"json_extract(m.metadata, '{path}') = ?")
+                params.append(self._sql_scalar(value))
+        if tags:
+            placeholders = ", ".join("?" for _ in tags)
+            clauses.append(f"EXISTS (SELECT 1 FROM json_each(m.tags) WHERE json_each.value IN ({placeholders}))")
+            params.extend(str(tag) for tag in tags)
+        return clauses, params
+
+    def search(
+        self,
+        query: str,
+        limit: int = 10,
+        memory_type: Optional[str] = None,
+        *,
+        metadata_filter: Optional[Dict[str, Any]] = None,
+        tags: Optional[List[str]] = None,
+        order: str = "relevance",
+    ) -> List[MemoryRecordV1]:
+        """Search memory records.
+
+        Scope filters (memory_type, metadata_filter, tags) are applied in SQL
+        before LIMIT, so a caller's eligible records can never be crowded out
+        of the candidate set by other records. An empty query skips the
+        full-text match and returns rows by filters alone.
+
+        order: "relevance" (access_count, then newest) or "recent" (newest first).
+        """
         try:
-            # Build query with optional memory_type filter
-            sql = """
-                SELECT m.id, m.content, m.metadata, m.timestamp, m.tags, m.storage_tier, 
-                       m.memory_type, m.access_count, m.last_accessed, m.embedding, m.schema_version
-                FROM memory_records m
-                JOIN memory_fts f ON m.rowid = f.rowid
-                WHERE memory_fts MATCH ?
-            """
-            params = [query]
-            
+            columns = """m.id, m.content, m.metadata, m.timestamp, m.tags, m.storage_tier,
+                       m.memory_type, m.access_count, m.last_accessed, m.embedding, m.schema_version"""
+            params: List[Any] = []
+            if query and str(query).strip():
+                sql = f"SELECT {columns} FROM memory_records m JOIN memory_fts f ON m.rowid = f.rowid WHERE memory_fts MATCH ?"
+                params.append(query)
+            else:
+                sql = f"SELECT {columns} FROM memory_records m WHERE 1 = 1"
+
             if memory_type:
                 sql += " AND m.memory_type = ?"
                 params.append(memory_type)
-            
-            sql += " ORDER BY m.access_count DESC, m.timestamp DESC LIMIT ?"
+
+            clauses, scope_params = self._scope_clauses(metadata_filter, tags)
+            for clause in clauses:
+                sql += f" AND {clause}"
+            params.extend(scope_params)
+
+            if order == "recent":
+                sql += " ORDER BY m.timestamp DESC, m.rowid DESC LIMIT ?"
+            else:
+                sql += " ORDER BY m.access_count DESC, m.timestamp DESC LIMIT ?"
             params.append(limit)
-            
+
             cursor = self._connection.execute(sql, params)
             results = []
-            
+
             for row in cursor.fetchall():
                 data = {
                     "id": row[0],
@@ -249,14 +310,14 @@ class SQLiteStore(BaseMemoryStore):
                     "__schema_version__": row[10]
                 }
                 results.append(MemoryRecordV1.from_dict(data))
-            
+
             self._update_stats("queries", True)
             return results
-            
-        except Exception as e:
+
+        except Exception:
             self._update_stats("queries", False)
             return []
-    
+
     def delete(self, record_id: str) -> bool:
         """Delete a memory record."""
         try:

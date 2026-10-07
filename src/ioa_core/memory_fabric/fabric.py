@@ -671,42 +671,92 @@ class MemoryFabric:
         query: str,
         limit: int = 10,
         memory_type: Optional[str] = None,
-        storage_tier: Optional[str] = None
+        storage_tier: Optional[str] = None,
+        metadata_filter: Optional[Dict[str, Any]] = None,
+        tags: Optional[List[str]] = None,
+        order: str = "relevance",
     ) -> List[MemoryRecordV1]:
         """
         Search for memory records.
-        
+
+        Scope filters are pushed into the store when it supports them, so they
+        apply before the result limit. Stores without that support are searched
+        with a wider window and filtered here, as a best effort.
+
         Args:
-            query: Search query
+            query: Search query (empty means "filters only" where supported)
             limit: Maximum number of results
             memory_type: Filter by memory type
             storage_tier: Filter by storage tier
-            
+            metadata_filter: Exact-match metadata filters; ``{"$ne": v}`` excludes a value
+            tags: Match records carrying any of these tags
+            order: "relevance" or "recent"
+
         Returns:
             List of matching records
         """
         with MetricsCollector(self.metrics, "queries") if self.metrics else nullcontext():
             try:
-                results = self._store.search(query, limit, memory_type)
-                
+                pushdown = self._store_supports_scope_pushdown()
+                if pushdown:
+                    results = self._store.search(
+                        query, limit, memory_type,
+                        metadata_filter=metadata_filter, tags=tags, order=order,
+                    )
+                else:
+                    window = limit if not (metadata_filter or tags) else max(limit * 20, 200)
+                    results = self._store.search(query, window, memory_type)
+                    results = self._filter_client_side(results, metadata_filter, tags)
+                    if order == "recent":
+                        results.sort(key=lambda r: r.timestamp or datetime.min, reverse=True)
+                    results = results[:limit]
+
                 # Decrypt results if encryption is enabled
                 if self.crypto.is_encryption_enabled():
                     for record in results:
                         if record.metadata.get("encryption_mode") == "aes-gcm":
                             decrypted_content = self.crypto.decrypt_content(record.content, "aes-gcm")
                             record.content = decrypted_content
-                
+
                 # Filter by storage tier if specified
                 if storage_tier:
                     results = [r for r in results if r.storage_tier.value == storage_tier]
-                
+
                 self.logger.debug(f"Search returned {len(results)} results for query: {query}")
                 return results
-                
+
             except Exception as e:
                 self.logger.error(f"Failed to search: {e}")
                 return []
-    
+
+    def _store_supports_scope_pushdown(self) -> bool:
+        try:
+            import inspect
+            params = inspect.signature(self._store.search).parameters
+            return all(name in params for name in ("metadata_filter", "tags", "order"))
+        except (TypeError, ValueError):
+            return False
+
+    @staticmethod
+    def _filter_client_side(
+        results: List[MemoryRecordV1],
+        metadata_filter: Optional[Dict[str, Any]],
+        tags: Optional[List[str]],
+    ) -> List[MemoryRecordV1]:
+        def matches(record: MemoryRecordV1) -> bool:
+            meta = record.metadata or {}
+            for key, value in (metadata_filter or {}).items():
+                if isinstance(value, dict) and "$ne" in value:
+                    if meta.get(key) == value["$ne"]:
+                        return False
+                elif meta.get(key) != value:
+                    return False
+            if tags and not any(tag in (record.tags or []) for tag in tags):
+                return False
+            return True
+
+        return [r for r in results if matches(r)]
+
     def delete(self, record_id: str) -> bool:
         """
         Delete a memory record.
