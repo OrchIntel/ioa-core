@@ -1,7 +1,24 @@
-**Version:** v2.7.0  
-**Last-Updated:** 2026-03-17
+**Version:** v2.10.0  
+**Last-Updated:** 2026-10-13
 
 # Changelog
+## [2.10.0] - 2026-10-13
+### Added
+- Health content gates are now enforceable: `ioa_core.health.content_gates` (`ContentGateEvaluator`, `GateResult`, `ContentGateReport`, `fail_closed_report`) screens model output against packaged lexicons, fails closed, and records gate name, severity and category only (never matched text).
+- Packaged lexicons under `ioa_core.health.lexicons` (`crisis_risk_to_self`, `risk_to_others`, `child_protection`, `crisis_mandatory_reporting`), synthetic clinical-register phrasing, versioned for auditability.
+- Health profiles `youth_mental_health_nz` and `youth_mental_health_au` (guardian consent, elevated de-identification, four escalate gates, 24 hour escalation follow-up). `SubcategoryContextProfile` gains `content_gate_policy`, `escalation_follow_up_hours`, `policy_pack_note`, `jurisdiction_notes`; `gate_severity_for()`.
+- `ioa_core.health.follow_up`: deadline arithmetic, open/closed/overdue state and `FollowUpObligation.to_receipt_dict()`.
+- `ioa_core.evidence.session_receipt`: the QiXMind Session Evidence Receipt (`qixmind.session-evidence-receipt.v1`), a signed evidence bundle that records what the model saw (hash), which gates fired, who acknowledged (by role) and whether escalation follow-up was confirmed in time. Hash-only, never emitted unsigned, verifiable offline with `ioa verify`, with a key registry (`qixmind.session-evidence-key-registry.v1`) and `QIXMIND_EVIDENCE_*` environment names.
+- `EvidenceBundle.generate_signature()` accepts `private_key_pem`.
+
+### Fixed
+- `VERSION` file (2.7.0) now matches the package version.
+
+### Known issues
+- No NZ-specific policy pack exists; `mental_health_nz` and `youth_mental_health_nz` select `healthcare-au` and carry NZ obligations through jurisdiction templates.
+- `SafetyDetector` resolves lexicons from `configs/lexicons/` relative to the repository, which is unusable from an installed wheel; the content gate evaluator does not depend on it.
+- Several legacy test modules fail collection with `NameError: TaskMessage` (pre-existing, unrelated to this release).
+
 ## [Unreleased]
 ### Added
 - CI Remediation v1: profile-aware workflows (monitor PRs, release RC full), provider smoketest stub, docs hardening, assurance artifacts, audit CLI fixes, sustainability mock, detect-secrets PR-fast.

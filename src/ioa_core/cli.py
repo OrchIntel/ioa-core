@@ -33,7 +33,7 @@ def get_vector_search_engine():
 
 
 @click.group()
-@click.version_option(version="2.9.0", prog_name="IOA Core")
+@click.version_option(version="2.10.0", prog_name="IOA Core")
 def app():
     """IOA Core - Intelligent Orchestration Architecture Core
 
@@ -46,7 +46,7 @@ def app():
 @app.command()
 def version():
     """Show IOA Core version."""
-    click.echo("IOA Core v2.9.0")
+    click.echo("IOA Core v2.10.0")
 
 
 @app.command("verify")
