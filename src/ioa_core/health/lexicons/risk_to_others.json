@@ -1,0 +1,40 @@
+{
+  "version": "2026.10.1",
+  "category": "risk_to_others",
+  "default_severity": "escalate",
+  "words": [
+    "homicidal ideation",
+    "homicidal thoughts",
+    "thoughts of harming others",
+    "thoughts of hurting others",
+    "intent to harm others",
+    "intent to harm another",
+    "threat to harm",
+    "threats to harm",
+    "threatened to kill",
+    "threatening to kill",
+    "threatened to hurt",
+    "threatening to hurt",
+    "risk to others",
+    "danger to others",
+    "harm to others",
+    "violence towards others",
+    "violent towards",
+    "assaulted a",
+    "assaulting",
+    "access to a weapon",
+    "access to weapons",
+    "access to firearms",
+    "carrying a weapon",
+    "carrying a knife",
+    "brought a weapon",
+    "brought a knife",
+    "specific target",
+    "identified target"
+  ],
+  "patterns": [
+    "\\b(?:threat(?:s|ened|ening)?|intent|intends?|plan(?:s|ned|ning)?|wants?|wanting)\\s+to\\s+(?:harm|hurt|kill|attack|stab|shoot)\\s+(?:others|someone|somebody|another|people|a\\s+\\w+|their\\s+\\w+|his\\s+\\w+|her\\s+\\w+|my\\s+\\w+)\\b",
+    "\\b(?:thoughts?|ideation|urges?|fantas(?:y|ies))\\s+(?:of|about)\\s+(?:harming|hurting|killing|attacking)\\s+(?:others|someone|somebody|another|people|a\\s+\\w+|their\\s+\\w+|his\\s+\\w+|her\\s+\\w+)\\b"
+  ],
+  "notes": "Synthetic, clinical-register phrasing only. Generic anger or conflict language is excluded."
+}

@@ -13,6 +13,13 @@ and audit requirements across all IOA systems.
 
 from .evidence_bundle import EvidenceBundle, EvidenceBundleError
 from .exporters import EvidenceExporter
+from .session_receipt import (
+    SessionReceiptError,
+    create_session_receipt,
+    receipt_json_bytes,
+    verify_session_receipt,
+    verify_session_receipt_from_registry,
+)
 from .signing import EvidenceSigningError, load_public_key, sign_bundle, verify_bundle
 
 __all__ = [
@@ -20,7 +27,12 @@ __all__ = [
     "EvidenceBundleError",
     "EvidenceExporter",
     "EvidenceSigningError",
+    "SessionReceiptError",
+    "create_session_receipt",
     "load_public_key",
+    "receipt_json_bytes",
     "sign_bundle",
     "verify_bundle",
+    "verify_session_receipt",
+    "verify_session_receipt_from_registry",
 ]

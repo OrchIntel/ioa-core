@@ -401,5 +401,115 @@
     "policy_pack": "dental_default",
     "default_governance_mode": "assisted",
     "aliases": ["dental", "dentistry", "oral_health", "orthodontics", "endodontics"]
+  },
+  {
+    "id": "youth_mental_health_nz",
+    "label": "Youth Mental Health - New Zealand",
+    "subcategory": "youth_mental_health",
+    "jurisdiction": {
+      "primary": "NZ",
+      "templates": ["nz_hipc", "nz_ipp3a_ai_disclosure"]
+    },
+    "consent": {
+      "flow": "proxy_guardian",
+      "renewal_days": 365,
+      "in_session_confirm": true,
+      "pre_session_sms": false,
+      "proxy_allowed": true
+    },
+    "deid": {
+      "tier": "elevated",
+      "psychotherapy_note_separation": true,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": [
+      "crisis_risk_to_self",
+      "risk_to_others",
+      "child_protection",
+      "crisis_mandatory_reporting"
+    ],
+    "content_gate_policy": {
+      "crisis_risk_to_self": "escalate",
+      "risk_to_others": "escalate",
+      "child_protection": "escalate",
+      "crisis_mandatory_reporting": "escalate"
+    },
+    "escalation_follow_up_hours": 24,
+    "policy_pack_note": "No NZ-specific policy pack exists in this release; healthcare-au is selected as the closest available pack. Jurisdiction templates carry the NZ obligations.",
+    "jurisdiction_notes": [
+      "Oranga Tamariki Act 1989 s15: reporting a concern about a child to Oranga Tamariki or the Police is permissive, not mandatory. The child_protection gate records the signal and obliges acknowledgement and follow-up; it does not report.",
+      "Health Information Privacy Code 2020 Rule 3A (in force 1 May 2026) applies to information collected indirectly, including from caregivers.",
+      "Mental Health (Compulsory Assessment and Treatment) Act 1992 governs compulsory pathways; nothing in this profile makes a clinical determination."
+    ],
+    "roles": ["clinician", "supervisor"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": [
+      "youth mental health",
+      "adolescent mental health",
+      "child and adolescent mental health",
+      "camhs",
+      "icamhs",
+      "youth"
+    ]
+  },
+  {
+    "id": "youth_mental_health_au",
+    "label": "Youth Mental Health - Australia",
+    "subcategory": "youth_mental_health",
+    "jurisdiction": {
+      "primary": "AU",
+      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
+    },
+    "consent": {
+      "flow": "proxy_guardian",
+      "renewal_days": 365,
+      "in_session_confirm": true,
+      "pre_session_sms": false,
+      "proxy_allowed": true
+    },
+    "deid": {
+      "tier": "elevated",
+      "psychotherapy_note_separation": true,
+      "incapacitated_patient_flag": false
+    },
+    "content_gates": [
+      "crisis_risk_to_self",
+      "risk_to_others",
+      "child_protection",
+      "crisis_mandatory_reporting"
+    ],
+    "content_gate_policy": {
+      "crisis_risk_to_self": "escalate",
+      "risk_to_others": "escalate",
+      "child_protection": "escalate",
+      "crisis_mandatory_reporting": "escalate"
+    },
+    "escalation_follow_up_hours": 24,
+    "policy_pack_note": "Declared profile only in this release. Behaviour is untested against Australian state and territory requirements.",
+    "jurisdiction_notes": [
+      "Mandatory reporting of child abuse and neglect is set by state and territory legislation and differs by profession and jurisdiction. The child_protection gate records the signal and obliges acknowledgement and follow-up; it does not report and does not determine whether a legal reporting duty applies."
+    ],
+    "roles": ["clinician", "supervisor"],
+    "roundtable": {
+      "enabled": true,
+      "trigger": "clinician_optional"
+    },
+    "governance_pack_id": "qix_health",
+    "policy_pack": "healthcare-au",
+    "default_governance_mode": "enforce",
+    "aliases": [
+      "youth mental health",
+      "adolescent mental health",
+      "child and adolescent mental health",
+      "camhs",
+      "headspace",
+      "youth"
+    ]
   }
 ]

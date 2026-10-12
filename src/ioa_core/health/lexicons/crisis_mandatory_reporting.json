@@ -1,0 +1,43 @@
+{
+  "version": "2026.10.1",
+  "category": "mandatory_reporting_consideration",
+  "default_severity": "escalate",
+  "words": [
+    "imminent risk",
+    "imminent danger",
+    "immediate danger",
+    "immediate risk",
+    "acute risk",
+    "serious and imminent",
+    "serious and imminent threat",
+    "duty to warn",
+    "duty to report",
+    "mandatory reporting",
+    "mandatory report",
+    "mandated report",
+    "notify the police",
+    "notify police",
+    "contact the police",
+    "call emergency services",
+    "emergency services",
+    "crisis team",
+    "crisis assessment",
+    "crisis assessment and treatment team",
+    "crisis respite",
+    "present to the emergency department",
+    "present to ed",
+    "urgent psychiatric assessment",
+    "urgent risk assessment",
+    "compulsory assessment",
+    "section 8a",
+    "section 9 assessment",
+    "mental health act assessment",
+    "welfare check"
+  ],
+  "patterns": [
+    "\\bserious\\s+and\\s+imminent\\s+(?:threat|risk|danger)\\b",
+    "\\bimmediate\\s+(?:danger|risk|threat)\\s+(?:to|of)\\b",
+    "\\b(?:requires?|needs?|warrants?)\\s+(?:an?\\s+)?(?:urgent|immediate|same[- ]day)\\s+(?:assessment|review|escalation|referral)\\b"
+  ],
+  "notes": "Synthetic, clinical-register phrasing only. Fires when model output itself frames an imminent-danger or reporting consideration; it does not decide whether a legal duty applies."
+}

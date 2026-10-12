@@ -169,12 +169,15 @@ class EvidenceBundle:
         self,
         signer: str = "ioa-core",
         private_key_path: Optional[str] = None,
+        private_key_pem: Optional[bytes] = None,
     ) -> Dict[str, str]:
         """Generate a real Ed25519 signature using an operator-provided key."""
         del signer  # Kept for source compatibility; key identity is in the envelope.
         from .signing import sign_bundle
 
-        envelope = sign_bundle(self, private_key_path=private_key_path)
+        envelope = sign_bundle(
+            self, private_key_path=private_key_path, private_key_pem=private_key_pem
+        )
         self.signature = envelope
         self.signature_status = "signed"
         return envelope

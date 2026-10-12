@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 OrchIntel Systems Ltd.
 
+import pytest
+
 from ioa_core.health import (
     build_health_session_context,
+    gate_severity_for,
     get_jurisdiction_template,
     get_jurisdiction_template_registry,
     get_subcategory_profile,
@@ -15,7 +18,9 @@ def test_recommend_profile_matches_dispatch_launch_profiles():
     assert recommend_subcategory_profile("General Practice", "NZ").id == "gp_nz"
     assert recommend_subcategory_profile("Mental Health", "AU").id == "mental_health_au"
     assert recommend_subcategory_profile("Telehealth", "NZ").id == "telehealth_au_nz"
-    assert recommend_subcategory_profile("Allied Health", "AU").id == "allied_health_au_nz"
+    assert (
+        recommend_subcategory_profile("Allied Health", "AU").id == "allied_health_au_nz"
+    )
     assert recommend_subcategory_profile("Aged Care", "NZ").id == "aged_care_au_nz"
     assert recommend_subcategory_profile("Midwifery", "NZ").id == "midwifery_au_nz"
     assert recommend_subcategory_profile("Dental", "AU").id == "dental_au_nz"
@@ -71,3 +76,57 @@ def test_profile_runtime_defaults_include_consent_and_deid_controls():
     assert runtime_defaults["consent"]["flow"] == "proxy_guardian"
     assert runtime_defaults["deid"]["incapacitated_patient_flag"] is True
     assert "mandatory_reporting_gate" in runtime_defaults["content_gates"]
+    # New optional fields default safely on profiles that do not declare them.
+    assert runtime_defaults["content_gate_policy"] == {}
+    assert runtime_defaults["escalation_follow_up_hours"] is None
+
+
+def test_youth_mental_health_profiles_are_registered_and_recommended():
+    registry = get_subcategory_profile_registry()
+    profile_ids = {profile.id for profile in registry.list()}
+    assert {"youth_mental_health_nz", "youth_mental_health_au"}.issubset(profile_ids)
+    assert (
+        recommend_subcategory_profile("Youth Mental Health", "NZ").id
+        == "youth_mental_health_nz"
+    )
+    assert recommend_subcategory_profile("CAMHS", "AU").id == "youth_mental_health_au"
+    assert (
+        recommend_subcategory_profile("adolescent mental health", "NZ").id
+        == "youth_mental_health_nz"
+    )
+    # Existing recommendations are unchanged.
+    assert recommend_subcategory_profile("Mental Health", "NZ").id == "mental_health_nz"
+    assert recommend_subcategory_profile("Mental Health", "AU").id == "mental_health_au"
+
+
+def test_youth_mental_health_nz_declares_gates_follow_up_and_guardian_consent():
+    profile = get_subcategory_profile("youth_mental_health_nz")
+    assert profile.consent.flow == "proxy_guardian"
+    assert profile.consent.proxy_allowed is True
+    assert profile.deid.tier == "elevated"
+    assert profile.deid.psychotherapy_note_separation is True
+    assert profile.content_gates == [
+        "crisis_risk_to_self",
+        "risk_to_others",
+        "child_protection",
+        "crisis_mandatory_reporting",
+    ]
+    assert all(
+        gate_severity_for(profile, gate) == "escalate" for gate in profile.content_gates
+    )
+    assert profile.escalation_follow_up_hours == 24
+    assert profile.policy_pack_note
+    assert any("Oranga Tamariki" in note for note in profile.jurisdiction_notes)
+    runtime_defaults = profile.to_runtime_defaults()
+    assert runtime_defaults["escalation_follow_up_hours"] == 24
+    assert runtime_defaults["content_gate_policy"]["child_protection"] == "escalate"
+    with pytest.raises(KeyError):
+        gate_severity_for(profile, "not_declared")
+
+
+def test_gate_without_policy_defaults_to_acknowledge():
+    profile = get_subcategory_profile("mental_health_nz")
+    assert gate_severity_for(profile, "crisis_mandatory_reporting") == "acknowledge"
+    # mental_health_nz itself is unchanged by this release.
+    assert profile.consent.proxy_allowed is False
+    assert profile.escalation_follow_up_hours is None

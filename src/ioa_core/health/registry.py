@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 import json
 from functools import lru_cache
 from importlib import resources
@@ -55,6 +55,15 @@ class SubcategoryContextProfile:
     policy_pack: str
     default_governance_mode: str
     aliases: List[str]
+    # Gate name -> severity policy ("info", "flag", "acknowledge", "escalate",
+    # "hold"). Gates listed in content_gates without a policy entry default to
+    # "acknowledge" (see gate_severity_for).
+    content_gate_policy: Dict[str, str] = field(default_factory=dict)
+    # Hours allowed to confirm follow-up after a gate fires at "escalate" or
+    # above. None means the profile does not create follow-up obligations.
+    escalation_follow_up_hours: Optional[int] = None
+    policy_pack_note: str = ""
+    jurisdiction_notes: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -70,10 +79,28 @@ class SubcategoryContextProfile:
             "consent": asdict(self.consent),
             "deid": asdict(self.deid),
             "content_gates": list(self.content_gates),
+            "content_gate_policy": dict(self.content_gate_policy),
+            "escalation_follow_up_hours": self.escalation_follow_up_hours,
             "roles": list(self.roles),
             "roundtable": asdict(self.roundtable),
             "jurisdiction_templates": list(self.jurisdiction.templates),
         }
+
+
+DEFAULT_GATE_SEVERITY = "acknowledge"
+
+
+def gate_severity_for(profile: SubcategoryContextProfile, gate_name: str) -> str:
+    """Return the severity policy for a gate declared on a profile.
+
+    A gate listed in ``content_gates`` without an entry in
+    ``content_gate_policy`` defaults to ``acknowledge`` so that a declared gate
+    can never fire silently.
+    """
+    name = str(gate_name or "").strip()
+    if name not in profile.content_gates:
+        raise KeyError(f"Gate {name!r} is not declared on profile {profile.id!r}")
+    return str(profile.content_gate_policy.get(name) or DEFAULT_GATE_SEVERITY).strip()
 
 
 @dataclass(frozen=True)
@@ -360,6 +387,24 @@ def _profile_from_mapping(item: Mapping[str, Any]) -> SubcategoryContextProfile:
             for alias in item.get("aliases", [])
             if str(alias).strip()
         ],
+        content_gate_policy={
+            str(gate).strip(): str(severity).strip()
+            for gate, severity in (
+                item.get("content_gate_policy")
+                if isinstance(item.get("content_gate_policy"), Mapping)
+                else {}
+            ).items()
+            if str(gate).strip() and str(severity).strip()
+        },
+        escalation_follow_up_hours=_optional_int(
+            item.get("escalation_follow_up_hours")
+        ),
+        policy_pack_note=str(item.get("policy_pack_note") or "").strip(),
+        jurisdiction_notes=[
+            str(note).strip()
+            for note in item.get("jurisdiction_notes", [])
+            if str(note).strip()
+        ],
     )
 
 
@@ -451,10 +496,12 @@ def _optional_int(value: Any) -> Optional[int]:
 
 __all__ = [
     "ConsentFlowConfig",
+    "DEFAULT_GATE_SEVERITY",
     "DeIdentificationConfig",
     "RoundtableConfig",
     "JurisdictionBinding",
     "SubcategoryContextProfile",
+    "gate_severity_for",
     "JurisdictionTemplate",
     "JurisdictionTemplateRegistry",
     "SubcategoryContextProfileRegistry",

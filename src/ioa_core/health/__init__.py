@@ -3,7 +3,27 @@
 
 """Health context registries for QiXHealth provisioning and session setup."""
 
+from .content_gates import (
+    GATE_DEFINITIONS,
+    SEVERITY_ORDER,
+    ContentGateError,
+    ContentGateEvaluator,
+    ContentGateReport,
+    GateDefinition,
+    GateResult,
+    fail_closed_report,
+    sha256_text,
+)
+from .follow_up import (
+    FOLLOW_UP_STATES,
+    FollowUpError,
+    FollowUpObligation,
+    compute_follow_up_deadline,
+    follow_up_state,
+    no_follow_up_required,
+)
 from .registry import (
+    DEFAULT_GATE_SEVERITY,
     ConsentFlowConfig,
     DeIdentificationConfig,
     JurisdictionBinding,
@@ -13,6 +33,7 @@ from .registry import (
     SubcategoryContextProfile,
     SubcategoryContextProfileRegistry,
     build_health_session_context,
+    gate_severity_for,
     get_jurisdiction_template,
     get_jurisdiction_template_registry,
     get_subcategory_profile,
@@ -21,8 +42,19 @@ from .registry import (
 )
 
 __all__ = [
+    "DEFAULT_GATE_SEVERITY",
+    "FOLLOW_UP_STATES",
+    "GATE_DEFINITIONS",
+    "SEVERITY_ORDER",
     "ConsentFlowConfig",
+    "ContentGateError",
+    "ContentGateEvaluator",
+    "ContentGateReport",
     "DeIdentificationConfig",
+    "FollowUpError",
+    "FollowUpObligation",
+    "GateDefinition",
+    "GateResult",
     "JurisdictionBinding",
     "JurisdictionTemplate",
     "JurisdictionTemplateRegistry",
@@ -30,9 +62,15 @@ __all__ = [
     "SubcategoryContextProfile",
     "SubcategoryContextProfileRegistry",
     "build_health_session_context",
+    "compute_follow_up_deadline",
+    "fail_closed_report",
+    "follow_up_state",
+    "gate_severity_for",
     "get_jurisdiction_template",
     "get_jurisdiction_template_registry",
     "get_subcategory_profile",
     "get_subcategory_profile_registry",
+    "no_follow_up_required",
     "recommend_subcategory_profile",
+    "sha256_text",
 ]
