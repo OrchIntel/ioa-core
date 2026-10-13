@@ -190,3 +190,62 @@ def test_nz_profiles_carry_the_2026_guidance_templates_and_nz_pack():
     mcnz = REGISTRY.require("nz_mcnz_ai_guidance_2026")
     assert mcnz.requires_explicit_confirm is True
     assert "consent" in mcnz.summary.lower()
+
+
+def _resolved(profile_id, jurisdiction):
+    return REGISTRY.resolve_template_ids(
+        profile=get_subcategory_profile(profile_id), jurisdictions=[jurisdiction]
+    )
+
+
+def test_layered_templates_are_limited_to_the_care_setting():
+    youth = _resolved("youth_mental_health_au", "AU-NSW")
+    assert "au_nsw_mental_health_act" in youth
+    assert "au_nsw_child_protection_reporting" in youth
+    assert "au_aged_care_act" not in youth
+
+    dental = _resolved("dental_au_nz", "AU-NSW")
+    assert "au_nsw_child_protection_reporting" in dental
+    assert "au_nsw_hripa" in dental
+    assert "au_nsw_mental_health_act" not in dental
+    assert "au_aged_care_act" not in dental
+
+    aged = _resolved("aged_care_au", "AU-VIC")
+    assert "au_aged_care_act" in aged
+    assert "au_vic_mental_health_and_wellbeing_act" not in aged
+
+    assert "nz_mental_health_act_2026_transition" not in _resolved("gp_nz", "NZ")
+    assert "nz_mental_health_act_2026_transition" in _resolved(
+        "youth_mental_health_nz", "NZ"
+    )
+
+
+def test_care_setting_scope_is_data_and_for_jurisdiction_is_unfiltered():
+    scoped = {
+        t.template_id: t.care_settings for t in REGISTRY.list() if t.care_settings
+    }
+    assert scoped["au_aged_care_act"] == ["aged_care"]
+    assert all(
+        value == ["mental_health", "youth_mental_health"]
+        for key, value in scoped.items()
+        if "mental_health" in key
+    )
+    assert (
+        len([key for key in scoped if key.startswith("au_") and "mental_health" in key])
+        == 8
+    )
+    # The registry view itself is not filtered; only profile resolution is.
+    layered = [t.template_id for t in REGISTRY.for_jurisdiction("AU-NSW", layered=True)]
+    assert "au_aged_care_act" in layered
+    # Without a profile nothing is filtered either.
+    assert "au_aged_care_act" in REGISTRY.resolve_template_ids(jurisdictions=["AU-NSW"])
+
+
+def test_session_context_uses_the_same_care_setting_filter():
+    context = build_health_session_context(
+        profile_id="youth_mental_health_au", patient_jurisdiction="AU-QLD"
+    )
+    ids = [t["template_id"] for t in context["jurisdiction_templates"]]
+    assert "au_qld_mental_health_act" in ids
+    assert "au_aged_care_act" not in ids
+    assert all("care_settings" in t for t in context["jurisdiction_templates"])

@@ -126,6 +126,16 @@ class JurisdictionTemplate:
     summary: str = ""
     # "reviewed", "draft_pending_legal_review" or "unspecified" (legacy entries).
     review_status: str = "unspecified"
+    # Care settings (profile subcategories) the template applies to. Empty
+    # means every care setting. Used when a jurisdiction layers templates onto
+    # a profile, so a youth mental health session never lists the Aged Care
+    # Act and a dental clinic never lists a Mental Health Act.
+    care_settings: List[str] = field(default_factory=list)
+
+    def applies_to(self, care_setting: Optional[str]) -> bool:
+        if not self.care_settings or not care_setting:
+            return True
+        return str(care_setting).strip().lower() in self.care_settings
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -201,10 +211,15 @@ class JurisdictionTemplateRegistry:
                 if template_id not in seen:
                     ordered.append(template_id)
                     seen.add(template_id)
+        care_setting = profile.subcategory if profile is not None else None
         for jurisdiction in jurisdictions or []:
             # A patient jurisdiction such as AU-NSW layers the national
-            # templates under the state ones.
+            # templates under the state ones, limited to templates that apply
+            # to the profile's care setting. The profile's own list is curated
+            # and always kept.
             for template in self.for_jurisdiction(jurisdiction, layered=True):
+                if not template.applies_to(care_setting):
+                    continue
                 if template.template_id not in seen:
                     ordered.append(template.template_id)
                     seen.add(template.template_id)
@@ -471,6 +486,11 @@ def _template_from_mapping(item: Mapping[str, Any]) -> JurisdictionTemplate:
         audit_field=str(item.get("audit_field") or "").strip(),
         summary=str(item.get("summary") or "").strip()[:300],
         review_status=str(item.get("review_status") or "unspecified").strip(),
+        care_settings=[
+            str(value).strip().lower()
+            for value in (item.get("care_settings") or [])
+            if str(value).strip()
+        ],
     )
 
 

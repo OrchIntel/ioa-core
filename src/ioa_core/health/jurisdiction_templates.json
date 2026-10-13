@@ -93,7 +93,10 @@
     "body": "This aged care service may use governed AI support under staff supervision. Proxy or guardian consent workflows, patient capacity concerns, and reportable safety issues must be handled under the clinic or facility's approved governance process.",
     "requires_explicit_confirm": true,
     "auto_renew_days": 180,
-    "audit_field": "au_aged_care_act_v1"
+    "audit_field": "au_aged_care_act_v1",
+    "care_settings": [
+      "aged_care"
+    ]
   },
   {
     "template_id": "hipaa",
@@ -291,7 +294,11 @@
     "auto_renew_days": 365,
     "audit_field": "au_nsw_mental_health_act_v1",
     "summary": "Mental Health Act 2007 (NSW): compulsory assessment, treatment and capacity decisions are made by authorised clinicians under the Act; this AI tool is advisory, does not assess risk level, and records signals, acknowledgement and follow-up only.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "au_vic_mental_health_and_wellbeing_act",
@@ -305,7 +312,11 @@
     "auto_renew_days": 365,
     "audit_field": "au_vic_mental_health_and_wellbeing_act_v1",
     "summary": "Mental Health and Wellbeing Act 2022 (Vic): compulsory assessment, treatment and capacity decisions are made by authorised clinicians under the Act; this AI tool is advisory, does not assess risk level, and records signals, acknowledgement and follow-up only.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "au_qld_mental_health_act",
@@ -319,7 +330,11 @@
     "auto_renew_days": 365,
     "audit_field": "au_qld_mental_health_act_v1",
     "summary": "Mental Health Act 2016 (Qld): compulsory assessment, treatment and capacity decisions are made by authorised clinicians under the Act; this AI tool is advisory, does not assess risk level, and records signals, acknowledgement and follow-up only.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "au_wa_mental_health_act",
@@ -333,7 +348,11 @@
     "auto_renew_days": 365,
     "audit_field": "au_wa_mental_health_act_v1",
     "summary": "Mental Health Act 2014 (WA): compulsory assessment, treatment and capacity decisions are made by authorised clinicians under the Act; this AI tool is advisory, does not assess risk level, and records signals, acknowledgement and follow-up only.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "au_sa_mental_health_act",
@@ -347,7 +366,11 @@
     "auto_renew_days": 365,
     "audit_field": "au_sa_mental_health_act_v1",
     "summary": "Mental Health Act 2009 (SA): compulsory assessment, treatment and capacity decisions are made by authorised clinicians under the Act; this AI tool is advisory, does not assess risk level, and records signals, acknowledgement and follow-up only.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "au_tas_mental_health_act",
@@ -361,7 +384,11 @@
     "auto_renew_days": 365,
     "audit_field": "au_tas_mental_health_act_v1",
     "summary": "Mental Health Act 2013 (Tas): compulsory assessment, treatment and capacity decisions are made by authorised clinicians under the Act; this AI tool is advisory, does not assess risk level, and records signals, acknowledgement and follow-up only.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "au_act_mental_health_act",
@@ -375,7 +402,11 @@
     "auto_renew_days": 365,
     "audit_field": "au_act_mental_health_act_v1",
     "summary": "Mental Health Act 2015 (ACT): compulsory assessment, treatment and capacity decisions are made by authorised clinicians under the Act; this AI tool is advisory, does not assess risk level, and records signals, acknowledgement and follow-up only.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "au_nt_mental_health_and_related_services_act",
@@ -389,7 +420,11 @@
     "auto_renew_days": 365,
     "audit_field": "au_nt_mental_health_and_related_services_act_v1",
     "summary": "Mental Health and Related Services Act 1998 (NT): compulsory assessment, treatment and capacity decisions are made by authorised clinicians under the Act; this AI tool is advisory, does not assess risk level, and records signals, acknowledgement and follow-up only.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "au_nsw_hripa",
@@ -473,7 +508,11 @@
     "auto_renew_days": 365,
     "audit_field": "nz_mental_health_act_2026_transition_v1",
     "summary": "NZ: the MH(CAT) Act 1992 applies until the Mental Health Act 2026 commences on 1 July 2028; compulsory decisions are the clinician's under the Act; this tool is advisory and records signals, acknowledgement and follow-up.",
-    "review_status": "draft_pending_legal_review"
+    "review_status": "draft_pending_legal_review",
+    "care_settings": [
+      "mental_health",
+      "youth_mental_health"
+    ]
   },
   {
     "template_id": "nz_oranga_tamariki_s15",

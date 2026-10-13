@@ -1,7 +1,11 @@
-**Version:** v2.12.0  
+**Version:** v2.12.1  
 **Last-Updated:** 2026-10-13
 
 # Changelog
+## [2.12.1] - 2026-10-13
+### Fixed
+- Layered jurisdiction templates are now limited to the profile's care setting. `JurisdictionTemplate.care_settings` (empty means every care setting) scopes the Aged Care Act to aged care and each Mental Health Act (eight Australian states and territories, and the New Zealand 2026 transition) to mental health and youth mental health. `resolve_template_ids` and `build_health_session_context` skip templates that do not apply, so a youth mental health session no longer lists the Aged Care Act and a dental clinic no longer lists a Mental Health Act. `for_jurisdiction` and resolution without a profile are unchanged.
+
 ## [2.12.0] - 2026-10-13
 ### Added
 - State-level jurisdictions for health profiles: `JurisdictionTemplateRegistry.for_jurisdiction(code, layered=True)` layers national templates under a sub-national code such as `AU-NSW`; `resolve_template_ids` and `build_health_session_context` use the layered lookup for the patient jurisdiction; `recommend()` falls back by country so an Australian state never resolves to an NZ profile; `SubcategoryContextProfile.supported_sub_jurisdictions`; `AU_STATE_CODES`, `GATE_JURISDICTION_TEMPLATES`, `gate_jurisdiction_text()`.
