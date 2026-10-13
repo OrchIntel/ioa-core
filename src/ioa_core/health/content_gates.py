@@ -149,6 +149,9 @@ class ContentGateReport:
     input_sha256: Optional[str]
     unavailable_reason: Optional[str] = None
     lexicon_versions: Dict[str, str] = field(default_factory=dict)
+    # Set when the caller asked whether a review was produced at all
+    # (see assess_review_output); None when that check was not requested.
+    review_output: Optional[Dict[str, str]] = None
 
     def fired_gates(self) -> List[GateResult]:
         return [result for result in self.results if result.fired]
@@ -184,6 +187,64 @@ def sha256_text(text: Optional[str]) -> Optional[str]:
     if text is None:
         return None
     return "sha256:" + hashlib.sha256(str(text).encode("utf-8")).hexdigest()
+
+
+REVIEW_OUTPUT_DETECTOR_VERSION = "2026.10.1"
+
+# Refusal wording near the start of an output. Matched only in the opening
+# window and only when the output has almost no review structure, so a full
+# review that says "I cannot diagnose" is not treated as a refusal.
+_REFUSAL_PATTERNS = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"\bI(?:'|\u2019)?m\s+(?:sorry|unable|not\s+able)\b",
+        r"\bI\s+am\s+(?:sorry|unable|not\s+able)\b",
+        r"\bI\s+(?:can(?:'|\u2019)?t|cannot|won(?:'|\u2019)?t|will\s+not)\s+"
+        r"(?:help|assist|provide|create|generate|complete|comply|produce|write|support|do\s+that)\b",
+        r"\bI(?:'|\u2019)?m\s+not\s+(?:permitted|allowed)\s+to\b",
+        r"\bas\s+an\s+ai\b",
+    )
+)
+_REFUSAL_WINDOW = 400
+_MIN_REVIEW_CHARS = 20
+_SECTION_LINE = re.compile(
+    r"^\s*(?:#{1,4}\s+\S|[A-Z][A-Za-z0-9 ,/&()'\u2019-]{2,80}:)", re.MULTILINE
+)
+
+
+@dataclass(frozen=True)
+class ReviewOutputAssessment:
+    """Whether the model produced a review at all. Carries no output text."""
+
+    status: str  # "produced", "empty", "refused"
+    reason_code: Optional[str]
+    detector_version: str = REVIEW_OUTPUT_DETECTOR_VERSION
+
+    @property
+    def produced(self) -> bool:
+        return self.status == "produced"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+def assess_review_output(output_text: Optional[str]) -> ReviewOutputAssessment:
+    """Classify an output as a produced review, empty, or a refusal.
+
+    A refused or empty output must never be treated as a review that passed
+    its checks: there is nothing for the gates to have found and nothing for a
+    clinician to sign off.
+    """
+    text = str(output_text or "").strip()
+    if len(re.sub(r"\s+", "", text)) < _MIN_REVIEW_CHARS:
+        return ReviewOutputAssessment(status="empty", reason_code="empty_output")
+    opening = text[:_REFUSAL_WINDOW]
+    if any(pattern.search(opening) for pattern in _REFUSAL_PATTERNS):
+        if len(_SECTION_LINE.findall(text)) < 2:
+            return ReviewOutputAssessment(
+                status="refused", reason_code="refusal_language"
+            )
+    return ReviewOutputAssessment(status="produced", reason_code=None)
 
 
 def _now() -> str:
@@ -306,7 +367,15 @@ class ContentGateEvaluator:
         output_text: str,
         input_text: Optional[str] = None,
         profile_id: Optional[str] = None,
+        require_review_output: bool = False,
     ) -> ContentGateReport:
+        """Evaluate the declared gates.
+
+        With ``require_review_output`` the output is also checked for whether
+        a review was produced at all; an empty or refused output is held
+        (``overall_action == "hold"``) with the reason in ``review_output``,
+        while every gate result is still recorded.
+        """
         if output_text is None:
             raise ContentGateError("output_text is required")
         output = str(output_text)
@@ -358,6 +427,12 @@ class ContentGateEvaluator:
                 SEVERITY_ORDER[max_severity_index]
             ]
         status = "ok" if all(result.evaluated for result in results) else "partial"
+        review_output = None
+        if require_review_output:
+            assessment = assess_review_output(output)
+            review_output = assessment.to_dict()
+            if not assessment.produced:
+                overall_action = "hold"
         return ContentGateReport(
             profile_id=str(profile_id or self.profile_id),
             evaluated_at=_now(),
@@ -369,6 +444,7 @@ class ContentGateEvaluator:
             output_sha256=sha256_text(output),
             input_sha256=sha256_text(input_text) if input_text is not None else None,
             lexicon_versions=self.lexicon_versions(),
+            review_output=review_output,
         )
 
 
@@ -409,6 +485,9 @@ def fail_closed_report(
 __all__ = [
     "DETECTOR_NAME",
     "DETECTOR_VERSION",
+    "REVIEW_OUTPUT_DETECTOR_VERSION",
+    "ReviewOutputAssessment",
+    "assess_review_output",
     "GATE_DEFINITIONS",
     "SEVERITY_ORDER",
     "ContentGateError",

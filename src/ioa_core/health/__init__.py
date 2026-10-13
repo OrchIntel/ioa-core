@@ -11,6 +11,8 @@ from .content_gates import (
     ContentGateReport,
     GateDefinition,
     GateResult,
+    ReviewOutputAssessment,
+    assess_review_output,
     fail_closed_report,
     sha256_text,
 )
@@ -63,6 +65,8 @@ __all__ = [
     "FollowUpObligation",
     "GateDefinition",
     "GateResult",
+    "ReviewOutputAssessment",
+    "assess_review_output",
     "JurisdictionBinding",
     "JurisdictionTemplate",
     "JurisdictionTemplateRegistry",

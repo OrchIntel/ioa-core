@@ -1,7 +1,12 @@
-**Version:** v2.13.0  
-**Last-Updated:** 2026-10-13
+**Version:** v2.14.0  
+**Last-Updated:** 2026-10-14
 
 # Changelog
+## [2.14.0] - 2026-10-14
+### Added
+- `assess_review_output()` and `ReviewOutputAssessment` classify an output as a produced review, empty, or a refusal (detector version 2026.10.1). Refusal wording counts only near the start of an output that has almost no review structure, so a full review that says it cannot diagnose is still a review. No output text is kept.
+- `ContentGateEvaluator.evaluate(..., require_review_output=True)` holds an empty or refused output (`overall_action == "hold"`) and records the reason in the new `ContentGateReport.review_output`, while still recording every gate result. Previously a model refusal produced no gate signal, so it was reported as "pass" and could be signed off. The check is off unless requested, so existing callers are unchanged.
+
 ## [2.13.0] - 2026-10-13
 ### Changed
 - Adult mental health profiles (`mental_health_nz`, `mental_health_au`) now gate `crisis_risk_to_self` and `risk_to_others` as well as `crisis_mandatory_reporting`, all at escalate severity, with a 24 hour escalation follow-up. Previously only crisis and mandatory reporting was gated (at the default acknowledge severity) and no follow-up deadline applied, so an adult session with risk-to-self language created no acknowledgement or follow-up obligation. `child_protection` remains youth only. Consent settings are unchanged.
