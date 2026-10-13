@@ -153,6 +153,54 @@ def _optional_int(value: Any) -> Optional[int]:
         raise SessionReceiptError("expected an integer") from exc
 
 
+_JURISDICTION_CODE_RE = re.compile(r"^[A-Z]{2}(-[A-Z]{2,3})?$")
+_TEMPLATE_ID_RE = re.compile(r"^[a-z0-9_]{1,80}$")
+_OPAQUE_REF_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
+_EPISODE_ID_RE = re.compile(r"^[A-Za-z0-9._:-]{8,128}$")
+_NHI_SHAPE_RE = re.compile(r"^[A-Z]{3}[0-9]{4}$|^[A-Z]{3}[0-9]{2}[A-Z]{2}$")
+_MEDICARE_SHAPE_RE = re.compile(r"^[0-9]{10,11}$")
+_MAX_TEMPLATES_SHOWN = 40
+
+
+def _normalize_jurisdiction_block(value: Any) -> Any:
+    """Accept the v1 string or a mapping {code, country, state, templates_shown, policy_pack}."""
+    if value is None:
+        return None
+    if not isinstance(value, Mapping):
+        text = str(value).strip()
+        return text or None
+    code = str(value.get("code") or "").strip().upper()
+    if not _JURISDICTION_CODE_RE.fullmatch(code):
+        raise SessionReceiptError(
+            "session.jurisdiction.code must look like NZ or AU-NSW"
+        )
+    country, _, state = code.partition("-")
+    templates_raw = value.get("templates_shown") or []
+    if not isinstance(templates_raw, list):
+        raise SessionReceiptError(
+            "session.jurisdiction.templates_shown must be a list of template ids"
+        )
+    if len(templates_raw) > _MAX_TEMPLATES_SHOWN:
+        raise SessionReceiptError(
+            "session.jurisdiction.templates_shown lists too many templates"
+        )
+    templates: List[str] = []
+    for item in templates_raw:
+        template_id = str(item or "").strip()
+        if not _TEMPLATE_ID_RE.fullmatch(template_id):
+            raise SessionReceiptError(
+                "templates_shown must contain template ids only, never text"
+            )
+        templates.append(template_id)
+    return {
+        "code": code,
+        "country": str(value.get("country") or country).strip().upper(),
+        "state": (str(value.get("state") or state).strip().upper() or None),
+        "templates_shown": templates,
+        "policy_pack": _optional_str(value, "policy_pack"),
+    }
+
+
 def _normalize_session(session: Mapping[str, Any]) -> Dict[str, Any]:
     return {
         "evidence_bundle_id": _required_str(session, "evidence_bundle_id", "session"),
@@ -160,10 +208,213 @@ def _normalize_session(session: Mapping[str, Any]) -> Dict[str, Any]:
         "workflow_key": _required_str(session, "workflow_key", "session"),
         "care_setting": _required_str(session, "care_setting", "session"),
         "profile_id": _required_str(session, "profile_id", "session"),
-        "jurisdiction": _optional_str(session, "jurisdiction"),
+        "jurisdiction": _normalize_jurisdiction_block(session.get("jurisdiction")),
+        "policy_pack": _optional_str(session, "policy_pack"),
         "runtime_service": str(session.get("runtime_service") or "qixhealth").strip(),
         "provider": _optional_str(session, "provider"),
         "model": _optional_str(session, "model"),
+    }
+
+
+# Optional longitudinal and care-event blocks (schema stays v1; emitted only when
+# supplied). Enumerations are closed so a receipt can never carry free text here.
+EPISODE_TYPES = ("care_episode", "programme", "admission", "community")
+CARE_EVENT_TYPES = (
+    "clinician_review",
+    "service_review",
+    "follow_up",
+    "escalation",
+    "self_report",
+    "ambient_signal",
+)
+SIGNAL_TYPES = (
+    "clinician_text",
+    "structured_measure",
+    "self_report_text",
+    "passive_sensor",
+    "wearable",
+    "voice",
+    "other",
+)
+INFERENCE_CATEGORIES = (
+    "none",
+    "summary",
+    "risk_indicator_flag",
+    "pattern_over_time",
+    "triage_suggestion",
+    "diagnosis",
+)
+# Categories that would cross into a regulated medical device claim are
+# rejected in v1 even though they are named, so the enum is forward compatible.
+_INFERENCE_NOT_PERMITTED_V1 = {"triage_suggestion", "diagnosis"}
+WITHHELD_KINDS = ("model_output", "inference", "section", "signal_summary")
+WITHHELD_REASONS = (
+    "content_gate_hold",
+    "policy",
+    "consent_absent",
+    "jurisdiction",
+    "clinician_decision",
+)
+REVIEW_SERVICE_LEVELS = (
+    "not_required",
+    "pending",
+    "reviewed",
+    "escalated_to_service",
+    "closed",
+)
+DISCLOSURE_MODES = ("verbal", "written", "notice", "not_recorded")
+CONSENT_SCOPES = ("session", "episode", "service")
+
+
+def _enum(
+    mapping: Mapping[str, Any],
+    key: str,
+    allowed: tuple,
+    section: str,
+    *,
+    required: bool = True,
+) -> Optional[str]:
+    value = mapping.get(key)
+    if value is None:
+        if required:
+            raise SessionReceiptError(f"{section}.{key} is required")
+        return None
+    text = str(value).strip()
+    if text not in allowed:
+        raise SessionReceiptError(
+            f"{section}.{key} must be one of: {', '.join(allowed)}"
+        )
+    return text
+
+
+def _normalize_episode(
+    episode: Optional[Mapping[str, Any]]
+) -> Optional[Dict[str, Any]]:
+    if episode is None:
+        return None
+    episode_id = str(episode.get("episode_id") or "").strip()
+    if (
+        not _EPISODE_ID_RE.fullmatch(episode_id)
+        or _NHI_SHAPE_RE.fullmatch(episode_id)
+        or _MEDICARE_SHAPE_RE.fullmatch(episode_id)
+    ):
+        raise SessionReceiptError(
+            "episode.episode_id must be an opaque pseudonymous token (8 to 128 characters), never an NHI, Medicare or similar identifier"
+        )
+    return {
+        "episode_id": episode_id,
+        "episode_type": _enum(
+            episode, "episode_type", EPISODE_TYPES, "episode", required=False
+        ),
+        "opened_at": _optional_str(episode, "opened_at"),
+    }
+
+
+def _normalize_care_event(
+    care_event: Optional[Mapping[str, Any]]
+) -> Optional[Dict[str, Any]]:
+    if care_event is None:
+        return None
+    event_type = _enum(care_event, "type", CARE_EVENT_TYPES, "care_event")
+    signal_type = _enum(
+        care_event, "signal_type", SIGNAL_TYPES, "care_event", required=False
+    )
+    if event_type in {"self_report", "ambient_signal"} and not signal_type:
+        raise SessionReceiptError(
+            "care_event.signal_type is required for self_report and ambient_signal events"
+        )
+    return {
+        "type": event_type,
+        "signal_type": signal_type,
+        "source_role": _optional_str(care_event, "source_role"),
+    }
+
+
+def _normalize_inference(
+    inference: Optional[Mapping[str, Any]]
+) -> Optional[Dict[str, Any]]:
+    if inference is None:
+        return None
+    category = _enum(inference, "category", INFERENCE_CATEGORIES, "inference")
+    if category in _INFERENCE_NOT_PERMITTED_V1:
+        raise SessionReceiptError(
+            f"inference.category {category!r} is not permitted in a v1 receipt (QiXMind does not triage or diagnose)"
+        )
+    return {"category": category, "permitted": True}
+
+
+def _normalize_withheld(
+    withheld: Optional[Mapping[str, Any]]
+) -> Optional[Dict[str, Any]]:
+    if withheld is None:
+        return None
+    items_raw = withheld.get("items") or []
+    if not isinstance(items_raw, list):
+        raise SessionReceiptError("withheld.items must be a list")
+    items: List[Dict[str, Any]] = []
+    for index, item in enumerate(items_raw):
+        if not isinstance(item, Mapping):
+            raise SessionReceiptError(f"withheld.items[{index}] must be an object")
+        count = _optional_int(item.get("count"))
+        if count is None or count < 0:
+            raise SessionReceiptError(
+                f"withheld.items[{index}].count must be a non-negative integer"
+            )
+        items.append(
+            {
+                "kind": _enum(item, "kind", WITHHELD_KINDS, f"withheld.items[{index}]"),
+                "reason_code": _enum(
+                    item, "reason_code", WITHHELD_REASONS, f"withheld.items[{index}]"
+                ),
+                "count": count,
+            }
+        )
+    return {"items": items, "total": sum(item["count"] for item in items)}
+
+
+def _normalize_review_state(
+    review_state: Optional[Mapping[str, Any]]
+) -> Optional[Dict[str, Any]]:
+    if review_state is None:
+        return None
+    return {
+        "service_level": _enum(
+            review_state, "service_level", REVIEW_SERVICE_LEVELS, "review_state"
+        ),
+        "reviewed_by_role": _optional_str(review_state, "reviewed_by_role"),
+        "reviewed_at": _optional_str(review_state, "reviewed_at"),
+    }
+
+
+def _normalize_disclosure(
+    disclosure: Optional[Mapping[str, Any]]
+) -> Optional[Dict[str, Any]]:
+    if disclosure is None:
+        return None
+    ref = _optional_str(disclosure, "consent_record_ref")
+    if ref and not _OPAQUE_REF_RE.fullmatch(ref):
+        raise SessionReceiptError(
+            "disclosure.consent_record_ref must be an opaque identifier"
+        )
+    basis = _optional_str(disclosure, "basis_template_id")
+    if basis and not _TEMPLATE_ID_RE.fullmatch(basis):
+        raise SessionReceiptError("disclosure.basis_template_id must be a template id")
+    return {
+        "ai_use_disclosed": bool(disclosure.get("ai_use_disclosed", False)),
+        "disclosure_mode": _enum(
+            disclosure,
+            "disclosure_mode",
+            DISCLOSURE_MODES,
+            "disclosure",
+            required=False,
+        )
+        or "not_recorded",
+        "consent_recorded": bool(disclosure.get("consent_recorded", False)),
+        "consent_record_ref": ref,
+        "consent_scope": _enum(
+            disclosure, "consent_scope", CONSENT_SCOPES, "disclosure", required=False
+        ),
+        "basis_template_id": basis,
     }
 
 
@@ -332,6 +583,12 @@ def create_session_receipt(
     supersedes_receipt_id: Optional[str] = None,
     private_key_path: Optional[str] = None,
     private_key_pem: Optional[bytes] = None,
+    episode: Optional[Mapping[str, Any]] = None,
+    care_event: Optional[Mapping[str, Any]] = None,
+    inference: Optional[Mapping[str, Any]] = None,
+    withheld: Optional[Mapping[str, Any]] = None,
+    review_state: Optional[Mapping[str, Any]] = None,
+    disclosure: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Create and sign a Session Evidence Receipt.
 
@@ -350,6 +607,12 @@ def create_session_receipt(
         ("acknowledgement", acknowledgement),
         ("escalation_follow_up", escalation_follow_up),
         ("software", software),
+        ("episode", episode),
+        ("care_event", care_event),
+        ("inference", inference),
+        ("withheld", withheld),
+        ("review_state", review_state),
+        ("disclosure", disclosure),
     ):
         if section is not None:
             _reject_content_fields(section, section_name)
@@ -375,6 +638,18 @@ def create_session_receipt(
         ),
         "software": _normalize_software(software, normalized_gates["lexicon_versions"]),
     }
+    # Optional blocks appear only when supplied, so receipts issued without them
+    # are byte-identical to earlier v1 receipts.
+    for key, block in (
+        ("episode", _normalize_episode(episode)),
+        ("care_event", _normalize_care_event(care_event)),
+        ("inference", _normalize_inference(inference)),
+        ("withheld", _normalize_withheld(withheld)),
+        ("review_state", _normalize_review_state(review_state)),
+        ("disclosure", _normalize_disclosure(disclosure)),
+    ):
+        if block is not None:
+            payload[key] = block
     if payload["model_output"]["held"]:
         raise SessionReceiptError("a held output cannot be issued a receipt")
     if supersedes_receipt_id:

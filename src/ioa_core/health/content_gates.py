@@ -97,10 +97,10 @@ GATE_DEFINITIONS: Dict[str, GateDefinition] = {
         applies_to=("output",),
         description=(
             "Language consistent with abuse, neglect or an unsafe home environment "
-            "appearing in model output. In New Zealand, reporting under the Oranga "
-            "Tamariki Act 1989 s15 is permissive, not mandatory: this gate records "
-            "the signal and obliges acknowledgement and follow-up; it does not "
-            "report and does not determine whether a legal duty applies."
+            "appearing in model output. Reporting obligations depend on the "
+            "jurisdiction (see the jurisdiction templates shown with the gate): the "
+            "gate records the signal and obliges acknowledgement and follow-up; it "
+            "does not report and does not determine whether a legal duty applies."
         ),
     ),
     "crisis_mandatory_reporting": GateDefinition(

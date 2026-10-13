@@ -5,7 +5,10 @@
     "subcategory": "general_practice",
     "jurisdiction": {
       "primary": "NZ",
-      "templates": ["nz_hipc", "nz_ipp3a_ai_disclosure"]
+      "templates": [
+        "nz_hipc",
+        "nz_ipp3a_ai_disclosure"
+      ]
     },
     "consent": {
       "flow": "in_session",
@@ -20,7 +23,10 @@
       "incapacitated_patient_flag": false
     },
     "content_gates": [],
-    "roles": ["clinician", "admin"],
+    "roles": [
+      "clinician",
+      "admin"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
@@ -28,7 +34,11 @@
     "governance_pack_id": "qix_health",
     "policy_pack": "healthcare-au",
     "default_governance_mode": "enforce",
-    "aliases": ["gp", "general practice", "general_clinic"]
+    "aliases": [
+      "gp",
+      "general practice",
+      "general_clinic"
+    ]
   },
   {
     "id": "gp_au",
@@ -36,7 +46,10 @@
     "subcategory": "general_practice",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
+      "templates": [
+        "au_privacy_act",
+        "au_ahpra_ai_guidance"
+      ]
     },
     "consent": {
       "flow": "in_session",
@@ -51,7 +64,10 @@
       "incapacitated_patient_flag": false
     },
     "content_gates": [],
-    "roles": ["clinician", "admin"],
+    "roles": [
+      "clinician",
+      "admin"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
@@ -59,7 +75,11 @@
     "governance_pack_id": "qix_health",
     "policy_pack": "healthcare-au",
     "default_governance_mode": "enforce",
-    "aliases": ["gp", "general practice", "general_clinic"]
+    "aliases": [
+      "gp",
+      "general practice",
+      "general_clinic"
+    ]
   },
   {
     "id": "mental_health_au",
@@ -67,7 +87,12 @@
     "subcategory": "mental_health",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
+      "templates": [
+        "au_privacy_act",
+        "au_privacy_act_ai",
+        "au_ahpra_ai_guidance",
+        "au_privacy_act_adm_transparency"
+      ]
     },
     "consent": {
       "flow": "longitudinal",
@@ -81,8 +106,13 @@
       "psychotherapy_note_separation": true,
       "incapacitated_patient_flag": false
     },
-    "content_gates": ["crisis_mandatory_reporting"],
-    "roles": ["clinician", "supervisor"],
+    "content_gates": [
+      "crisis_mandatory_reporting"
+    ],
+    "roles": [
+      "clinician",
+      "supervisor"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
@@ -90,7 +120,27 @@
     "governance_pack_id": "qix_health",
     "policy_pack": "healthcare-au",
     "default_governance_mode": "enforce",
-    "aliases": ["mental health", "psychology", "psychotherapy"]
+    "aliases": [
+      "mental health",
+      "psychology",
+      "psychotherapy"
+    ],
+    "supported_sub_jurisdictions": [
+      "AU-NSW",
+      "AU-VIC",
+      "AU-QLD",
+      "AU-WA",
+      "AU-SA",
+      "AU-TAS",
+      "AU-ACT",
+      "AU-NT"
+    ],
+    "jurisdiction_notes": [
+      "AHPRA guidance: the registered practitioner remains responsible for all clinical content and decisions; AI output is advisory and must be reviewed before use.",
+      "Consent: a young person who demonstrates sufficient understanding may consent for themselves (Gillick / mature minor); otherwise a parent or guardian consents. Record whose consent was obtained.",
+      "Mandatory reporting of child abuse and neglect, the Mental Health Act and health privacy statutes are set by state or territory. Select the patient's state (AU-NSW to AU-NT) so the matching templates are shown with the child_protection and crisis_mandatory_reporting gates; the gate records and obliges follow-up, it does not report.",
+      "Privacy Act 1988 (Cth): automated decision-making transparency obligations apply from 10 December 2026; this tool never decides access to care."
+    ]
   },
   {
     "id": "mental_health_nz",
@@ -98,7 +148,13 @@
     "subcategory": "mental_health",
     "jurisdiction": {
       "primary": "NZ",
-      "templates": ["nz_hipc", "nz_ipp3a_ai_disclosure"]
+      "templates": [
+        "nz_hipc",
+        "nz_ipp3a_ai_disclosure",
+        "nz_mental_health_act_2026_transition",
+        "nz_mcnz_ai_guidance_2026",
+        "nz_health_nz_ai_framework_2026"
+      ]
     },
     "consent": {
       "flow": "longitudinal",
@@ -112,16 +168,29 @@
       "psychotherapy_note_separation": true,
       "incapacitated_patient_flag": false
     },
-    "content_gates": ["crisis_mandatory_reporting"],
-    "roles": ["clinician", "supervisor"],
+    "content_gates": [
+      "crisis_mandatory_reporting"
+    ],
+    "roles": [
+      "clinician",
+      "supervisor"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
     },
     "governance_pack_id": "qix_health",
-    "policy_pack": "healthcare-au",
+    "policy_pack": "healthcare-nz",
     "default_governance_mode": "enforce",
-    "aliases": ["mental health", "psychology", "psychotherapy"]
+    "aliases": [
+      "mental health",
+      "psychology",
+      "psychotherapy"
+    ],
+    "jurisdiction_notes": [
+      "Oranga Tamariki Act 1989 s 15: reporting a concern about a child is permissive, not mandatory (template nz_oranga_tamariki_s15). The child_protection gate records the signal and obliges acknowledgement and follow-up; it does not report.",
+      "Medical Council of New Zealand AI guidance (March 2026): document AI use in the notes, tell the patient, and always record whether informed consent was obtained (template nz_mcnz_ai_guidance_2026)."
+    ]
   },
   {
     "id": "telehealth_au",
@@ -129,7 +198,10 @@
     "subcategory": "telehealth",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
+      "templates": [
+        "au_privacy_act",
+        "au_ahpra_ai_guidance"
+      ]
     },
     "consent": {
       "flow": "pre_session_sms",
@@ -144,7 +216,10 @@
       "incapacitated_patient_flag": false
     },
     "content_gates": [],
-    "roles": ["clinician", "admin"],
+    "roles": [
+      "clinician",
+      "admin"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
@@ -152,7 +227,10 @@
     "governance_pack_id": "qix_health",
     "policy_pack": "healthcare-au",
     "default_governance_mode": "enforce",
-    "aliases": ["telehealth", "virtual care"]
+    "aliases": [
+      "telehealth",
+      "virtual care"
+    ]
   },
   {
     "id": "telehealth_nz",
@@ -160,7 +238,11 @@
     "subcategory": "telehealth",
     "jurisdiction": {
       "primary": "NZ",
-      "templates": ["nz_hipc", "nz_ipp3a_ai_disclosure", "nz_hipc_rule12_offshore"]
+      "templates": [
+        "nz_hipc",
+        "nz_ipp3a_ai_disclosure",
+        "nz_hipc_rule12_offshore"
+      ]
     },
     "consent": {
       "flow": "pre_session_sms",
@@ -175,7 +257,10 @@
       "incapacitated_patient_flag": false
     },
     "content_gates": [],
-    "roles": ["clinician", "admin"],
+    "roles": [
+      "clinician",
+      "admin"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
@@ -183,7 +268,10 @@
     "governance_pack_id": "qix_health",
     "policy_pack": "healthcare-au",
     "default_governance_mode": "enforce",
-    "aliases": ["telehealth", "virtual care"]
+    "aliases": [
+      "telehealth",
+      "virtual care"
+    ]
   },
   {
     "id": "allied_health_au",
@@ -191,7 +279,10 @@
     "subcategory": "allied_health",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
+      "templates": [
+        "au_privacy_act",
+        "au_ahpra_ai_guidance"
+      ]
     },
     "consent": {
       "flow": "in_session",
@@ -205,8 +296,13 @@
       "psychotherapy_note_separation": false,
       "incapacitated_patient_flag": false
     },
-    "content_gates": ["ndis_report"],
-    "roles": ["clinician", "admin"],
+    "content_gates": [
+      "ndis_report"
+    ],
+    "roles": [
+      "clinician",
+      "admin"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
@@ -214,7 +310,12 @@
     "governance_pack_id": "qix_health",
     "policy_pack": "healthcare-au",
     "default_governance_mode": "enforce",
-    "aliases": ["allied health", "physio", "ot", "speech"]
+    "aliases": [
+      "allied health",
+      "physio",
+      "ot",
+      "speech"
+    ]
   },
   {
     "id": "aged_care_au",
@@ -222,7 +323,10 @@
     "subcategory": "aged_care",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
+      "templates": [
+        "au_privacy_act",
+        "au_ahpra_ai_guidance"
+      ]
     },
     "consent": {
       "flow": "proxy",
@@ -236,8 +340,14 @@
       "psychotherapy_note_separation": false,
       "incapacitated_patient_flag": true
     },
-    "content_gates": ["restrictive_practice"],
-    "roles": ["care_worker", "clinician", "guardian"],
+    "content_gates": [
+      "restrictive_practice"
+    ],
+    "roles": [
+      "care_worker",
+      "clinician",
+      "guardian"
+    ],
     "roundtable": {
       "enabled": false,
       "trigger": "disabled"
@@ -245,7 +355,11 @@
     "governance_pack_id": "qix_health",
     "policy_pack": "healthcare-au",
     "default_governance_mode": "enforce",
-    "aliases": ["aged care", "care home", "residential care"]
+    "aliases": [
+      "aged care",
+      "care home",
+      "residential care"
+    ]
   },
   {
     "id": "telehealth_au_nz",
@@ -253,7 +367,11 @@
     "subcategory": "telehealth",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "nz_hipc", "hipaa"]
+      "templates": [
+        "au_privacy_act",
+        "nz_hipc",
+        "hipaa"
+      ]
     },
     "consent": {
       "flow": "pre_session_sms",
@@ -267,8 +385,15 @@
       "psychotherapy_note_separation": false,
       "incapacitated_patient_flag": false
     },
-    "content_gates": ["crisis_detection", "prescribing_boundary"],
-    "roles": ["telehealth_clinician", "telehealth_admin", "patient"],
+    "content_gates": [
+      "crisis_detection",
+      "prescribing_boundary"
+    ],
+    "roles": [
+      "telehealth_clinician",
+      "telehealth_admin",
+      "patient"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "diagnostic_uncertainty"
@@ -276,7 +401,12 @@
     "governance_pack_id": "qixhealth_telehealth_v1",
     "policy_pack": "telehealth_default",
     "default_governance_mode": "supervised",
-    "aliases": ["telehealth", "virtual_care", "remote_consult", "video_consult"]
+    "aliases": [
+      "telehealth",
+      "virtual_care",
+      "remote_consult",
+      "video_consult"
+    ]
   },
   {
     "id": "allied_health_au_nz",
@@ -284,7 +414,10 @@
     "subcategory": "allied_health",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "nz_hipc"]
+      "templates": [
+        "au_privacy_act",
+        "nz_hipc"
+      ]
     },
     "consent": {
       "flow": "standard",
@@ -298,8 +431,17 @@
       "psychotherapy_note_separation": false,
       "incapacitated_patient_flag": false
     },
-    "content_gates": ["scope_of_practice_boundary"],
-    "roles": ["physiotherapist", "occupational_therapist", "speech_pathologist", "dietitian", "podiatrist", "allied_health_admin"],
+    "content_gates": [
+      "scope_of_practice_boundary"
+    ],
+    "roles": [
+      "physiotherapist",
+      "occupational_therapist",
+      "speech_pathologist",
+      "dietitian",
+      "podiatrist",
+      "allied_health_admin"
+    ],
     "roundtable": {
       "enabled": false,
       "trigger": ""
@@ -307,7 +449,13 @@
     "governance_pack_id": "qixhealth_allied_v1",
     "policy_pack": "allied_health_default",
     "default_governance_mode": "assisted",
-    "aliases": ["allied_health", "allied", "physio", "OT", "speech_therapy"]
+    "aliases": [
+      "allied_health",
+      "allied",
+      "physio",
+      "OT",
+      "speech_therapy"
+    ]
   },
   {
     "id": "aged_care_au_nz",
@@ -315,7 +463,11 @@
     "subcategory": "aged_care",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "au_aged_care_act", "nz_hipc"]
+      "templates": [
+        "au_privacy_act",
+        "au_aged_care_act",
+        "nz_hipc"
+      ]
     },
     "consent": {
       "flow": "proxy_guardian",
@@ -329,8 +481,17 @@
       "psychotherapy_note_separation": false,
       "incapacitated_patient_flag": true
     },
-    "content_gates": ["capacity_assessment_gate", "mandatory_reporting_gate"],
-    "roles": ["aged_care_nurse", "care_coordinator", "aged_care_admin", "guardian", "family_contact"],
+    "content_gates": [
+      "capacity_assessment_gate",
+      "mandatory_reporting_gate"
+    ],
+    "roles": [
+      "aged_care_nurse",
+      "care_coordinator",
+      "aged_care_admin",
+      "guardian",
+      "family_contact"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "capacity_concern"
@@ -338,7 +499,13 @@
     "governance_pack_id": "qixhealth_aged_care_v1",
     "policy_pack": "aged_care_default",
     "default_governance_mode": "supervised",
-    "aliases": ["aged_care", "residential_care", "rest_home", "nursing_home", "racf"]
+    "aliases": [
+      "aged_care",
+      "residential_care",
+      "rest_home",
+      "nursing_home",
+      "racf"
+    ]
   },
   {
     "id": "midwifery_au_nz",
@@ -346,7 +513,10 @@
     "subcategory": "midwifery",
     "jurisdiction": {
       "primary": "NZ",
-      "templates": ["nz_hipc", "au_privacy_act"]
+      "templates": [
+        "nz_hipc",
+        "au_privacy_act"
+      ]
     },
     "consent": {
       "flow": "longitudinal_episode",
@@ -360,8 +530,17 @@
       "psychotherapy_note_separation": false,
       "incapacitated_patient_flag": false
     },
-    "content_gates": ["maternal_safety_gate", "fetal_monitoring_boundary"],
-    "roles": ["lead_maternity_carer", "midwife", "obstetric_nurse", "obstetrician", "midwifery_admin"],
+    "content_gates": [
+      "maternal_safety_gate",
+      "fetal_monitoring_boundary"
+    ],
+    "roles": [
+      "lead_maternity_carer",
+      "midwife",
+      "obstetric_nurse",
+      "obstetrician",
+      "midwifery_admin"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "maternal_risk_flag"
@@ -369,7 +548,14 @@
     "governance_pack_id": "qixhealth_midwifery_v1",
     "policy_pack": "midwifery_default",
     "default_governance_mode": "supervised",
-    "aliases": ["midwifery", "lmc", "maternity", "antenatal", "postnatal", "obstetrics"]
+    "aliases": [
+      "midwifery",
+      "lmc",
+      "maternity",
+      "antenatal",
+      "postnatal",
+      "obstetrics"
+    ]
   },
   {
     "id": "dental_au_nz",
@@ -377,7 +563,10 @@
     "subcategory": "dental",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "nz_hipc"]
+      "templates": [
+        "au_privacy_act",
+        "nz_hipc"
+      ]
     },
     "consent": {
       "flow": "standard",
@@ -391,8 +580,16 @@
       "psychotherapy_note_separation": false,
       "incapacitated_patient_flag": false
     },
-    "content_gates": ["prescribing_boundary"],
-    "roles": ["dentist", "dental_specialist", "oral_health_therapist", "dental_assistant", "dental_admin"],
+    "content_gates": [
+      "prescribing_boundary"
+    ],
+    "roles": [
+      "dentist",
+      "dental_specialist",
+      "oral_health_therapist",
+      "dental_assistant",
+      "dental_admin"
+    ],
     "roundtable": {
       "enabled": false,
       "trigger": ""
@@ -400,7 +597,13 @@
     "governance_pack_id": "qixhealth_dental_v1",
     "policy_pack": "dental_default",
     "default_governance_mode": "assisted",
-    "aliases": ["dental", "dentistry", "oral_health", "orthodontics", "endodontics"]
+    "aliases": [
+      "dental",
+      "dentistry",
+      "oral_health",
+      "orthodontics",
+      "endodontics"
+    ]
   },
   {
     "id": "youth_mental_health_nz",
@@ -408,7 +611,14 @@
     "subcategory": "youth_mental_health",
     "jurisdiction": {
       "primary": "NZ",
-      "templates": ["nz_hipc", "nz_ipp3a_ai_disclosure"]
+      "templates": [
+        "nz_hipc",
+        "nz_ipp3a_ai_disclosure",
+        "nz_mental_health_act_2026_transition",
+        "nz_mcnz_ai_guidance_2026",
+        "nz_health_nz_ai_framework_2026",
+        "nz_oranga_tamariki_s15"
+      ]
     },
     "consent": {
       "flow": "proxy_guardian",
@@ -435,19 +645,22 @@
       "crisis_mandatory_reporting": "escalate"
     },
     "escalation_follow_up_hours": 24,
-    "policy_pack_note": "No NZ-specific policy pack exists in this release; healthcare-au is selected as the closest available pack. Jurisdiction templates carry the NZ obligations.",
     "jurisdiction_notes": [
-      "Oranga Tamariki Act 1989 s15: reporting a concern about a child to Oranga Tamariki or the Police is permissive, not mandatory. The child_protection gate records the signal and obliges acknowledgement and follow-up; it does not report.",
+      "Oranga Tamariki Act 1989 s 15: reporting a concern about a child is permissive, not mandatory (template nz_oranga_tamariki_s15). The child_protection gate records the signal and obliges acknowledgement and follow-up; it does not report.",
       "Health Information Privacy Code 2020 Rule 3A (in force 1 May 2026) applies to information collected indirectly, including from caregivers.",
-      "Mental Health (Compulsory Assessment and Treatment) Act 1992 governs compulsory pathways; nothing in this profile makes a clinical determination."
+      "Mental Health (Compulsory Assessment and Treatment) Act 1992 governs compulsory pathways; nothing in this profile makes a clinical determination.",
+      "Medical Council of New Zealand AI guidance (March 2026): document AI use in the notes, tell the patient, and always record whether informed consent was obtained (template nz_mcnz_ai_guidance_2026)."
     ],
-    "roles": ["clinician", "supervisor"],
+    "roles": [
+      "clinician",
+      "supervisor"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
     },
     "governance_pack_id": "qix_health",
-    "policy_pack": "healthcare-au",
+    "policy_pack": "healthcare-nz",
     "default_governance_mode": "enforce",
     "aliases": [
       "youth mental health",
@@ -464,7 +677,12 @@
     "subcategory": "youth_mental_health",
     "jurisdiction": {
       "primary": "AU",
-      "templates": ["au_privacy_act", "au_ahpra_ai_guidance"]
+      "templates": [
+        "au_privacy_act",
+        "au_privacy_act_ai",
+        "au_ahpra_ai_guidance",
+        "au_privacy_act_adm_transparency"
+      ]
     },
     "consent": {
       "flow": "proxy_guardian",
@@ -491,11 +709,16 @@
       "crisis_mandatory_reporting": "escalate"
     },
     "escalation_follow_up_hours": 24,
-    "policy_pack_note": "Declared profile only in this release. Behaviour is untested against Australian state and territory requirements.",
     "jurisdiction_notes": [
-      "Mandatory reporting of child abuse and neglect is set by state and territory legislation and differs by profession and jurisdiction. The child_protection gate records the signal and obliges acknowledgement and follow-up; it does not report and does not determine whether a legal reporting duty applies."
+      "AHPRA guidance: the registered practitioner remains responsible for all clinical content and decisions; AI output is advisory and must be reviewed before use.",
+      "Consent: a young person who demonstrates sufficient understanding may consent for themselves (Gillick / mature minor); otherwise a parent or guardian consents. Record whose consent was obtained.",
+      "Mandatory reporting of child abuse and neglect, the Mental Health Act and health privacy statutes are set by state or territory. Select the patient's state (AU-NSW to AU-NT) so the matching templates are shown with the child_protection and crisis_mandatory_reporting gates; the gate records and obliges follow-up, it does not report.",
+      "Privacy Act 1988 (Cth): automated decision-making transparency obligations apply from 10 December 2026; this tool never decides access to care."
     ],
-    "roles": ["clinician", "supervisor"],
+    "roles": [
+      "clinician",
+      "supervisor"
+    ],
     "roundtable": {
       "enabled": true,
       "trigger": "clinician_optional"
@@ -510,6 +733,16 @@
       "camhs",
       "headspace",
       "youth"
+    ],
+    "supported_sub_jurisdictions": [
+      "AU-NSW",
+      "AU-VIC",
+      "AU-QLD",
+      "AU-WA",
+      "AU-SA",
+      "AU-TAS",
+      "AU-ACT",
+      "AU-NT"
     ]
   }
 ]

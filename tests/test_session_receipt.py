@@ -339,3 +339,154 @@ def test_non_receipt_bundles_are_not_verified_as_receipts(tmp_path: Path):
     public_path = tmp_path / "pub.pem"
     public_path.write_bytes(public_pem)
     assert verify_session_receipt(bundle.to_dict(), public_path) is False
+
+
+# 2.12.0 optional longitudinal blocks (schema stays v1).
+
+
+def _receipt_with(private_pem, **blocks):
+    return create_session_receipt(**_inputs(), private_key_pem=private_pem, **blocks)
+
+
+def test_receipt_without_optional_blocks_has_no_new_keys():
+    private_pem, _ = _keypair()
+    receipt = _receipt_with(private_pem)
+    for key in (
+        "episode",
+        "care_event",
+        "inference",
+        "withheld",
+        "review_state",
+        "disclosure",
+    ):
+        assert key not in receipt["metadata"]
+    assert receipt["metadata"]["session"]["jurisdiction"] == "NZ"
+    assert receipt["metadata"]["session"]["policy_pack"] is None
+
+
+def test_optional_blocks_round_trip_sign_and_verify(tmp_path: Path):
+    private_pem, public_pem = _keypair()
+    inputs = _inputs()
+    inputs["session"]["jurisdiction"] = {
+        "code": "AU-NSW",
+        "templates_shown": ["au_privacy_act", "au_nsw_child_protection_reporting"],
+        "policy_pack": "healthcare-au",
+    }
+    inputs["session"]["profile_id"] = "youth_mental_health_au"
+    receipt = create_session_receipt(
+        **inputs,
+        private_key_pem=private_pem,
+        episode={
+            "episode_id": "ep-7f3a9c2d-synthetic",
+            "episode_type": "care_episode",
+            "opened_at": "2026-09-01T00:00:00Z",
+        },
+        care_event={"type": "clinician_review", "source_role": "clinician"},
+        inference={"category": "risk_indicator_flag"},
+        withheld={
+            "items": [
+                {"kind": "section", "reason_code": "clinician_decision", "count": 1}
+            ]
+        },
+        review_state={
+            "service_level": "reviewed",
+            "reviewed_by_role": "supervisor",
+            "reviewed_at": "2026-10-13T01:05:00Z",
+        },
+        disclosure={
+            "ai_use_disclosed": True,
+            "disclosure_mode": "verbal",
+            "consent_recorded": True,
+            "consent_record_ref": "consent-123",
+            "consent_scope": "episode",
+            "basis_template_id": "nz_mcnz_ai_guidance_2026",
+        },
+    )
+    metadata = receipt["metadata"]
+    assert metadata["episode"]["episode_id"] == "ep-7f3a9c2d-synthetic"
+    assert metadata["care_event"]["type"] == "clinician_review"
+    assert metadata["inference"] == {
+        "category": "risk_indicator_flag",
+        "permitted": True,
+    }
+    assert metadata["withheld"]["total"] == 1
+    assert metadata["review_state"]["service_level"] == "reviewed"
+    assert metadata["disclosure"]["consent_recorded"] is True
+    assert metadata["session"]["jurisdiction"] == {
+        "code": "AU-NSW",
+        "country": "AU",
+        "state": "NSW",
+        "templates_shown": ["au_privacy_act", "au_nsw_child_protection_reporting"],
+        "policy_pack": "healthcare-au",
+    }
+    assert metadata["disclaimers"]["not_youth_facing"] is True
+    public_path = tmp_path / "pub.pem"
+    public_path.write_bytes(public_pem)
+    assert verify_session_receipt(receipt, public_path) is True
+    assert not (_flatten(receipt) & module._CONTENT_KEYS)
+
+
+@pytest.mark.parametrize(
+    "episode_id",
+    ["ABC1234", "ABC12DE", "12345678901", "has space here", "short"],
+)
+def test_identifier_shaped_or_malformed_episode_ids_are_rejected(episode_id: str):
+    private_pem, _ = _keypair()
+    with pytest.raises(SessionReceiptError, match="episode_id"):
+        _receipt_with(private_pem, episode={"episode_id": episode_id})
+
+
+def test_templates_shown_must_be_ids_not_text():
+    private_pem, _ = _keypair()
+    inputs = _inputs()
+    inputs["session"]["jurisdiction"] = {
+        "code": "AU-NSW",
+        "templates_shown": ["Psychologists must report sexual abuse"],
+    }
+    with pytest.raises(SessionReceiptError, match="template ids only"):
+        create_session_receipt(**inputs, private_key_pem=private_pem)
+    inputs["session"]["jurisdiction"] = {"code": "nsw"}
+    with pytest.raises(SessionReceiptError, match="jurisdiction.code"):
+        create_session_receipt(**inputs, private_key_pem=private_pem)
+
+
+def test_device_boundary_inference_categories_are_rejected():
+    private_pem, _ = _keypair()
+    for category in ("triage_suggestion", "diagnosis"):
+        with pytest.raises(SessionReceiptError, match="not permitted"):
+            _receipt_with(private_pem, inference={"category": category})
+    with pytest.raises(SessionReceiptError, match="must be one of"):
+        _receipt_with(private_pem, inference={"category": "prognosis"})
+
+
+def test_signal_events_require_a_signal_type_and_enums_are_closed():
+    private_pem, _ = _keypair()
+    with pytest.raises(SessionReceiptError, match="signal_type"):
+        _receipt_with(private_pem, care_event={"type": "ambient_signal"})
+    receipt = _receipt_with(
+        private_pem, care_event={"type": "ambient_signal", "signal_type": "wearable"}
+    )
+    assert receipt["metadata"]["care_event"]["signal_type"] == "wearable"
+    with pytest.raises(SessionReceiptError, match="must be one of"):
+        _receipt_with(private_pem, review_state={"service_level": "done"})
+    with pytest.raises(SessionReceiptError, match="count"):
+        _receipt_with(
+            private_pem,
+            withheld={
+                "items": [{"kind": "section", "reason_code": "policy", "count": -1}]
+            },
+        )
+    with pytest.raises(SessionReceiptError, match="opaque"):
+        _receipt_with(
+            private_pem, disclosure={"consent_record_ref": "has spaces in it"}
+        )
+
+
+def test_optional_blocks_cannot_smuggle_content():
+    private_pem, _ = _keypair()
+    with pytest.raises(SessionReceiptError, match="content"):
+        _receipt_with(
+            private_pem, episode={"episode_id": "ep-synthetic-0001", "notes": "x"}
+        )
+    with pytest.raises(SessionReceiptError, match="content"):
+        _receipt_with(private_pem, care_event={"type": "follow_up", "text": "x"})

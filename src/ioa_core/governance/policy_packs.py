@@ -46,6 +46,29 @@ _POLICY_PACKS: Dict[str, Dict[str, Any]] = {
             "My Health Records Act",
         ],
     },
+    "qix_health_nz": {
+        "pack_id": "qix_health_nz",
+        "policy_pack": "healthcare-nz",
+        "manifest": "system_laws_nz_health.json",
+        "domain": "health",
+        "default_jurisdiction": "NZ",
+        "aliases": {
+            "healthcare-nz",
+            "healthcare_nz",
+            "qixhealth-nz",
+            "qixhealth_nz",
+            "nz-healthcare",
+            "nz_healthcare",
+            "nz-health",
+            "nz_health",
+        },
+        "regulatory_frameworks": [
+            "NZ Privacy Act 2020",
+            "Health Information Privacy Code 2020",
+            "Code of Health and Disability Services Consumers' Rights",
+            "Mental Health (Compulsory Assessment and Treatment) Act 1992 / Mental Health Act 2026",
+        ],
+    },
     "qixcite_legal": {
         "pack_id": "qixcite_legal",
         "policy_pack": "qixcite-legal",
@@ -65,12 +88,18 @@ def normalize_policy_pack(value: Optional[str]) -> Optional[str]:
     return text if text else None
 
 
-def resolve_policy_pack_definition(policy_pack: Optional[str]) -> Optional[Dict[str, Any]]:
+def resolve_policy_pack_definition(
+    policy_pack: Optional[str],
+) -> Optional[Dict[str, Any]]:
     normalized = normalize_policy_pack(policy_pack)
     if not normalized:
         return None
     for pack in _POLICY_PACKS.values():
-        aliases = {str(item).strip().lower() for item in pack.get("aliases", set()) if str(item).strip()}
+        aliases = {
+            str(item).strip().lower()
+            for item in pack.get("aliases", set())
+            if str(item).strip()
+        }
         canonical = str(pack.get("policy_pack") or "").strip().lower()
         if normalized == canonical or normalized in aliases:
             return dict(pack)

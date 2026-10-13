@@ -115,8 +115,12 @@ def test_youth_mental_health_nz_declares_gates_follow_up_and_guardian_consent():
         gate_severity_for(profile, gate) == "escalate" for gate in profile.content_gates
     )
     assert profile.escalation_follow_up_hours == 24
-    assert profile.policy_pack_note
+    # 2.12.0: NZ profiles select the healthcare-nz pack, so the workaround note is gone.
+    assert profile.policy_pack == "healthcare-nz"
+    assert profile.policy_pack_note == ""
     assert any("Oranga Tamariki" in note for note in profile.jurisdiction_notes)
+    assert "nz_oranga_tamariki_s15" in profile.jurisdiction.templates
+    assert "nz_mcnz_ai_guidance_2026" in profile.jurisdiction.templates
     runtime_defaults = profile.to_runtime_defaults()
     assert runtime_defaults["escalation_follow_up_hours"] == 24
     assert runtime_defaults["content_gate_policy"]["child_protection"] == "escalate"

@@ -1,7 +1,17 @@
-**Version:** v2.11.0  
+**Version:** v2.12.0  
 **Last-Updated:** 2026-10-13
 
 # Changelog
+## [2.12.0] - 2026-10-13
+### Added
+- State-level jurisdictions for health profiles: `JurisdictionTemplateRegistry.for_jurisdiction(code, layered=True)` layers national templates under a sub-national code such as `AU-NSW`; `resolve_template_ids` and `build_health_session_context` use the layered lookup for the patient jurisdiction; `recommend()` falls back by country so an Australian state never resolves to an NZ profile; `SubcategoryContextProfile.supported_sub_jurisdictions`; `AU_STATE_CODES`, `GATE_JURISDICTION_TEMPLATES`, `gate_jurisdiction_text()`.
+- 25 jurisdiction templates: child protection reporting, Mental Health Act boundaries and health privacy statutes for each Australian state and territory (NSW, VIC, QLD, WA, SA, TAS, ACT, NT), the Privacy Act automated decision-making transparency notice (effective 2026-12-10), and for New Zealand the Mental Health Act 2026 transition, Oranga Tamariki Act s 15, the Medical Council of New Zealand AI guidance (March 2026) and the Health New Zealand AI Pre-Implementation Evaluation Framework. Templates now carry `summary` (<= 300 chars) and `review_status`; the Australian state texts are `draft_pending_legal_review`.
+- `healthcare-nz` policy pack (`system_laws_nz_health.json`, pack id `qix_health_nz`); `mental_health_nz` and `youth_mental_health_nz` now select it. A test fails CI when any bundled manifest is within 30 days of expiry.
+- Session Evidence Receipt (schema unchanged, `qixmind.session-evidence-receipt.v1`): optional `episode`, `care_event`, `inference`, `withheld`, `review_state` and `disclosure` blocks with closed enumerations, emitted only when supplied; `session.jurisdiction` may be a structured block (`code`, `country`, `state`, `templates_shown` ids, `policy_pack`); `session.policy_pack`. Identifier-shaped episode ids and template text in `templates_shown` are rejected; `inference.category` values `triage_suggestion` and `diagnosis` are rejected in v1.
+
+### Changed
+- `youth_mental_health_au` and `mental_health_au` declare the eight Australian sub-jurisdictions and the ADM transparency template; the "untested" note is gone. The `child_protection` gate description is jurisdiction-neutral; the applicable state or NZ text comes from the templates.
+
 ## [2.11.0] - 2026-10-13
 ### Fixed
 - Convergence release: the OP-14, OP-40 and OP-60 fixes that production QiXChat carried as a patched vendor tree (`2.6.2+op60`) are now on `main`, so every runtime can vendor a tagged release.

@@ -23,7 +23,11 @@ from .follow_up import (
     no_follow_up_required,
 )
 from .registry import (
+    AU_STATE_CODES,
     DEFAULT_GATE_SEVERITY,
+    GATE_JURISDICTION_TEMPLATES,
+    gate_jurisdiction_template_id,
+    gate_jurisdiction_text,
     ConsentFlowConfig,
     DeIdentificationConfig,
     JurisdictionBinding,
@@ -42,9 +46,13 @@ from .registry import (
 )
 
 __all__ = [
+    "AU_STATE_CODES",
     "DEFAULT_GATE_SEVERITY",
     "FOLLOW_UP_STATES",
     "GATE_DEFINITIONS",
+    "GATE_JURISDICTION_TEMPLATES",
+    "gate_jurisdiction_template_id",
+    "gate_jurisdiction_text",
     "SEVERITY_ORDER",
     "ConsentFlowConfig",
     "ContentGateError",
