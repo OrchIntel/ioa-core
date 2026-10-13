@@ -1,0 +1,57 @@
+{
+  "schema": "qixmind.action-policy.v1",
+  "policy_id": "qixmind_default",
+  "version": "2026.10.1-draft",
+  "status": "draft",
+  "profile_ids": [
+    "mental_health_au",
+    "mental_health_nz",
+    "youth_mental_health_au",
+    "youth_mental_health_nz"
+  ],
+  "description": "Engineering draft for clinical lead review. Not approved for live use.",
+  "rules": [
+    {
+      "rule_id": "concern_any_source",
+      "gates": "*",
+      "sources": "*",
+      "contexts": [
+        "affirmed",
+        "uncertain"
+      ],
+      "action": "escalate_with_follow_up",
+      "follow_up_hours": 24,
+      "dismissal_allowed": false
+    },
+    {
+      "rule_id": "historical_or_third_person",
+      "gates": "*",
+      "sources": "*",
+      "contexts": [
+        "historical",
+        "third_person"
+      ],
+      "action": "disposition_required",
+      "follow_up_hours": null,
+      "dismissal_allowed": true
+    },
+    {
+      "rule_id": "negated",
+      "gates": "*",
+      "sources": "*",
+      "contexts": [
+        "negated"
+      ],
+      "action": "disposition_required",
+      "follow_up_hours": null,
+      "dismissal_allowed": true
+    }
+  ],
+  "default_rule": {
+    "rule_id": "default_unmatched",
+    "action": "disposition_required",
+    "follow_up_hours": null,
+    "dismissal_allowed": false
+  },
+  "approval": null
+}

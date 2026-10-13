@@ -23,6 +23,15 @@ from .findings import (
     FindingsReport,
     detect_findings,
 )
+from .policy import (
+    ActionPolicy,
+    PolicyError,
+    RequiredAction,
+    load_packaged_policy,
+    policy_from_mapping,
+    require_live_approval,
+)
+from .provenance import PROVENANCE_SCHEMA, capture_session_provenance
 from .follow_up import (
     FOLLOW_UP_STATES,
     FollowUpError,
@@ -68,7 +77,15 @@ __all__ = [
     "ContentGateEvaluator",
     "ContentGateReport",
     "DeIdentificationConfig",
+    "ActionPolicy",
     "CONTEXTS",
+    "PROVENANCE_SCHEMA",
+    "PolicyError",
+    "RequiredAction",
+    "capture_session_provenance",
+    "load_packaged_policy",
+    "policy_from_mapping",
+    "require_live_approval",
     "Finding",
     "FindingsError",
     "FindingsReport",

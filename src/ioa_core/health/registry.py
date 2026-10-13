@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+import hashlib
 import json
 import re
 from functools import lru_cache
@@ -378,6 +379,27 @@ def build_health_session_context(
     }
 
 
+def canonical_fingerprint(value: Any) -> str:
+    """``sha256:<hex>`` of the canonical JSON form of ``value``."""
+    encoded = json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def profile_definition_fingerprint(profile_id: str) -> str:
+    """Fingerprint of a care profile's packaged definition.
+
+    Together with the ioa-core version this identifies exactly which profile
+    rules applied, even after the profile changes in a later release.
+    """
+    wanted = str(profile_id or "").strip()
+    for item in _read_json_resource("subcategory_profiles.json"):
+        if str(item.get("id") or "").strip() == wanted:
+            return canonical_fingerprint(item)
+    raise KeyError(f"Unknown subcategory profile: {wanted}")
+
+
 def _read_json_resource(filename: str) -> Sequence[Mapping[str, Any]]:
     with (
         resources.files("ioa_core.health")
@@ -645,6 +667,8 @@ def gate_jurisdiction_text(gate_name: str, jurisdiction: str) -> Optional[str]:
 
 __all__ = [
     "AU_STATE_CODES",
+    "canonical_fingerprint",
+    "profile_definition_fingerprint",
     "ConsentFlowConfig",
     "DEFAULT_GATE_SEVERITY",
     "GATE_JURISDICTION_TEMPLATES",

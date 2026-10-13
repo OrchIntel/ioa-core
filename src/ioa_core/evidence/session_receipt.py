@@ -570,6 +570,94 @@ def _normalize_software(
     }
 
 
+_PROVENANCE_SCHEMA = "qixmind.session-provenance.v1"
+_POLICY_STATUSES = {"draft", "approved", "retired"}
+
+
+def _normalize_provenance(
+    provenance: Optional[Mapping[str, Any]],
+) -> Optional[Dict[str, Any]]:
+    """Validate the optional provenance block captured by the runtime.
+
+    The block is copied, not computed here: a receipt must name what governed
+    the session at the time, so a missing block stays missing.
+    """
+    if provenance is None:
+        return None
+    if not isinstance(provenance, Mapping):
+        raise SessionReceiptError("provenance must be an object")
+    if provenance.get("schema") != _PROVENANCE_SCHEMA:
+        raise SessionReceiptError("provenance has an unsupported schema")
+    if provenance.get("source") != "runtime":
+        raise SessionReceiptError("provenance must be captured by the runtime")
+    profile = provenance.get("profile")
+    gates = provenance.get("content_gates")
+    policy = provenance.get("action_policy")
+    if not isinstance(profile, Mapping) or not isinstance(gates, Mapping):
+        raise SessionReceiptError("provenance needs profile and content_gates")
+    if not isinstance(policy, Mapping):
+        raise SessionReceiptError("provenance needs action_policy")
+    block: Dict[str, Any] = {
+        "schema": _PROVENANCE_SCHEMA,
+        "source": "runtime",
+        "ioa_core_version": _required_str(provenance, "ioa_core_version", "provenance"),
+        "profile": {
+            "profile_id": _required_str(profile, "profile_id", "provenance.profile"),
+            "fingerprint": normalize_sha256(
+                profile.get("fingerprint"), "provenance.profile.fingerprint"
+            ),
+        },
+        "content_gates": {
+            "detector": _required_str(gates, "detector", "provenance.content_gates"),
+            "detector_version": _required_str(
+                gates, "detector_version", "provenance.content_gates"
+            ),
+            "review_output_version": _optional_str(gates, "review_output_version"),
+            "ruleset_sha256": normalize_sha256(
+                gates.get("ruleset_sha256"), "provenance.content_gates.ruleset_sha256"
+            ),
+        },
+    }
+    if policy.get("applied") is True:
+        status = str(policy.get("status") or "")
+        if status not in _POLICY_STATUSES:
+            raise SessionReceiptError("provenance action_policy status is unknown")
+        block["action_policy"] = {
+            "applied": True,
+            "policy_id": _required_str(policy, "policy_id", "provenance.action_policy"),
+            "version": _required_str(policy, "version", "provenance.action_policy"),
+            "status": status,
+            "fingerprint": normalize_sha256(
+                policy.get("fingerprint"), "provenance.action_policy.fingerprint"
+            ),
+        }
+    elif policy.get("applied") is False:
+        block["action_policy"] = {
+            "applied": False,
+            "basis": _required_str(policy, "basis", "provenance.action_policy"),
+        }
+    else:
+        raise SessionReceiptError(
+            "provenance action_policy.applied must be true or false"
+        )
+    findings = provenance.get("findings")
+    if findings is not None:
+        if not isinstance(findings, Mapping):
+            raise SessionReceiptError("provenance findings must be an object")
+        block["findings"] = {
+            "detector": _required_str(findings, "detector", "provenance.findings"),
+            "detector_version": _required_str(
+                findings, "detector_version", "provenance.findings"
+            ),
+            "context_rules_version": _optional_str(findings, "context_rules_version"),
+            "status": _required_str(findings, "status", "provenance.findings"),
+            "ruleset_sha256": normalize_sha256(
+                findings.get("ruleset_sha256"), "provenance.findings.ruleset_sha256"
+            ),
+        }
+    return block
+
+
 def create_session_receipt(
     *,
     session: Mapping[str, Any],
@@ -589,6 +677,7 @@ def create_session_receipt(
     withheld: Optional[Mapping[str, Any]] = None,
     review_state: Optional[Mapping[str, Any]] = None,
     disclosure: Optional[Mapping[str, Any]] = None,
+    provenance: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Create and sign a Session Evidence Receipt.
 
@@ -613,6 +702,7 @@ def create_session_receipt(
         ("withheld", withheld),
         ("review_state", review_state),
         ("disclosure", disclosure),
+        ("provenance", provenance),
     ):
         if section is not None:
             _reject_content_fields(section, section_name)
@@ -647,6 +737,7 @@ def create_session_receipt(
         ("withheld", _normalize_withheld(withheld)),
         ("review_state", _normalize_review_state(review_state)),
         ("disclosure", _normalize_disclosure(disclosure)),
+        ("provenance", _normalize_provenance(provenance)),
     ):
         if block is not None:
             payload[key] = block

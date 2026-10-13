@@ -1,7 +1,16 @@
-**Version:** v2.15.0  
+**Version:** v2.16.0  
 **Last-Updated:** 2026-10-14
 
 # Changelog
+## [2.16.0] - 2026-10-14
+### Added
+- `ioa_core.health.policy` (evaluation only): versioned action policies with a definition fingerprint that excludes status and approval. `required_actions()` gives one requirement per occurrence group; `summary_by_gate()` is for presentation only. `require_live_approval()` refuses any policy that is not `approved`. The packaged default (`qixmind_default`, `2026.10.1-draft`) is a draft.
+- `ioa_core.health.provenance.capture_session_provenance()`: profile id and definition fingerprint, live gate detector versions and ruleset fingerprint, the action policy applied (or that none was), and optionally the findings detector.
+- `create_session_receipt(..., provenance=...)`: optional `metadata.provenance` block, validated, captured by the runtime only. Receipts without it are unchanged, and receipts with it verify with earlier verifiers. See `docs/qixmind/session-provenance.md`.
+- `profile_definition_fingerprint()`, `canonical_fingerprint()` and `content_gates.ruleset_fingerprint()`.
+### Changed
+- Findings detector 0.2.0, frozen for held-out evaluation (`tests/health/fixtures/gate_eval/FREEZE.json`). Each finding keeps every distinct source, context and lexicon rule as `occurrences` (rule ids, never text); the headline fields are a summary. Reports carry `ruleset_sha256`. The 43-case set is now development data.
+
 ## [2.15.0] - 2026-10-14
 ### Added
 - `ioa_core.health.findings` (evaluation only, not used by the live gates): `detect_findings()` reports one finding per declared gate with its sources (input, output or both), a context (`affirmed`, `uncertain`, `historical`, `third_person`, `negated`), whether an input finding was omitted from the output, and the review-output status. Nothing is cleared automatically: a negated or historical signal is still a finding, and anything the rules cannot classify is `uncertain`. No matched text is kept.

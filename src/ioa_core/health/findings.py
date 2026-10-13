@@ -31,6 +31,7 @@ not a validated classifier.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import asdict, dataclass, field
@@ -49,7 +50,11 @@ from .content_gates import (
 from .registry import gate_severity_for, get_subcategory_profile
 
 DETECTOR_NAME = "ioa_core.health.findings"
-DETECTOR_VERSION = "0.1.0"
+DETECTOR_VERSION = "0.2.0"
+# 0.2.0 is frozen for independent held-out evaluation (14 October 2026). The 43
+# synthetic cases used so far are development data. A change informed by a
+# held-out run makes that set development data too and needs a fresh one.
+FROZEN_FOR_HELDOUT = True
 CONTEXT_RULES_VERSION = "2026.10.2-eval"
 STATUS = "evaluation_only"
 
@@ -139,12 +144,30 @@ class Finding:
     omitted_in_output: bool  # in the input with concern, absent from the output
     default_severity: str
     lexicon_version: str
+    # Every distinct (source, context, rule) seen for this gate, with a count.
+    # The headline fields above are a summary for presentation; disposition and
+    # audit work from these groups, so distinct concerns are never merged away.
+    occurrences: Tuple["Occurrence", ...] = ()
 
     def to_dict(self) -> Dict[str, Any]:
         data = asdict(self)
         data["sources"] = list(self.sources)
         data["contexts_observed"] = list(self.contexts_observed)
+        data["occurrences"] = [item.to_dict() for item in self.occurrences]
         return data
+
+
+@dataclass(frozen=True)
+class Occurrence:
+    """One distinct signal within a gate. Identifies the rule, never the text."""
+
+    source: str  # "input" or "output"
+    context: str
+    entry: str
+    count: int
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass(frozen=True)
@@ -161,6 +184,7 @@ class FindingsReport:
     output_sha256: Optional[str]
     review_output: Optional[Dict[str, Any]]
     lexicon_versions: Dict[str, str] = field(default_factory=dict)
+    ruleset_sha256: Optional[str] = None
 
     def finding(self, gate: str) -> Optional[Finding]:
         for item in self.findings:
@@ -182,6 +206,7 @@ class FindingsReport:
             "output_sha256": self.output_sha256,
             "review_output": self.review_output,
             "lexicon_versions": dict(self.lexicon_versions),
+            "ruleset_sha256": self.ruleset_sha256,
         }
 
 
@@ -190,7 +215,10 @@ class _EvalLexicon:
     gate: str
     category: str
     version: str
-    patterns: Tuple["re.Pattern[str]", ...]
+    # (entry id, compiled pattern). Entry ids name the rule that matched
+    # ("<lexicon>@<version>:L<n>" for live entries, ":E<n>" for evaluation
+    # additions), never the text it matched.
+    entries: Tuple[Tuple[str, "re.Pattern[str]"], ...]
 
 
 @lru_cache(maxsize=16)
@@ -203,8 +231,12 @@ def _load_eval_lexicon(gate: str) -> _EvalLexicon:
         base = _load_lexicon(definition.lexicon)
     except ContentGateError as exc:
         raise FindingsError(str(exc)) from exc
-    patterns: List["re.Pattern[str]"] = list(base.patterns)
+    entries: List[Tuple[str, "re.Pattern[str]"]] = [
+        (f"{definition.lexicon}@{base.version}:L{index}", pattern)
+        for index, pattern in enumerate(base.patterns)
+    ]
     version = base.version
+    added: List["re.Pattern[str]"] = []
     try:
         with (
             resources.files("ioa_core.health.lexicons.eval")
@@ -220,19 +252,21 @@ def _load_eval_lexicon(gate: str) -> _EvalLexicon:
         for word in extra.get("words") or []:
             text = str(word or "").strip()
             if text:
-                patterns.append(
-                    re.compile(r"\b" + re.escape(text) + r"\b", re.IGNORECASE)
-                )
+                added.append(re.compile(r"\b" + re.escape(text) + r"\b", re.IGNORECASE))
         for pattern in extra.get("patterns") or []:
             text = str(pattern or "").strip()
             if text:
-                patterns.append(re.compile(text, re.IGNORECASE))
+                added.append(re.compile(text, re.IGNORECASE))
         version = str(extra.get("version") or version)
+        entries.extend(
+            (f"{definition.lexicon}@{version}:E{index}", pattern)
+            for index, pattern in enumerate(added)
+        )
     return _EvalLexicon(
         gate=gate,
         category=base.category,
         version=version,
-        patterns=tuple(patterns),
+        entries=tuple(entries),
     )
 
 
@@ -273,21 +307,54 @@ def _classify(gate: str, sentence: str, start: int, end: int) -> str:
     return "affirmed"
 
 
-def _scan(gate: str, lexicon: _EvalLexicon, text: Optional[str]) -> List[str]:
-    """Contexts of every match of ``gate`` in ``text`` (no text is returned)."""
+def _scan(
+    gate: str, lexicon: _EvalLexicon, text: Optional[str]
+) -> List[Tuple[str, str]]:
+    """(context, entry id) for every match of ``gate`` in ``text``; no text."""
     if not text:
         return []
-    contexts: List[str] = []
+    hits: List[Tuple[str, str]] = []
     for _offset, sentence in _sentences(str(text)):
         seen: List[Tuple[int, int]] = []
-        for pattern in lexicon.patterns:
+        for entry_id, pattern in lexicon.entries:
             for match in pattern.finditer(sentence):
                 span = match.span()
                 if any(span[0] < other[1] and other[0] < span[1] for other in seen):
                     continue  # overlapping entries describe the same phrase
                 seen.append(span)
-                contexts.append(_classify(gate, sentence, span[0], span[1]))
-    return contexts
+                hits.append((_classify(gate, sentence, span[0], span[1]), entry_id))
+    return hits
+
+
+def ruleset_fingerprint() -> str:
+    """Fingerprint of the findings detector: versions, context rules and every
+    live and evaluation lexicon file, byte for byte."""
+    digest = hashlib.sha256()
+    digest.update(
+        f"{DETECTOR_NAME}|{DETECTOR_VERSION}|{CONTEXT_RULES_VERSION}\n".encode()
+    )
+    for rule in (
+        _SENTENCE_SPLIT,
+        _NEGATION_BEFORE,
+        _NEGATION_AFTER,
+        _HISTORICAL,
+        _UNCERTAIN,
+        _THIRD_PERSON,
+        _FAMILY_HISTORY,
+        _REPORTER,
+        _TO_THIRD_PARTY,
+    ):
+        digest.update(rule.pattern.encode("utf-8") + b"\n")
+    digest.update(",".join(sorted(_THIRD_PARTY_SUBJECT_GATES)).encode() + b"\n")
+    for gate in sorted(GATE_DEFINITIONS):
+        lexicon = GATE_DEFINITIONS[gate].lexicon
+        for package in ("ioa_core.health.lexicons", "ioa_core.health.lexicons.eval"):
+            try:
+                data = resources.files(package).joinpath(f"{lexicon}.json").read_bytes()
+            except FileNotFoundError:
+                data = b""
+            digest.update(f"{package}/{lexicon}\n".encode() + data + b"\n")
+    return "sha256:" + digest.hexdigest()
 
 
 def _now() -> str:
@@ -321,8 +388,26 @@ def detect_findings(
     for gate in gate_list:
         lexicon = _load_eval_lexicon(gate)
         versions[gate] = lexicon.version
-        input_contexts = _scan(gate, lexicon, input_text)
-        output_contexts = _scan(gate, lexicon, output_text)
+        input_hits = _scan(gate, lexicon, input_text)
+        output_hits = _scan(gate, lexicon, output_text)
+        input_contexts = [context for context, _entry in input_hits]
+        output_contexts = [context for context, _entry in output_hits]
+        grouped: Dict[Tuple[str, str, str], int] = {}
+        for source, hits in (("input", input_hits), ("output", output_hits)):
+            for context, entry in hits:
+                key = (source, context, entry)
+                grouped[key] = grouped.get(key, 0) + 1
+        occurrences = tuple(
+            Occurrence(source=source, context=context, entry=entry, count=count)
+            for (source, context, entry), count in sorted(
+                grouped.items(),
+                key=lambda item: (
+                    item[0][0],
+                    _CONTEXT_PRIORITY[item[0][1]],
+                    item[0][2],
+                ),
+            )
+        )
         if not input_contexts and not output_contexts:
             continue
         observed = sorted(
@@ -356,6 +441,7 @@ def detect_findings(
                 ),
                 default_severity=severity,
                 lexicon_version=lexicon.version,
+                occurrences=occurrences,
             )
         )
     review = (
@@ -374,6 +460,7 @@ def detect_findings(
         output_sha256=sha256_text(output_text) if output_text is not None else None,
         review_output=review,
         lexicon_versions=versions,
+        ruleset_sha256=ruleset_fingerprint(),
     )
 
 
@@ -382,8 +469,11 @@ __all__ = [
     "CONTEXT_RULES_VERSION",
     "DETECTOR_NAME",
     "DETECTOR_VERSION",
+    "FROZEN_FOR_HELDOUT",
     "Finding",
     "FindingsError",
+    "Occurrence",
     "FindingsReport",
     "detect_findings",
+    "ruleset_fingerprint",
 ]

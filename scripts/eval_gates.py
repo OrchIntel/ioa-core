@@ -31,7 +31,10 @@ from ioa_core.health.findings import CONTEXT_RULES_VERSION, DETECTOR_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CASES = ROOT / "tests" / "health" / "fixtures" / "gate_eval" / "cases.json"
-CONCERN = ("affirmed", "uncertain")
+CONCERN = (
+    "affirmed",
+    "uncertain",
+)  # labelled by engineering as requiring concern review
 
 
 def _live_fired(profile_id: str, text: Optional[str]) -> Set[str]:
@@ -141,7 +144,7 @@ def render(result: dict, cases_doc: dict) -> str:
         f"Cases: {len(result['rows'])}, version {cases_doc.get('version')}. Detector {DETECTOR_VERSION}, context rules {CONTEXT_RULES_VERSION}. "
         "Expected labels are engineering's and are pending clinician adjudication. All case text is synthetic and is not reproduced here.",
         "",
-        "Concern means a finding a clinician would expect to act on (affirmed or uncertain).",
+        "Concern cases are those labelled by engineering as requiring concern review (affirmed or uncertain); they are not clinician judgements. Internal only: no sensitivity, validation or safety claim may be made from these synthetic cases.",
         "",
         "## Concern caught, by detector",
         "",
@@ -164,7 +167,7 @@ def render(result: dict, cases_doc: dict) -> str:
         "",
         "## Raised without expected concern",
         "",
-        "Live baselines count a fired gate where a clinician would expect no concern (for example a denial). "
+        "Live baselines count a fired gate where engineering labelled no concern (for example a denial). "
         "The findings detector reports those as findings with a non-concern context instead, which still need a disposition.",
         "",
         "| Gate | Live | Live lexicon on input too | Findings: extra findings | Findings: context agreement | Findings: source agreement | Findings: unresolved |",

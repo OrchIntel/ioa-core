@@ -1,0 +1,17 @@
+{
+  "frozen_at": "2026-10-14",
+  "detector": "ioa_core.health.findings",
+  "detector_version": "0.2.0",
+  "context_rules_version": "2026.10.2-eval",
+  "findings_ruleset_sha256": "sha256:8f5098186916df6111587717645f82f3b9ee54a940260523ed7104b158a4506d",
+  "live_content_gates_ruleset_sha256": "sha256:d4fcb564651ec3eadc5452224fedc8b21c86096d5a4c410403baf029f9262003",
+  "draft_policy": {
+    "policy_id": "qixmind_default",
+    "version": "2026.10.1-draft",
+    "fingerprint": "sha256:7d9d97975a9dd06938b2eb2f2e51aeab01c1edbfdcc27ce22c9d3ccdd7f145b5"
+  },
+  "development_data": [
+    "tests/health/fixtures/gate_eval/cases.json (43 synthetic cases, engineering-labelled; used to tune rules on 14 October 2026)"
+  ],
+  "rule": "Run independent held-out sets against this exact fingerprint. If held-out results inform any change to rules or lexicons, that set becomes development data and a fresh held-out set is needed."
+}

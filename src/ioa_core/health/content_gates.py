@@ -452,6 +452,26 @@ def _matches(lexicon: _CompiledLexicon, text: str) -> bool:
     return any(pattern.search(text) for pattern in lexicon.patterns)
 
 
+def ruleset_fingerprint() -> str:
+    """Fingerprint of the live gate rules: detector versions, the refusal rules
+    and every packaged live lexicon, byte for byte."""
+    digest = hashlib.sha256()
+    digest.update(
+        f"{DETECTOR_NAME}|{DETECTOR_VERSION}|{REVIEW_OUTPUT_DETECTOR_VERSION}\n".encode()
+    )
+    for pattern in _REFUSAL_PATTERNS:
+        digest.update(pattern.pattern.encode("utf-8") + b"\n")
+    for gate in sorted(GATE_DEFINITIONS):
+        lexicon = GATE_DEFINITIONS[gate].lexicon
+        data = (
+            resources.files("ioa_core.health.lexicons")
+            .joinpath(f"{lexicon}.json")
+            .read_bytes()
+        )
+        digest.update(f"{lexicon}\n".encode() + data + b"\n")
+    return "sha256:" + digest.hexdigest()
+
+
 def fail_closed_report(
     profile_id: str,
     reason_code: str,
@@ -496,5 +516,6 @@ __all__ = [
     "GateDefinition",
     "GateResult",
     "fail_closed_report",
+    "ruleset_fingerprint",
     "sha256_text",
 ]
