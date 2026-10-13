@@ -1,7 +1,14 @@
-**Version:** v2.10.0  
+**Version:** v2.11.0  
 **Last-Updated:** 2026-10-13
 
 # Changelog
+## [2.11.0] - 2026-10-13
+### Fixed
+- Convergence release: the OP-14, OP-40 and OP-60 fixes that production QiXChat carried as a patched vendor tree (`2.6.2+op60`) are now on `main`, so every runtime can vendor a tagged release.
+- Renewed the bundled System Laws manifest (`system_laws.json`): laws and policy unchanged, term 2026-10-04 to 2027-10-04. The previous term ended 2026-09-03, after which `PolicyEngine()` raised at startup and dependent governance checks stopped. A new test fails 60 days before any bundled manifest expires. The manifest signature remains the development placeholder; production signing is not yet in place.
+- PrivacyDetector (`ioa.governance.detectors.privacy_presidio`) no longer reports a missing or placeholder Presidio engine as available. The analyzer is required to check text; a missing anonymizer yields `action_taken="mask_unavailable"` with `masking_error` instead of returning raw text as masked. Results and evidence carry a `status` (`checked`, `unavailable`, `error`, `disabled`) and `has_pii` is None when the text was not checked. Strict mode fails closed when the detector cannot check. `PIIDetector.detect_pii` returns `status`, `checked`, `should_block` and `pii_detected=None` when unchecked; `get_status()` added. New optional extra `privacy` (presidio-analyzer, presidio-anonymizer). Production incident 2026-10-04: the QiXChat image lacked presidio_anonymizer and every privacy check was recorded as "no PII".
+- Memory Fabric search applies scope filters before the result limit. `MemoryFabric.search` and `SQLiteStore.search` accept `metadata_filter` (exact match, `{"$ne": v}` to exclude), `tags` (any match) and `order` (`relevance` or `recent`), evaluated in SQL ahead of `LIMIT`; an empty query returns rows by filters alone. Previously the SDK fetched `limit` rows globally and filtered afterwards, so other principals' records could crowd a caller's eligible records out of the candidate set (OP-60). Stores without pushdown are searched with a wider window and filtered in the fabric.
+- Presidio analyzer is shared across runtime checks (`get_shared_analyzer`), so repeated privacy checks do not rebuild the NLP engine.
 ## [2.10.0] - 2026-10-13
 ### Added
 - Health content gates are now enforceable: `ioa_core.health.content_gates` (`ContentGateEvaluator`, `GateResult`, `ContentGateReport`, `fail_closed_report`) screens model output against packaged lexicons, fails closed, and records gate name, severity and category only (never matched text).
@@ -27,9 +34,6 @@
 
 ### Security
 - Secret detection: PR incremental scan; nightly full scan remains available.
-- Renewed the bundled System Laws manifest (`system_laws.json`): laws and policy unchanged, term 2026-10-04 to 2027-10-04. The previous term ended 2026-09-03, after which `PolicyEngine()` raised at startup and dependent governance checks stopped. A new test fails 60 days before any bundled manifest expires. The manifest signature remains the development placeholder; production signing is not yet in place.
-- PrivacyDetector (`ioa.governance.detectors.privacy_presidio`) no longer reports a missing or placeholder Presidio engine as available. The analyzer is required to check text; a missing anonymizer yields `action_taken="mask_unavailable"` with `masking_error` instead of returning raw text as masked. Results and evidence carry a `status` (`checked`, `unavailable`, `error`, `disabled`) and `has_pii` is None when the text was not checked. Strict mode fails closed when the detector cannot check. `PIIDetector.detect_pii` returns `status`, `checked`, `should_block` and `pii_detected=None` when unchecked; `get_status()` added. New optional extra `privacy` (presidio-analyzer, presidio-anonymizer). Production incident 2026-10-04: the QiXChat image lacked presidio_anonymizer and every privacy check was recorded as "no PII".
-- Memory Fabric search applies scope filters before the result limit. `MemoryFabric.search` and `SQLiteStore.search` accept `metadata_filter` (exact match, `{"$ne": v}` to exclude), `tags` (any match) and `order` (`relevance` or `recent`), evaluated in SQL ahead of `LIMIT`; an empty query returns rows by filters alone. Previously the SDK fetched `limit` rows globally and filtered afterwards, so other principals' records could crowd a caller's eligible records out of the candidate set (OP-60). Stores without pushdown are searched with a wider window and filtered in the fabric.
 
 
 All notable changes to IOA Core will be documented in this file.
