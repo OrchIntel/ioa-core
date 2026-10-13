@@ -129,8 +129,29 @@ def test_youth_mental_health_nz_declares_gates_follow_up_and_guardian_consent():
 
 
 def test_gate_without_policy_defaults_to_acknowledge():
-    profile = get_subcategory_profile("mental_health_nz")
+    import dataclasses
+
+    profile = dataclasses.replace(
+        get_subcategory_profile("mental_health_nz"), content_gate_policy={}
+    )
     assert gate_severity_for(profile, "crisis_mandatory_reporting") == "acknowledge"
-    # mental_health_nz itself is unchanged by this release.
-    assert profile.consent.proxy_allowed is False
-    assert profile.escalation_follow_up_hours is None
+
+
+def test_adult_mental_health_profiles_gate_risk_and_set_a_follow_up_deadline():
+    # 2.13.0: adult mental health gates risk to self and risk to others as well
+    # as crisis and mandatory reporting, all at escalate with a 24 hour
+    # follow-up. Child protection stays youth only. Consent is unchanged.
+    for profile_id in ("mental_health_nz", "mental_health_au"):
+        profile = get_subcategory_profile(profile_id)
+        assert profile.content_gates == [
+            "crisis_risk_to_self",
+            "risk_to_others",
+            "crisis_mandatory_reporting",
+        ]
+        assert all(
+            gate_severity_for(profile, gate) == "escalate"
+            for gate in profile.content_gates
+        )
+        assert "child_protection" not in profile.content_gates
+        assert profile.escalation_follow_up_hours == 24
+        assert profile.consent.proxy_allowed is False

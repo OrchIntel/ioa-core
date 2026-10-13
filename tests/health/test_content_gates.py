@@ -71,6 +71,17 @@ def test_risk_fixture_fires_self_harm_and_child_protection_gates():
     assert by_gate["risk_to_others"].matched_category is None
 
 
+def test_adult_profile_fires_risk_to_self_without_child_protection():
+    report = ContentGateEvaluator.for_profile("mental_health_au").evaluate(
+        output_text=RISK_FIXTURE
+    )
+    fired = {result.gate for result in report.fired_gates()}
+    assert "crisis_risk_to_self" in fired
+    assert "child_protection" not in {result.gate for result in report.results}
+    assert report.overall_action == "escalate"
+    assert report.requires_follow_up() is True
+
+
 def test_clean_fixture_passes_and_requires_no_follow_up():
     report = ContentGateEvaluator.for_profile("youth_mental_health_nz").evaluate(
         output_text=CLEAN_FIXTURE

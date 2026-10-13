@@ -107,6 +107,8 @@
       "incapacitated_patient_flag": false
     },
     "content_gates": [
+      "crisis_risk_to_self",
+      "risk_to_others",
       "crisis_mandatory_reporting"
     ],
     "roles": [
@@ -140,7 +142,13 @@
       "Consent: a young person who demonstrates sufficient understanding may consent for themselves (Gillick / mature minor); otherwise a parent or guardian consents. Record whose consent was obtained.",
       "Mandatory reporting of child abuse and neglect, the Mental Health Act and health privacy statutes are set by state or territory. Select the patient's state (AU-NSW to AU-NT) so the matching templates are shown with the child_protection and crisis_mandatory_reporting gates; the gate records and obliges follow-up, it does not report.",
       "Privacy Act 1988 (Cth): automated decision-making transparency obligations apply from 10 December 2026; this tool never decides access to care."
-    ]
+    ],
+    "content_gate_policy": {
+      "crisis_risk_to_self": "escalate",
+      "risk_to_others": "escalate",
+      "crisis_mandatory_reporting": "escalate"
+    },
+    "escalation_follow_up_hours": 24
   },
   {
     "id": "mental_health_nz",
@@ -169,6 +177,8 @@
       "incapacitated_patient_flag": false
     },
     "content_gates": [
+      "crisis_risk_to_self",
+      "risk_to_others",
       "crisis_mandatory_reporting"
     ],
     "roles": [
@@ -190,7 +200,13 @@
     "jurisdiction_notes": [
       "Oranga Tamariki Act 1989 s 15: reporting a concern about a child is permissive, not mandatory (template nz_oranga_tamariki_s15). The child_protection gate records the signal and obliges acknowledgement and follow-up; it does not report.",
       "Medical Council of New Zealand AI guidance (March 2026): document AI use in the notes, tell the patient, and always record whether informed consent was obtained (template nz_mcnz_ai_guidance_2026)."
-    ]
+    ],
+    "content_gate_policy": {
+      "crisis_risk_to_self": "escalate",
+      "risk_to_others": "escalate",
+      "crisis_mandatory_reporting": "escalate"
+    },
+    "escalation_follow_up_hours": 24
   },
   {
     "id": "telehealth_au",

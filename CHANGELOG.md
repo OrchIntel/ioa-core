@@ -1,7 +1,11 @@
-**Version:** v2.12.1  
+**Version:** v2.13.0  
 **Last-Updated:** 2026-10-13
 
 # Changelog
+## [2.13.0] - 2026-10-13
+### Changed
+- Adult mental health profiles (`mental_health_nz`, `mental_health_au`) now gate `crisis_risk_to_self` and `risk_to_others` as well as `crisis_mandatory_reporting`, all at escalate severity, with a 24 hour escalation follow-up. Previously only crisis and mandatory reporting was gated (at the default acknowledge severity) and no follow-up deadline applied, so an adult session with risk-to-self language created no acknowledgement or follow-up obligation. `child_protection` remains youth only. Consent settings are unchanged.
+
 ## [2.12.1] - 2026-10-13
 ### Fixed
 - Layered jurisdiction templates are now limited to the profile's care setting. `JurisdictionTemplate.care_settings` (empty means every care setting) scopes the Aged Care Act to aged care and each Mental Health Act (eight Australian states and territories, and the New Zealand 2026 transition) to mental health and youth mental health. `resolve_template_ids` and `build_health_session_context` skip templates that do not apply, so a youth mental health session no longer lists the Aged Care Act and a dental clinic no longer lists a Mental Health Act. `for_jurisdiction` and resolution without a profile are unchanged.
