@@ -1,0 +1,15 @@
+{
+  "status": "pending_clinical_review",
+  "base_version": "2026.10.1",
+  "version": "2026.10.3-eval",
+  "category_of": "crisis_mandatory_reporting",
+  "words": [
+    "has the means",
+    "has a plan",
+    "has a date"
+  ],
+  "patterns": [
+    "\\bplan(?:s|ned|ning)?\\b[^.;\\n]{0,80}\\b(?:tonight|today|tomorrow|this\\s+week|this\\s+weekend)\\b"
+  ],
+  "notes": "Adds imminence cues tied to a plan and a near time, and means or plan statements. Bare time words (tonight) and warning-sign phrases (giving away) were removed after the first evaluation run because they fired on routine notes."
+}

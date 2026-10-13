@@ -39,3 +39,12 @@ plainly signals the category is preferred over broad single words.
 
 Files: `crisis_risk_to_self.json`, `risk_to_others.json`, `child_protection.json`,
 `crisis_mandatory_reporting.json`.
+
+## Evaluation-only additions
+
+`eval/` holds additions used only by `ioa_core.health.findings` and
+`scripts/eval_gates.py`, layered over the live lists above. Their status is
+`pending_clinical_review`; they do not change the live gates. An addition moves
+into a live lexicon only after clinician review, with a version bump and a
+CHANGELOG entry.
+

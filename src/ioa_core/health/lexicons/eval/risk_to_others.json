@@ -1,0 +1,22 @@
+{
+  "status": "pending_clinical_review",
+  "base_version": "2026.10.1",
+  "version": "2026.10.2-eval",
+  "category_of": "risk_to_others",
+  "words": [
+    "homicidal",
+    "violent thoughts",
+    "thoughts of violence",
+    "hurt someone",
+    "hurt somebody",
+    "kill someone",
+    "kill somebody",
+    "going to kill",
+    "gonna kill",
+    "make them pay"
+  ],
+  "patterns": [
+    "\\b(?:want|wants|wanted|going|planning)\\s+to\\s+(?:hurt|kill|stab|shoot|attack)\\s+(?:him|her|them|my|his|their)\\b"
+  ],
+  "notes": "Adds direct first-person intent phrasing. Third-person threats against the patient are classified by context, not by these entries."
+}

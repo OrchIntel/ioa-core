@@ -1,0 +1,389 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 OrchIntel Systems Ltd.
+
+"""Source-aware findings for QiXMind, for synthetic evaluation only.
+
+This module is not used by the live content gates
+(:mod:`ioa_core.health.content_gates`). It answers, for each gate declared by a
+care profile:
+
+* where the signal appeared: the model input, the model output, or both;
+* in what context: ``affirmed``, ``negated``, ``historical``, ``third_person``
+  or ``uncertain``.
+
+Design rules (QiXMind source-aware gates design, 14 October 2026):
+
+* Detection is separate from action. Nothing here decides acknowledgement,
+  escalation or follow-up; a versioned, clinically approved policy does.
+* A finding is never downgraded because it appears only in the input, and an
+  input finding is kept when the output omits it (``omitted_in_output``).
+* One finding per gate: matches in the input and output are merged.
+* Nothing is cleared automatically. ``negated`` is still a finding for a
+  clinician to dispose of, and anything the rules cannot classify is
+  ``uncertain``.
+* No matched text, offsets or excerpts are kept, only gate names, sources,
+  contexts and versions.
+
+The context rules are deterministic phrase rules over the sentence that
+contains each match. They are a starting point for clinician adjudication,
+not a validated classifier.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
+from functools import lru_cache
+from importlib import resources
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+
+from .content_gates import (
+    GATE_DEFINITIONS,
+    ContentGateError,
+    _load_lexicon,
+    assess_review_output,
+    sha256_text,
+)
+from .registry import gate_severity_for, get_subcategory_profile
+
+DETECTOR_NAME = "ioa_core.health.findings"
+DETECTOR_VERSION = "0.1.0"
+CONTEXT_RULES_VERSION = "2026.10.2-eval"
+STATUS = "evaluation_only"
+
+CONTEXTS: Tuple[str, ...] = (
+    "affirmed",
+    "uncertain",
+    "historical",
+    "third_person",
+    "negated",
+)
+# When one gate is matched in several contexts, the finding takes the most
+# concerning one: an affirmed match anywhere outweighs a negated one elsewhere.
+_CONTEXT_PRIORITY = {name: index for index, name in enumerate(CONTEXTS)}
+
+# Gates where a third party is the expected subject of the signal (for example
+# a parent who hurts the child). Third-person phrasing is not discounted there.
+_THIRD_PARTY_SUBJECT_GATES = frozenset(
+    {"child_protection", "crisis_mandatory_reporting"}
+)
+
+_SENTENCE_SPLIT = re.compile(r"(?<=[.!?;])\s+|\n+")
+
+_NEGATION_BEFORE = re.compile(
+    r"\b(?:no|not|nil|never|none|denies|denied|denying|without|negative\s+for|"
+    r"free\s+of|absence\s+of|absent|ruled\s+out|rules\s+out|no\s+evidence\s+of|"
+    r"no\s+current|no\s+active|did\s+not\s+report|does\s+not\s+report|"
+    r"didn'?t\s+report|doesn'?t\s+report|not\s+endorsing|does\s+not\s+endorse)\b"
+    r"(?:\W+\w+){0,5}\W*$",
+    re.IGNORECASE,
+)
+_NEGATION_AFTER = re.compile(
+    r"^\W*(?:\w+\W+){0,3}?(?:denied|was\s+denied|were\s+denied|not\s+reported|"
+    r"not\s+present|absent|ruled\s+out|nil)\b",
+    re.IGNORECASE,
+)
+_HISTORICAL = re.compile(
+    r"\b(?:history\s+of|hx\s+of|h/o|previous(?:ly)?|prior|past|in\s+the\s+past|"
+    r"years?\s+ago|months?\s+ago|last\s+year|as\s+a\s+child|when\s+(?:she|he|they)\s+was|"
+    r"when\s+(?:she|he|they)\s+were|former(?:ly)?|historical|in\s+(?:19|20)\d\d)\b",
+    re.IGNORECASE,
+)
+_UNCERTAIN = re.compile(
+    r"(?:\b(?:possible|possibly|query|queried|unclear|uncertain|unsure|may\s+have|"
+    r"might|maybe|perhaps|suspected|suspect|cannot\s+rule\s+out|can'?t\s+rule\s+out|"
+    r"not\s+sure|reportedly|ambiguous|equivocal|hinted|implied)\b|\?)",
+    re.IGNORECASE,
+)
+_THIRD_PERSON = re.compile(
+    r"\b(?:(?:his|her|their|my)\s+)?(?:mother|father|mum|mom|dad|brother|sister|"
+    r"friend|friends|partner|cousin|uncle|aunt|grandmother|grandfather|peer|"
+    r"classmate|teammate|neighbour|neighbor|family\s+member)(?:'s)?\b",
+    re.IGNORECASE,
+)
+_FAMILY_HISTORY = re.compile(r"\bfamily\s+history\s+of\b", re.IGNORECASE)
+# A third party who reports on the patient is a reporter, not the subject:
+# "Mum reports that he has been cutting himself" is the patient's own risk.
+_REPORTER = re.compile(
+    r"\b(?:mother|father|mum|mom|dad|brother|sister|friend|partner|parent|parents|"
+    r"carer|caregiver|teacher|school|family)\s+(?:reports?|reported|says?|said|"
+    r"states?|stated|told|tells|describes?|described|is\s+worried|are\s+worried|"
+    r"noticed|notices|found)\b",
+    re.IGNORECASE,
+)
+# The third party must be the subject, not someone the patient spoke to.
+_TO_THIRD_PARTY = re.compile(
+    r"\b(?:to|with|told|texted|messaged|asked|showed|sent)\s+(?:a\s+|an\s+|the\s+|"
+    r"his\s+|her\s+|their\s+|my\s+)?(?:mother|father|mum|mom|dad|brother|sister|"
+    r"friend|friends|partner|cousin|uncle|aunt|peer|classmate|teammate)\b",
+    re.IGNORECASE,
+)
+
+
+class FindingsError(ValueError):
+    """Raised when the evaluation lexicons cannot be loaded."""
+
+
+@dataclass(frozen=True)
+class Finding:
+    """One gate's signal across the input and output. Carries no matched text."""
+
+    gate: str
+    category: str
+    sources: Tuple[str, ...]  # subset of ("input", "output"), sorted
+    context: str  # the most concerning context observed
+    contexts_observed: Tuple[str, ...]
+    match_count: int
+    omitted_in_output: bool  # in the input with concern, absent from the output
+    default_severity: str
+    lexicon_version: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        data = asdict(self)
+        data["sources"] = list(self.sources)
+        data["contexts_observed"] = list(self.contexts_observed)
+        return data
+
+
+@dataclass(frozen=True)
+class FindingsReport:
+    profile_id: str
+    evaluated_at: str
+    detector: str
+    detector_version: str
+    context_rules_version: str
+    status: str
+    gates: Tuple[str, ...]
+    findings: Tuple[Finding, ...]
+    input_sha256: Optional[str]
+    output_sha256: Optional[str]
+    review_output: Optional[Dict[str, Any]]
+    lexicon_versions: Dict[str, str] = field(default_factory=dict)
+
+    def finding(self, gate: str) -> Optional[Finding]:
+        for item in self.findings:
+            if item.gate == gate:
+                return item
+        return None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "profile_id": self.profile_id,
+            "evaluated_at": self.evaluated_at,
+            "detector": self.detector,
+            "detector_version": self.detector_version,
+            "context_rules_version": self.context_rules_version,
+            "status": self.status,
+            "gates": list(self.gates),
+            "findings": [item.to_dict() for item in self.findings],
+            "input_sha256": self.input_sha256,
+            "output_sha256": self.output_sha256,
+            "review_output": self.review_output,
+            "lexicon_versions": dict(self.lexicon_versions),
+        }
+
+
+@dataclass(frozen=True)
+class _EvalLexicon:
+    gate: str
+    category: str
+    version: str
+    patterns: Tuple["re.Pattern[str]", ...]
+
+
+@lru_cache(maxsize=16)
+def _load_eval_lexicon(gate: str) -> _EvalLexicon:
+    """The live lexicon for ``gate`` plus its evaluation-only additions."""
+    definition = GATE_DEFINITIONS.get(gate)
+    if definition is None:
+        raise FindingsError(f"Unknown gate: {gate}")
+    try:
+        base = _load_lexicon(definition.lexicon)
+    except ContentGateError as exc:
+        raise FindingsError(str(exc)) from exc
+    patterns: List["re.Pattern[str]"] = list(base.patterns)
+    version = base.version
+    try:
+        with (
+            resources.files("ioa_core.health.lexicons.eval")
+            .joinpath(f"{definition.lexicon}.json")
+            .open("r", encoding="utf-8") as handle
+        ):
+            extra = json.load(handle)
+    except (FileNotFoundError, ModuleNotFoundError):
+        extra = None
+    except (OSError, json.JSONDecodeError) as exc:
+        raise FindingsError(f"Evaluation lexicon unreadable: {gate}") from exc
+    if isinstance(extra, Mapping):
+        for word in extra.get("words") or []:
+            text = str(word or "").strip()
+            if text:
+                patterns.append(
+                    re.compile(r"\b" + re.escape(text) + r"\b", re.IGNORECASE)
+                )
+        for pattern in extra.get("patterns") or []:
+            text = str(pattern or "").strip()
+            if text:
+                patterns.append(re.compile(text, re.IGNORECASE))
+        version = str(extra.get("version") or version)
+    return _EvalLexicon(
+        gate=gate,
+        category=base.category,
+        version=version,
+        patterns=tuple(patterns),
+    )
+
+
+def _sentences(text: str) -> Iterable[Tuple[int, str]]:
+    start = 0
+    for part in _SENTENCE_SPLIT.split(text):
+        index = text.find(part, start)
+        if index < 0:
+            index = start
+        yield index, part
+        start = index + len(part)
+
+
+def _classify(gate: str, sentence: str, start: int, end: int) -> str:
+    """Context of one match, from the sentence that contains it."""
+    before = sentence[:start]
+    after = sentence[end:]
+    if _UNCERTAIN.search(sentence):
+        return "uncertain"
+    negated = bool(_NEGATION_BEFORE.search(before) or _NEGATION_AFTER.search(after))
+    historical = bool(_HISTORICAL.search(sentence))
+    third_party_named = bool(_THIRD_PERSON.search(before)) and not (
+        _REPORTER.search(sentence) or _TO_THIRD_PARTY.search(before)
+    )
+    third_person = gate not in _THIRD_PARTY_SUBJECT_GATES and bool(
+        _FAMILY_HISTORY.search(sentence) or third_party_named
+    )
+    if negated and (historical or third_person):
+        # "No history of ..." or "her friend denies ...": not a negation of the
+        # patient's current state that the rules can trust.
+        return "uncertain"
+    if negated:
+        return "negated"
+    if third_person:
+        return "third_person"
+    if historical:
+        return "historical"
+    return "affirmed"
+
+
+def _scan(gate: str, lexicon: _EvalLexicon, text: Optional[str]) -> List[str]:
+    """Contexts of every match of ``gate`` in ``text`` (no text is returned)."""
+    if not text:
+        return []
+    contexts: List[str] = []
+    for _offset, sentence in _sentences(str(text)):
+        seen: List[Tuple[int, int]] = []
+        for pattern in lexicon.patterns:
+            for match in pattern.finditer(sentence):
+                span = match.span()
+                if any(span[0] < other[1] and other[0] < span[1] for other in seen):
+                    continue  # overlapping entries describe the same phrase
+                seen.append(span)
+                contexts.append(_classify(gate, sentence, span[0], span[1]))
+    return contexts
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def detect_findings(
+    *,
+    profile_id: str,
+    input_text: Optional[str],
+    output_text: Optional[str],
+    gates: Optional[Sequence[str]] = None,
+) -> FindingsReport:
+    """Source-aware findings for a care profile's declared gates.
+
+    ``input_text`` should be the de-identified text sent to the model and
+    ``output_text`` the model's output. Either may be empty, for example when
+    generation was refused: input findings are still reported.
+    """
+    try:
+        profile = get_subcategory_profile(profile_id)
+    except Exception:  # noqa: BLE001 - explicit gates may name no known profile
+        if gates is None:
+            raise
+        profile = None
+    if gates is None:
+        gates = tuple(getattr(profile, "content_gates", ()) or ())
+    gate_list = tuple(str(gate) for gate in gates)
+    findings: List[Finding] = []
+    versions: Dict[str, str] = {}
+    for gate in gate_list:
+        lexicon = _load_eval_lexicon(gate)
+        versions[gate] = lexicon.version
+        input_contexts = _scan(gate, lexicon, input_text)
+        output_contexts = _scan(gate, lexicon, output_text)
+        if not input_contexts and not output_contexts:
+            continue
+        observed = sorted(
+            set(input_contexts) | set(output_contexts),
+            key=lambda name: _CONTEXT_PRIORITY[name],
+        )
+        sources = tuple(
+            name
+            for name, found in (("input", input_contexts), ("output", output_contexts))
+            if found
+        )
+        concerning_in_input = any(
+            context in ("affirmed", "uncertain") for context in input_contexts
+        )
+        try:
+            severity = gate_severity_for(profile, gate)
+        except Exception:  # noqa: BLE001 - gate not declared on this profile
+            severity = GATE_DEFINITIONS[gate].default_severity
+        findings.append(
+            Finding(
+                gate=gate,
+                category=lexicon.category,
+                sources=sources,
+                context=observed[0],
+                contexts_observed=tuple(observed),
+                match_count=len(input_contexts) + len(output_contexts),
+                omitted_in_output=(
+                    output_text is not None
+                    and concerning_in_input
+                    and not output_contexts
+                ),
+                default_severity=severity,
+                lexicon_version=lexicon.version,
+            )
+        )
+    review = (
+        assess_review_output(output_text).to_dict() if output_text is not None else None
+    )
+    return FindingsReport(
+        profile_id=str(profile_id),
+        evaluated_at=_now(),
+        detector=DETECTOR_NAME,
+        detector_version=DETECTOR_VERSION,
+        context_rules_version=CONTEXT_RULES_VERSION,
+        status=STATUS,
+        gates=gate_list,
+        findings=tuple(findings),
+        input_sha256=sha256_text(input_text) if input_text is not None else None,
+        output_sha256=sha256_text(output_text) if output_text is not None else None,
+        review_output=review,
+        lexicon_versions=versions,
+    )
+
+
+__all__ = [
+    "CONTEXTS",
+    "CONTEXT_RULES_VERSION",
+    "DETECTOR_NAME",
+    "DETECTOR_VERSION",
+    "Finding",
+    "FindingsError",
+    "FindingsReport",
+    "detect_findings",
+]

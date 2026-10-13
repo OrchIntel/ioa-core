@@ -1,7 +1,13 @@
-**Version:** v2.14.0  
+**Version:** v2.15.0  
 **Last-Updated:** 2026-10-14
 
 # Changelog
+## [2.15.0] - 2026-10-14
+### Added
+- `ioa_core.health.findings` (evaluation only, not used by the live gates): `detect_findings()` reports one finding per declared gate with its sources (input, output or both), a context (`affirmed`, `uncertain`, `historical`, `third_person`, `negated`), whether an input finding was omitted from the output, and the review-output status. Nothing is cleared automatically: a negated or historical signal is still a finding, and anything the rules cannot classify is `uncertain`. No matched text is kept.
+- Evaluation-only lexicon additions in `ioa_core/health/lexicons/eval/` (status `pending_clinical_review`) for indirect, colloquial and youth phrasing and imminence cues. The live lexicons are unchanged.
+- `scripts/eval_gates.py` and a synthetic case set (`tests/health/fixtures/gate_eval/cases.json`, 43 cases, labels pending clinician adjudication) comparing the live gates, the live lexicons also run on the input, and the findings detector.
+
 ## [2.14.0] - 2026-10-14
 ### Added
 - `assess_review_output()` and `ReviewOutputAssessment` classify an output as a produced review, empty, or a refusal (detector version 2026.10.1). Refusal wording counts only near the start of an output that has almost no review structure, so a full review that says it cannot diagnose is still a review. No output text is kept.

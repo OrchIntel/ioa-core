@@ -16,6 +16,13 @@ from .content_gates import (
     fail_closed_report,
     sha256_text,
 )
+from .findings import (
+    CONTEXTS,
+    Finding,
+    FindingsError,
+    FindingsReport,
+    detect_findings,
+)
 from .follow_up import (
     FOLLOW_UP_STATES,
     FollowUpError,
@@ -61,6 +68,11 @@ __all__ = [
     "ContentGateEvaluator",
     "ContentGateReport",
     "DeIdentificationConfig",
+    "CONTEXTS",
+    "Finding",
+    "FindingsError",
+    "FindingsReport",
+    "detect_findings",
     "FollowUpError",
     "FollowUpObligation",
     "GateDefinition",

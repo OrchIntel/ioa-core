@@ -1,0 +1,23 @@
+{
+  "status": "pending_clinical_review",
+  "base_version": "2026.10.1",
+  "version": "2026.10.2-eval",
+  "category_of": "child_protection",
+  "words": [
+    "unsafe at home",
+    "scared to go home",
+    "afraid of going home",
+    "hits me",
+    "hit me",
+    "beats me",
+    "touched me",
+    "no one at home",
+    "nobody at home",
+    "kicked out of home"
+  ],
+  "patterns": [
+    "\\b(?:not|don't|doesn't|do\\s+not|does\\s+not)\\s+feel(?:s)?\\s+safe\\s+(?:at\\s+home|with\\s+(?:mum|mom|dad|parent|parents|carer|caregiver|stepfather|stepmother))\\b",
+    "\\b(?:mum|mom|dad|father|mother|stepfather|stepmother|parent|carer|caregiver|uncle|brother)\\s+(?:hits|hit|beats|beat|hurts|hurt|touches|touched)\\s+(?:me|her|him|them)\\b"
+  ],
+  "notes": "Adds first-person and colloquial disclosure phrasing, including the 'does not feel safe at home' wording that the live list misses."
+}
