@@ -59,6 +59,18 @@ SANDBOX_NOTICE = "Sandbox evaluation receipt: synthetic data, not a clinical rec
 
 COMPUTED_BY = "qixmind"
 ASSERTED_BY = "partner"
+# Every partner assertion is labelled unverified, in the signed receipt and in
+# every verifier result: QiXMind records what the partner stated and checks
+# its shape only.
+ASSERTION_VERIFICATION = "unverified"
+PARTNER_ASSERTIONS_NOTICE = (
+    "Partner assertions (model, provider, clinician role, partner timestamps, "
+    "acknowledged gates and dispositions) are recorded as the partner stated them. "
+    "QiXMind has not verified them."
+)
+# Registry key status. A revoked key never verifies; a retired key (no longer
+# current, not revoked) still verifies receipts issued inside its validity.
+REVOCATION_REASONS = ("key_compromise", "administrative")
 
 # What QiXMind computes itself. Nothing in this list may come from a partner.
 COMPUTED_FIELDS = (
@@ -249,7 +261,11 @@ def _normalize_computed(computed: Mapping[str, Any]) -> Dict[str, Any]:
 
 
 def _assertion(value: Any) -> Dict[str, Any]:
-    return {"asserted_by": ASSERTED_BY, "value": value}
+    return {
+        "asserted_by": ASSERTED_BY,
+        "verification": ASSERTION_VERIFICATION,
+        "value": value,
+    }
 
 
 def _unwrap_assertion(name: str, value: Any) -> Any:
@@ -263,7 +279,12 @@ def _unwrap_assertion(name: str, value: Any) -> Any:
             raise SandboxReceiptError(
                 f"assertions.{name} must be asserted by the partner"
             )
-        extra = set(value) - {"value", "asserted_by"}
+        verification = value.get("verification", ASSERTION_VERIFICATION)
+        if verification != ASSERTION_VERIFICATION:
+            raise SandboxReceiptError(
+                f"assertions.{name} is a partner assertion and is always unverified"
+            )
+        extra = set(value) - {"value", "asserted_by", "verification"}
         if extra:
             raise SandboxReceiptError(
                 f"assertions.{name} has unexpected keys: {', '.join(sorted(extra))}"
@@ -446,6 +467,7 @@ def create_sandbox_receipt(
     private_key_path: Optional[str] = None,
     private_key_pem: Optional[bytes] = None,
     production_registry: Optional[Mapping[str, Any]] = None,
+    sandbox_registry: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Create and sign a Sandbox Evaluation Receipt.
 
@@ -453,7 +475,8 @@ def create_sandbox_receipt(
     partner states. A partner field placed in ``computed`` (or a computed field
     in ``assertions``) is refused. When ``production_registry`` is given, a
     signing key listed there is refused, so a production key never signs a
-    sandbox receipt.
+    sandbox receipt. When ``sandbox_registry`` is given, only its current,
+    unrevoked key may sign.
     """
     for section_name, section in (
         ("sandbox", sandbox),
@@ -473,6 +496,7 @@ def create_sandbox_receipt(
         "environment": SANDBOX_ENVIRONMENT,
         "not_for_clinical_use": True,
         "synthetic_data_only": True,
+        "partner_assertions_notice": PARTNER_ASSERTIONS_NOTICE,
         "issued_at": str(issued_at or _now()),
         "disclaimers": {
             "no_diagnosis": True,
@@ -502,7 +526,7 @@ def create_sandbox_receipt(
     }
     _reject_content_fields(payload)
 
-    if production_registry is not None:
+    if production_registry is not None or sandbox_registry is not None:
         signing_pem = private_key_pem
         if signing_pem is None and private_key_path:
             signing_pem = Path(private_key_path).read_bytes()
@@ -511,10 +535,18 @@ def create_sandbox_receipt(
 
             key = serialization.load_pem_private_key(signing_pem, password=None)
             signing_id = public_key_id(key.public_key())  # type: ignore[arg-type]
-            if signing_id in _registry_key_ids(production_registry):
+            if production_registry is not None and signing_id in _registry_key_ids(
+                production_registry
+            ):
                 raise SandboxReceiptError(
                     "the sandbox signing key is a production key; refusing to sign"
                 )
+            if sandbox_registry is not None:
+                registry_view = normalize_sandbox_key_registry(sandbox_registry)
+                if signing_id != registry_view["current_public_key_id"]:
+                    raise SandboxReceiptError(
+                        "the signing key is not the sandbox registry's current key"
+                    )
 
     bundle = EvidenceBundle(
         bundle_id=f"{SANDBOX_RECEIPT_ID_PREFIX}{uuid.uuid4().hex[:16]}",
@@ -573,6 +605,15 @@ def _structure_problem(receipt: Mapping[str, Any]) -> Optional[str]:
             return "labels_invalid"
         if "computed_by" in block:
             return "labels_invalid"
+        # Receipts from 2.17.0 carry no per-field label; any label present
+        # must say unverified.
+        if block.get("verification", ASSERTION_VERIFICATION) != ASSERTION_VERIFICATION:
+            return "labels_invalid"
+    if (
+        metadata.get("partner_assertions_notice", PARTNER_ASSERTIONS_NOTICE)
+        != PARTNER_ASSERTIONS_NOTICE
+    ):
+        return "labels_invalid"
     for key in REQUIRED_COMPUTED_FIELDS:
         if key not in computed:
             return "labels_invalid"
@@ -614,6 +655,15 @@ def check_sandbox_receipt(
         "framework": None,
         "environment": None,
         "public_key_id": None,
+        "key_status": None,
+        "signature_valid": None,
+        "revoked_at": None,
+        "revocation_reason": None,
+        "partner_assertions": {
+            "verification": ASSERTION_VERIFICATION,
+            "notice": PARTNER_ASSERTIONS_NOTICE,
+            "fields": [],
+        },
     }
     if not isinstance(receipt, Mapping):
         result["reason"] = "not_a_sandbox_receipt"
@@ -623,6 +673,11 @@ def check_sandbox_receipt(
     metadata = receipt.get("metadata")
     if isinstance(metadata, Mapping):
         result["environment"] = metadata.get("environment")
+        asserted = metadata.get("assertions")
+        if isinstance(asserted, Mapping):
+            result["partner_assertions"]["fields"] = sorted(
+                str(k) for k in asserted if k in PARTNER_ASSERTED_FIELDS
+            )
     signature = receipt.get("signature")
     key_id = (
         str(signature.get("public_key_id", "")).strip()
@@ -646,18 +701,45 @@ def check_sandbox_receipt(
     if entry is None:
         result["reason"] = "key_not_in_sandbox_registry"
         return result
-    ok = verify_bundle(
-        receipt, _load_public_key_pem(entry["public_key_pem"].encode("ascii"))
+    ok = bool(
+        verify_bundle(
+            receipt, _load_public_key_pem(entry["public_key_pem"].encode("ascii"))
+        )
     )
-    result["valid"] = bool(ok)
-    result["reason"] = None if ok else "signature_invalid"
+    result["signature_valid"] = ok
+    if entry.get("revoked_at"):
+        # A revoked key is never trusted again, whatever date a receipt claims:
+        # whoever held the key could have written any issued_at.
+        result["key_status"] = "revoked"
+        result["revoked_at"] = entry["revoked_at"]
+        result["revocation_reason"] = entry.get("revocation_reason")
+        result["reason"] = "key_revoked"
+        return result
+    result["key_status"] = (
+        "current" if key_id == normalized["current_public_key_id"] else "retired"
+    )
+    if not ok:
+        result["reason"] = "signature_invalid"
+        return result
+    issued_day = str(metadata.get("issued_at") or "")[:10]
+    if issued_day < entry["valid_from"][:10] or (
+        entry.get("valid_to") and issued_day > str(entry["valid_to"])[:10]
+    ):
+        result["reason"] = "issued_outside_key_validity"
+        return result
+    result["valid"] = True
     return result
 
 
 def verify_sandbox_receipt(
     receipt: Mapping[str, Any], public_key_path: str | Path
 ) -> bool:
-    """Verify a sandbox receipt offline with one sandbox public key."""
+    """Verify a sandbox receipt offline with one sandbox public key.
+
+    A single key carries no revocation status; use
+    ``verify_sandbox_receipt_from_registry`` or ``check_sandbox_receipt`` with
+    the published sandbox registry to see a revoked key.
+    """
     if not isinstance(receipt, Mapping) or _structure_problem(receipt):
         return False
     return verify_bundle(receipt, load_public_key(public_key_path))
@@ -700,8 +782,8 @@ def normalize_sandbox_key_registry(registry: Mapping[str, Any]) -> Dict[str, Any
             raise SandboxReceiptError("sandbox key registry entries must be objects")
         key_id = str(entry.get("public_key_id", "")).strip()
         pem_value = entry.get("public_key_pem", "")
-        valid_from = str(entry.get("valid_from", "")).strip()
-        valid_to = str(entry.get("valid_to", "")).strip() or None
+        valid_from = str(entry.get("valid_from") or "").strip()
+        valid_to = str(entry.get("valid_to") or "").strip() or None
         if not isinstance(pem_value, str) or not key_id or not valid_from:
             raise SandboxReceiptError(
                 "sandbox key registry entries require id, PEM, and valid_from"
@@ -710,6 +792,22 @@ def normalize_sandbox_key_registry(registry: Mapping[str, Any]) -> Dict[str, Any
             raise SandboxReceiptError(f"duplicate public key id: {key_id}")
         if public_key_id_from_pem(pem_value.encode("ascii", "strict")) != key_id:
             raise SandboxReceiptError(f"public key id does not match PEM: {key_id}")
+        _timestamp(valid_from, f"{key_id}.valid_from")
+        if valid_to:
+            _timestamp(valid_to, f"{key_id}.valid_to")
+        revoked_at = str(entry.get("revoked_at") or "").strip() or None
+        reason = entry.get("revocation_reason")
+        if revoked_at:
+            _timestamp(revoked_at, f"{key_id}.revoked_at")
+            if reason not in REVOCATION_REASONS:
+                raise SandboxReceiptError(
+                    "a revoked key needs a revocation_reason: "
+                    + ", ".join(REVOCATION_REASONS)
+                )
+            if key_id == current_id:
+                raise SandboxReceiptError("the current key cannot be revoked")
+        elif reason is not None:
+            raise SandboxReceiptError("revocation_reason needs revoked_at")
         seen.add(key_id)
         normalized.append(
             {
@@ -717,6 +815,13 @@ def normalize_sandbox_key_registry(registry: Mapping[str, Any]) -> Dict[str, Any
                 "public_key_pem": pem_value,
                 "valid_from": valid_from,
                 "valid_to": valid_to,
+                "revoked_at": revoked_at,
+                "revocation_reason": reason if revoked_at else None,
+                "status": (
+                    "revoked"
+                    if revoked_at
+                    else ("current" if key_id == current_id else "retired")
+                ),
             }
         )
     if current_id not in seen:
@@ -791,6 +896,7 @@ def configured_sandbox_private_key_pem() -> bytes:
 
 __all__ = [
     "ASSERTED_BY",
+    "ASSERTION_VERIFICATION",
     "COMPUTED_BY",
     "COMPUTED_FIELDS",
     "DISPOSITION_CODES",
@@ -800,6 +906,8 @@ __all__ = [
     "ENV_SANDBOX_PRIVATE_KEY_B64",
     "ENV_SANDBOX_PRIVATE_KEY_PATH",
     "PARTNER_ASSERTED_FIELDS",
+    "PARTNER_ASSERTIONS_NOTICE",
+    "REVOCATION_REASONS",
     "PARTNER_TIMESTAMP_KEYS",
     "SANDBOX_ENVIRONMENT",
     "SANDBOX_KEY_REGISTRY_SCHEMA",

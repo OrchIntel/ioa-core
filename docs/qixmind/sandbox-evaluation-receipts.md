@@ -1,4 +1,4 @@
-# QiXMind sandbox evaluation receipts (ioa-core 2.17.0)
+# QiXMind sandbox evaluation receipts (ioa-core 2.17.0, revocation and unverified labels in 2.17.1)
 
 Sandbox evaluation receipt: synthetic data, not a clinical record.
 
@@ -47,7 +47,7 @@ Every field records who produced it.
 | `provenance` | `capture_session_provenance` with the policy and findings detector |
 | `sign_off_checks` | QiXMind's own checks: every fired gate acknowledged, every required action dispositioned, no dismissal of a required escalation, output not held |
 
-`metadata.assertions` (each `{"asserted_by": "partner", "value": ...}`):
+`metadata.assertions` (each `{"asserted_by": "partner", "verification": "unverified", "value": ...}`, with the signed `metadata.partner_assertions_notice`; 2.17.1):
 `model`, `provider`, `clinician_role`, `partner_timestamps`
 (`generated_at`, `reviewed_at`, `signed_off_at`), `acknowledged_gates` and
 `dispositions` (codes only).
@@ -76,6 +76,27 @@ Rules enforced at creation and checked again at verification:
   and any `environment` field, and the production registry normaliser refuses
   the sandbox registry schema.
 
+## Key status, rotation and revocation (2.17.1)
+
+Each sandbox registry entry has `valid_from`, optional `valid_to`, and
+optionally `revoked_at` with `revocation_reason` (`key_compromise` or
+`administrative`). The served registry adds `status`: `current`, `retired` or
+`revoked`.
+
+- A retired key (no longer current, not revoked) still verifies receipts
+  whose signed `issued_at` falls inside its validity.
+- A receipt claiming an `issued_at` outside its key's validity is refused
+  (`issued_outside_key_validity`).
+- A revoked key never verifies (`key_revoked`), whatever date the receipt
+  claims, because whoever held the key could have written any date. The
+  result still reports whether the signature itself matched
+  (`signature_valid`).
+- The current key cannot be revoked; rotate first, then revoke.
+- `create_sandbox_receipt(..., sandbox_registry=...)` signs only with the
+  current key.
+- Single-key verification (`verify_sandbox_receipt` with one PEM) cannot see
+  revocation; use the registry.
+
 ## Verifying
 
 ```bash
@@ -92,7 +113,9 @@ result = check_sandbox_receipt(receipt, sandbox_registry, production_registry=pr
 
 Reason codes: `not_a_sandbox_receipt`, `environment_missing`,
 `labels_invalid`, `content_not_allowed`, `production_key_not_accepted`,
-`key_not_in_sandbox_registry`, `signature_invalid`.
+`key_not_in_sandbox_registry`, `key_revoked`, `issued_outside_key_validity`,
+`signature_invalid`. Every result also carries `partner_assertions`
+(`verification: unverified`, the notice and the asserted field names).
 
 A valid signature shows the receipt was issued by the QiXMind sandbox and has
 not changed. It says nothing about clinical correctness, and the partner's

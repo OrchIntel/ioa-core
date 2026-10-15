@@ -487,3 +487,178 @@ def test_cli_shows_sandbox_notice_first(tmp_path: Path):
     result = CliRunner().invoke(app, ["verify", str(receipt_path), str(pub)])
     assert result.exit_code == 0, result.output
     assert result.output.splitlines()[0] == SANDBOX_NOTICE
+
+
+# --------------------------------------------------------------------------
+# 2.17.1: partner assertions labelled unverified; key revocation and rotation
+# --------------------------------------------------------------------------
+
+
+def _rotated_registry(old_public, new_public, **old_entry):
+    old_id = public_key_id_from_pem(old_public)
+    new_id = public_key_id_from_pem(new_public)
+    old = {
+        "public_key_id": old_id,
+        "public_key_pem": old_public.decode("ascii"),
+        "valid_from": "2026-10-01",
+        "valid_to": "2026-12-31",
+    }
+    old.update(old_entry)
+    return {
+        "schema": sbx.SANDBOX_KEY_REGISTRY_SCHEMA,
+        "current_public_key_id": new_id,
+        "keys": [
+            old,
+            {
+                "public_key_id": new_id,
+                "public_key_pem": new_public.decode("ascii"),
+                "valid_from": "2026-10-01",
+            },
+        ],
+    }
+
+
+def test_every_partner_assertion_is_labelled_unverified():
+    private_pem, public_pem = _keypair()
+    receipt = _receipt(private_pem)
+    meta = receipt["metadata"]
+    assert meta["partner_assertions_notice"] == sbx.PARTNER_ASSERTIONS_NOTICE
+    assert "not verified" in meta["partner_assertions_notice"]
+    for name, block in meta["assertions"].items():
+        assert block["verification"] == "unverified", name
+    result = check_sandbox_receipt(receipt, _registry(public_pem))
+    assert result["valid"] is True
+    assert result["partner_assertions"]["verification"] == "unverified"
+    assert result["partner_assertions"]["fields"] == sorted(meta["assertions"])
+
+
+def test_an_assertion_cannot_be_marked_verified():
+    private_pem, _ = _keypair()
+    computed, fired, actions = _computed()
+    assertions = _assertions(
+        fired, actions, model={"value": "m-1", "verification": "verified"}
+    )
+    with pytest.raises(SandboxReceiptError, match="unverified"):
+        _receipt(private_pem, assertions=assertions)
+
+
+def test_resigned_receipt_claiming_verified_assertions_is_refused():
+    private_pem, public_pem = _keypair()
+    receipt = _receipt(private_pem)
+    receipt["metadata"]["assertions"]["clinician_role"]["verification"] = "verified"
+    receipt.pop("signature")
+    receipt["signature"] = sign_bundle(receipt, private_key_pem=private_pem)
+    assert (
+        check_sandbox_receipt(receipt, _registry(public_pem))["reason"]
+        == "labels_invalid"
+    )
+    receipt = _receipt(private_pem)
+    receipt["metadata"]["partner_assertions_notice"] = "Verified by QiXMind"
+    receipt.pop("signature")
+    receipt["signature"] = sign_bundle(receipt, private_key_pem=private_pem)
+    assert (
+        check_sandbox_receipt(receipt, _registry(public_pem))["reason"]
+        == "labels_invalid"
+    )
+
+
+def test_receipts_from_2_17_0_still_verify_and_are_reported_unverified():
+    private_pem, public_pem = _keypair()
+    receipt = _receipt(private_pem)
+    meta = receipt["metadata"]
+    meta.pop("partner_assertions_notice")
+    for block in meta["assertions"].values():
+        block.pop("verification")
+    receipt.pop("signature")
+    receipt["signature"] = sign_bundle(receipt, private_key_pem=private_pem)
+    result = check_sandbox_receipt(receipt, _registry(public_pem))
+    assert result["valid"] is True
+    assert result["partner_assertions"]["verification"] == "unverified"
+
+
+def test_rotated_key_still_verifies_its_receipts_inside_its_validity():
+    old_private, old_public = _keypair()
+    new_private, new_public = _keypair()
+    registry = _rotated_registry(old_public, new_public)
+    old_receipt = _receipt(old_private, issued_at="2026-10-15T03:00:00Z")
+    result = check_sandbox_receipt(old_receipt, registry)
+    assert result["valid"] is True and result["key_status"] == "retired"
+    new_receipt = _receipt(new_private)
+    result = check_sandbox_receipt(new_receipt, registry)
+    assert result["valid"] is True and result["key_status"] == "current"
+    late = _receipt(old_private, issued_at="2027-01-05T00:00:00Z")
+    result = check_sandbox_receipt(late, registry)
+    assert (
+        result["valid"] is False and result["reason"] == "issued_outside_key_validity"
+    )
+    assert result["signature_valid"] is True
+
+
+def test_revoked_key_never_verifies_and_says_so():
+    old_private, old_public = _keypair()
+    _, new_public = _keypair()
+    receipt = _receipt(old_private, issued_at="2026-10-15T03:00:00Z")
+    registry = _rotated_registry(
+        old_public,
+        new_public,
+        revoked_at="2026-10-16T00:00:00Z",
+        revocation_reason="key_compromise",
+    )
+    result = check_sandbox_receipt(receipt, registry)
+    assert list(result)[0] == "notice"
+    assert result["valid"] is False and result["reason"] == "key_revoked"
+    assert result["key_status"] == "revoked" and result["signature_valid"] is True
+    assert result["revoked_at"] == "2026-10-16T00:00:00Z"
+    assert result["revocation_reason"] == "key_compromise"
+    assert verify_sandbox_receipt_from_registry(receipt, registry) is False
+    body = json.loads(sbx.sandbox_key_registry_json_bytes(registry))
+    statuses = {entry["public_key_id"]: entry["status"] for entry in body["keys"]}
+    assert sorted(statuses.values()) == ["current", "revoked"]
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        {"revoked_at": "2026-10-16T00:00:00Z"},
+        {"revoked_at": "2026-10-16T00:00:00Z", "revocation_reason": "because"},
+        {"revocation_reason": "key_compromise"},
+        {"revoked_at": "last week", "revocation_reason": "key_compromise"},
+        {"valid_to": "soon"},
+    ],
+)
+def test_registry_revocation_fields_are_validated(entry):
+    _, old_public = _keypair()
+    _, new_public = _keypair()
+    with pytest.raises(SandboxReceiptError):
+        sbx.normalize_sandbox_key_registry(
+            _rotated_registry(old_public, new_public, **entry)
+        )
+
+
+def test_current_key_cannot_be_revoked():
+    _, public_pem = _keypair()
+    registry = _registry(public_pem)
+    registry["keys"][0].update(
+        revoked_at="2026-10-16T00:00:00Z", revocation_reason="key_compromise"
+    )
+    with pytest.raises(SandboxReceiptError, match="current key"):
+        sbx.normalize_sandbox_key_registry(registry)
+
+
+def test_only_the_registry_current_key_may_sign():
+    old_private, old_public = _keypair()
+    new_private, new_public = _keypair()
+    registry = _rotated_registry(old_public, new_public)
+    with pytest.raises(SandboxReceiptError, match="current key"):
+        _receipt(old_private, sandbox_registry=registry)
+    assert _receipt(new_private, sandbox_registry=registry)["signature"][
+        "public_key_id"
+    ] == (registry["current_public_key_id"])
+
+
+def test_normalised_registry_normalises_again_unchanged():
+    _, old_public = _keypair()
+    _, new_public = _keypair()
+    once = sbx.normalize_sandbox_key_registry(_rotated_registry(old_public, new_public))
+    assert sbx.normalize_sandbox_key_registry(once) == once
+    assert once["keys"][1]["valid_to"] is None

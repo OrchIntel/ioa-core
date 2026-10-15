@@ -1,7 +1,15 @@
-**Version:** v2.17.0  
+**Version:** v2.17.1  
 **Last-Updated:** 2026-10-15
 
 # Changelog
+## [2.17.1] - 2026-10-15
+### Fixed (QiXMind sandbox evaluation receipts; production receipts unchanged)
+- Partner assertions are now labelled unverified everywhere. Each assertion block carries `verification: "unverified"` and the signed metadata carries `partner_assertions_notice`; marking an assertion verified is refused at creation and, if signed anyway, at verification (`labels_invalid`). `check_sandbox_receipt()` always returns a `partner_assertions` block (`verification: unverified`, notice, field names). Receipts issued by 2.17.0 still verify and are reported the same way.
+- Sandbox key revocation. Registry entries may carry `revoked_at` and `revocation_reason` (`key_compromise` or `administrative`); the current key cannot be revoked. A receipt signed by a revoked key never verifies (`key_revoked`), whatever date it claims, and the result reports `key_status`, `signature_valid`, `revoked_at` and `revocation_reason`. The served registry lists each key's `status` (`current`, `retired` or `revoked`).
+- Key validity is enforced: a receipt whose signed `issued_at` falls outside its key's `valid_from` to `valid_to` is refused (`issued_outside_key_validity`). Retired keys keep verifying receipts issued inside their validity.
+- `create_sandbox_receipt(..., sandbox_registry=...)` signs only with the registry's current key.
+- A sandbox registry entry without `valid_to` no longer becomes the string "None" when a registry is normalised twice.
+
 ## [2.17.0] - 2026-10-15
 ### Added
 - `ioa_core.evidence.sandbox_receipt` (QiXMind partner sandbox, synthetic fixtures only): `create_sandbox_receipt()`, `verify_sandbox_receipt()`, `verify_sandbox_receipt_from_registry()` and `check_sandbox_receipt()` (verification with a reason code, notice first). Own framework `QIXMIND_SANDBOX_EVALUATION_RECEIPT`, schema `qixmind.sandbox-evaluation-receipt.v1`, id prefix `qixmind-sbx-` and key registry schema `qixmind.sandbox-evaluation-key-registry.v1`. The signed metadata carries `environment: sandbox_evaluation`, `not_for_clinical_use: true` and the notice "Sandbox evaluation receipt: synthetic data, not a clinical record"; the sandbox verifier requires them. Every field is labelled `computed_by: qixmind` (fixture ids, fingerprints, live gate results, review-output status, evaluation-only findings, draft-policy required actions, provenance, sign-off checks) or `asserted_by: partner` (model, provider, clinician role, partner timestamps, acknowledged gates, dispositions); a partner-asserted field cannot be placed among computed fields, computed fields cannot be asserted, and assertions are identifiers or codes, never free text. Signing is refused with a key listed in the production registry or equal to the production signing key, and the sandbox verifier refuses production keys. Separate environment variables (`QIXMIND_SANDBOX_PRIVATE_KEY_*`, `QIXMIND_SANDBOX_PUBLIC_KEY_REGISTRY_*`). See `docs/qixmind/sandbox-evaluation-receipts.md`.
