@@ -1,7 +1,15 @@
-**Version:** v2.17.1  
+**Version:** v2.18.0  
 **Last-Updated:** 2026-10-15
 
 # Changelog
+## [2.18.0] - 2026-10-15
+### Added
+- QiXMind receipt amendments: `amend_session_receipt()` issues a new signed session receipt that amends an earlier one without changing it. The new receipt carries a signed `amendment` block (schema `qixmind.receipt-amendment.v1`): `amends_receipt_id`, `amends_receipt_sha256` (SHA-256 of the original's exported bytes, see `receipt_sha256()`), `amends_issued_at`, a `reason_code` from `AMENDMENT_REASON_CODES`, an optional `reason_sha256` (a free-text reason is never stored in a receipt), `corrected_fields` from `AMENDABLE_FIELDS` (`episode.episode_id`, `care_event.type`; gate results, hashes, acknowledgement and provenance are never amendable) and `amended_by` (`role`, `role_source`, `authority`). It also sets `supersedes_receipt_id` to the amended receipt. `verify_amendment_link()` checks the link offline and `describe_amendment()` reads it. See `docs/qixmind/receipt-amendments.md`.
+- Optional `acknowledgement.role_source` (one of `ROLE_SOURCES`: `claims`, `clerk_org_role`, `self_declared`, `role_directory`, `unrecorded`), emitted only when supplied.
+- `ioa verify` names what a QiXMind receipt amends, and `--amends ORIGINAL.json` also verifies the original and checks the signed link.
+### Unchanged
+- Receipts issued without these fields are byte-identical to 2.17.1 receipts, and every earlier receipt verifies as before. 2.16.0, 2.17.0 and 2.17.1 verifiers verify receipts that carry the new fields. Sandbox evaluation receipts (including the 2.17.1 changes), gates, findings, policies and provenance are unchanged.
+
 ## [2.17.1] - 2026-10-15
 ### Fixed (QiXMind sandbox evaluation receipts; production receipts unchanged)
 - Partner assertions are now labelled unverified everywhere. Each assertion block carries `verification: "unverified"` and the signed metadata carries `partner_assertions_notice`; marking an assertion verified is refused at creation and, if signed anyway, at verification (`labels_invalid`). `check_sandbox_receipt()` always returns a `partner_assertions` block (`verification: unverified`, notice, field names). Receipts issued by 2.17.0 still verify and are reported the same way.

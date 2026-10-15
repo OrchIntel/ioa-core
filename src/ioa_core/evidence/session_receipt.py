@@ -20,6 +20,7 @@ It follows the QiXCite Filing Integrity Certificate pattern.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -500,6 +501,23 @@ def _normalize_content_gates(content_gates: Mapping[str, Any]) -> Dict[str, Any]
     }
 
 
+# Where the acting role came from (2.18.0). Emitted only when supplied, so
+# receipts issued without it are byte-identical to earlier v1 receipts.
+#   claims          a role claim in the verified session token
+#   clerk_org_role  the sign-in provider's organisation role (org:<role>)
+#   self_declared   chosen by the verified member in the request
+#   role_directory  a verified staff role directory held by the operator
+#   unrecorded      the operator did not record a source
+ROLE_SOURCES = (
+    "claims",
+    "clerk_org_role",
+    "self_declared",
+    "role_directory",
+    "unrecorded",
+)
+_ROLE_TOKEN_RE = re.compile(r"^[a-z][a-z0-9_]{1,39}$")
+
+
 def _normalize_acknowledgement(
     acknowledgement: Mapping[str, Any], gate_results: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
@@ -516,7 +534,7 @@ def _normalize_acknowledgement(
             "every fired gate must be acknowledged before a receipt is issued: "
             + ", ".join(missing)
         )
-    return {
+    block: Dict[str, Any] = {
         "required": True,
         "review_event_id": _required_str(
             acknowledgement, "review_event_id", "acknowledgement"
@@ -532,6 +550,11 @@ def _normalize_acknowledgement(
         "acknowledged_gates": acknowledged,
         "name_included": False,
     }
+    if acknowledgement.get("role_source") is not None:
+        block["role_source"] = _enum(
+            acknowledgement, "role_source", ROLE_SOURCES, "acknowledgement"
+        )
+    return block
 
 
 def _normalize_follow_up(
@@ -658,6 +681,96 @@ def _normalize_provenance(
     return block
 
 
+# Amendments (2.18.0). An amendment never changes the receipt it corrects: it
+# is a new signed receipt whose signed ``amendment`` block names the amended
+# receipt by id and by the SHA-256 of its exported bytes, with a reason code,
+# the acting role and where that role came from. Chains are linear: the
+# operator amends only the latest receipt in a chain.
+AMENDMENT_SCHEMA = "qixmind.receipt-amendment.v1"
+AMENDMENT_REASON_CODES = (
+    "episode_reference_corrected",
+    "care_event_type_corrected",
+    "administrative_correction",
+)
+# Fields an amendment may correct. Gate results, hashes, acknowledgement and
+# provenance are evidence of what happened and are never amendable.
+AMENDABLE_FIELDS = ("episode.episode_id", "care_event.type")
+_REASON_FIELDS = {
+    "episode_reference_corrected": frozenset({"episode.episode_id"}),
+    "care_event_type_corrected": frozenset({"care_event.type"}),
+    "administrative_correction": frozenset(),
+}
+AMENDMENT_AUTHORITIES = ("original_signer", "supervising_role")
+_RECEIPT_ID_RE = re.compile(r"^qixmind-ser-[0-9a-f]{16}$")
+
+
+def receipt_sha256(receipt: Mapping[str, Any]) -> str:
+    """SHA-256 of the receipt's exported bytes (``receipt_json_bytes``).
+
+    This is the hash of the file a holder downloads, so it can be checked with
+    any SHA-256 tool as well as with ``verify_amendment_link``.
+    """
+    return "sha256:" + hashlib.sha256(receipt_json_bytes(receipt)).hexdigest()
+
+
+def _normalize_amendment(amendment: Mapping[str, Any]) -> Dict[str, Any]:
+    if not isinstance(amendment, Mapping):
+        raise SessionReceiptError("amendment must be an object")
+    amends_id = str(amendment.get("amends_receipt_id") or "").strip()
+    if not _RECEIPT_ID_RE.fullmatch(amends_id):
+        raise SessionReceiptError(
+            "amendment.amends_receipt_id must be a session receipt id"
+        )
+    reason_code = _enum(amendment, "reason_code", AMENDMENT_REASON_CODES, "amendment")
+    fields_raw = amendment.get("corrected_fields") or []
+    if not isinstance(fields_raw, list):
+        raise SessionReceiptError("amendment.corrected_fields must be a list")
+    fields = sorted({str(item).strip() for item in fields_raw})
+    unknown = [item for item in fields if item not in AMENDABLE_FIELDS]
+    if unknown:
+        raise SessionReceiptError(
+            "amendment.corrected_fields may name only: " + ", ".join(AMENDABLE_FIELDS)
+        )
+    if frozenset(fields) != _REASON_FIELDS[str(reason_code)]:
+        raise SessionReceiptError(
+            f"amendment reason {reason_code} does not match the corrected fields"
+        )
+    actor = amendment.get("amended_by")
+    if not isinstance(actor, Mapping):
+        raise SessionReceiptError("amendment.amended_by is required")
+    role = str(actor.get("role") or "").strip()
+    if not _ROLE_TOKEN_RE.fullmatch(role):
+        raise SessionReceiptError("amendment.amended_by.role must be a role token")
+    reason_sha = amendment.get("reason_sha256")
+    return {
+        "schema": AMENDMENT_SCHEMA,
+        "amends_receipt_id": amends_id,
+        "amends_receipt_sha256": normalize_sha256(
+            amendment.get("amends_receipt_sha256"), "amendment.amends_receipt_sha256"
+        ),
+        "amends_issued_at": _optional_str(amendment, "amends_issued_at"),
+        "reason_code": reason_code,
+        "reason_sha256": (
+            normalize_sha256(reason_sha, "amendment.reason_sha256")
+            if reason_sha not in (None, "")
+            else None
+        ),
+        "corrected_fields": fields,
+        "amended_by": {
+            "role": role,
+            "role_source": _enum(
+                actor, "role_source", ROLE_SOURCES, "amendment.amended_by"
+            ),
+            "authority": _enum(
+                actor, "authority", AMENDMENT_AUTHORITIES, "amendment.amended_by"
+            ),
+            "name_included": False,
+        },
+        "amended_at": _required_str(amendment, "amended_at", "amendment"),
+        "original_preserved": True,
+    }
+
+
 def create_session_receipt(
     *,
     session: Mapping[str, Any],
@@ -678,6 +791,7 @@ def create_session_receipt(
     review_state: Optional[Mapping[str, Any]] = None,
     disclosure: Optional[Mapping[str, Any]] = None,
     provenance: Optional[Mapping[str, Any]] = None,
+    amendment: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Create and sign a Session Evidence Receipt.
 
@@ -685,6 +799,10 @@ def create_session_receipt(
     timestamps. Signing uses the operator key supplied by path or PEM bytes;
     no key is generated here and signing errors propagate, so an unsigned
     receipt can never be returned.
+
+    ``amendment`` (2.18.0) marks this receipt as an amendment of an earlier
+    one; it implies ``supersedes_receipt_id``. Prefer ``amend_session_receipt``,
+    which builds it from the original.
     """
     # Inputs are screened before normalisation so that a caller passing content
     # or identity fields fails loudly instead of having them silently dropped.
@@ -703,6 +821,7 @@ def create_session_receipt(
         ("review_state", review_state),
         ("disclosure", disclosure),
         ("provenance", provenance),
+        ("amendment", amendment),
     ):
         if section is not None:
             _reject_content_fields(section, section_name)
@@ -743,6 +862,15 @@ def create_session_receipt(
             payload[key] = block
     if payload["model_output"]["held"]:
         raise SessionReceiptError("a held output cannot be issued a receipt")
+    if amendment is not None:
+        amendment_block = _normalize_amendment(amendment)
+        amends_id = amendment_block["amends_receipt_id"]
+        if supersedes_receipt_id and str(supersedes_receipt_id).strip() != amends_id:
+            raise SessionReceiptError(
+                "an amendment supersedes exactly the receipt it amends"
+            )
+        supersedes_receipt_id = amends_id
+        payload["amendment"] = amendment_block
     if supersedes_receipt_id:
         payload["supersedes_receipt_id"] = str(supersedes_receipt_id).strip()
     _reject_content_fields(payload)
@@ -968,7 +1096,155 @@ def verify_session_receipt_from_registry(
     )
 
 
+_KEEP = object()
+# Optional blocks carried from the original into an amendment unchanged.
+_CARRIED_BLOCKS = (
+    "episode",
+    "care_event",
+    "inference",
+    "withheld",
+    "review_state",
+    "disclosure",
+    "provenance",
+)
+
+
+def amend_session_receipt(
+    original: Mapping[str, Any],
+    *,
+    reason_code: str,
+    amended_by: Mapping[str, Any],
+    software: Mapping[str, Any],
+    corrections: Optional[Mapping[str, Any]] = None,
+    reason_sha256: Optional[str] = None,
+    escalation_follow_up: Any = _KEEP,
+    review_state: Any = _KEEP,
+    amended_at: Optional[str] = None,
+    registry: Optional[Mapping[str, Any]] = None,
+    private_key_path: Optional[str] = None,
+    private_key_pem: Optional[bytes] = None,
+) -> Dict[str, Any]:
+    """Issue a new signed receipt that amends ``original``.
+
+    The original is read, never modified. The new receipt repeats the
+    original's evidence (session, hashes, gate results, acknowledgement,
+    provenance), applies only the named ``corrections`` (``AMENDABLE_FIELDS``),
+    may carry the current follow-up state and review state, and records a
+    signed ``amendment`` block linking the original by id and by
+    ``receipt_sha256``. ``amended_by`` is ``{role, role_source, authority}``;
+    a free-text reason is never stored in the receipt, only its SHA-256.
+
+    Pass ``registry`` to refuse an original whose signature does not verify.
+    """
+    if not _is_receipt(original):
+        raise SessionReceiptError("only a QiXMind session receipt can be amended")
+    if registry is not None and not verify_session_receipt_from_registry(
+        original, registry
+    ):
+        raise SessionReceiptError("the receipt to amend does not verify")
+    metadata = original["metadata"]
+    original_id = str(original.get("bundle_id") or "").strip()
+    changes = dict(corrections or {})
+    unknown = sorted(set(changes) - set(AMENDABLE_FIELDS))
+    if unknown:
+        raise SessionReceiptError(
+            "corrections may name only: " + ", ".join(AMENDABLE_FIELDS)
+        )
+    blocks: Dict[str, Any] = {
+        key: metadata[key] for key in _CARRIED_BLOCKS if metadata.get(key) is not None
+    }
+    if "episode.episode_id" in changes:
+        value = str(changes["episode.episode_id"] or "").strip()
+        current = (blocks.get("episode") or {}).get("episode_id")
+        if value == current:
+            raise SessionReceiptError("the corrected episode id is unchanged")
+        blocks["episode"] = {**(blocks.get("episode") or {}), "episode_id": value}
+    if "care_event.type" in changes:
+        value = str(changes["care_event.type"] or "").strip()
+        current = (blocks.get("care_event") or {}).get("type")
+        if value == current:
+            raise SessionReceiptError("the corrected care event type is unchanged")
+        blocks["care_event"] = {**(blocks.get("care_event") or {}), "type": value}
+    if review_state is not _KEEP:
+        if review_state is None:
+            blocks.pop("review_state", None)
+        else:
+            blocks["review_state"] = review_state
+    follow_up = (
+        metadata.get("escalation_follow_up")
+        if escalation_follow_up is _KEEP
+        else escalation_follow_up
+    )
+    timestamp = _timestamp(amended_at)
+    amendment = {
+        "amends_receipt_id": original_id,
+        "amends_receipt_sha256": receipt_sha256(original),
+        "amends_issued_at": metadata.get("issued_at"),
+        "reason_code": reason_code,
+        "reason_sha256": reason_sha256,
+        "corrected_fields": sorted(changes),
+        "amended_by": dict(amended_by),
+        "amended_at": timestamp,
+    }
+    return create_session_receipt(
+        session=metadata["session"],
+        model_input=metadata["model_input"],
+        model_output=metadata["model_output"],
+        content_gates=metadata["content_gates"],
+        acknowledgement=metadata["acknowledgement"],
+        escalation_follow_up=follow_up,
+        software=software,
+        issued_at=timestamp,
+        supersedes_receipt_id=original_id,
+        private_key_path=private_key_path,
+        private_key_pem=private_key_pem,
+        amendment=amendment,
+        **blocks,
+    )
+
+
+def describe_amendment(receipt: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """The signed amendment block of a receipt, or None when it amends nothing."""
+    metadata = receipt.get("metadata") if isinstance(receipt, Mapping) else None
+    block = metadata.get("amendment") if isinstance(metadata, Mapping) else None
+    return dict(block) if isinstance(block, Mapping) else None
+
+
+def verify_amendment_link(
+    amending: Mapping[str, Any], original: Mapping[str, Any]
+) -> bool:
+    """True when ``amending`` is a signed amendment of exactly ``original``.
+
+    Checks the link only (id, exported-bytes hash and supersession); verify
+    each receipt's signature separately with the published registry.
+    """
+    if not (_is_receipt(amending) and _is_receipt(original)):
+        return False
+    block = describe_amendment(amending)
+    if not block or block.get("schema") != AMENDMENT_SCHEMA:
+        return False
+    original_id = str(original.get("bundle_id") or "")
+    try:
+        original_hash = receipt_sha256(original)
+    except SessionReceiptError:
+        return False
+    return (
+        block.get("amends_receipt_id") == original_id
+        and block.get("amends_receipt_sha256") == original_hash
+        and amending["metadata"].get("supersedes_receipt_id") == original_id
+    )
+
+
 __all__ = [
+    "AMENDABLE_FIELDS",
+    "AMENDMENT_AUTHORITIES",
+    "AMENDMENT_REASON_CODES",
+    "AMENDMENT_SCHEMA",
+    "ROLE_SOURCES",
+    "amend_session_receipt",
+    "describe_amendment",
+    "receipt_sha256",
+    "verify_amendment_link",
     "ENV_PRIVATE_KEY_B64",
     "ENV_PRIVATE_KEY_PATH",
     "ENV_PUBLIC_KEY_B64",

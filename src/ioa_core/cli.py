@@ -33,7 +33,7 @@ def get_vector_search_engine():
 
 
 @click.group()
-@click.version_option(version="2.17.1", prog_name="IOA Core")
+@click.version_option(version="2.18.0", prog_name="IOA Core")
 def app():
     """IOA Core - Intelligent Orchestration Architecture Core
 
@@ -46,7 +46,7 @@ def app():
 @app.command()
 def version():
     """Show IOA Core version."""
-    click.echo("IOA Core v2.17.1")
+    click.echo("IOA Core v2.18.0")
 
 
 @app.command("verify")
@@ -62,6 +62,14 @@ def version():
     default=None,
     help="Audit chain JSONL path; defaults to IOA_AUDIT_LOG or logs/audit_chain.jsonl.",
 )
+@click.option(
+    "--amends",
+    "amends_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="QiXMind receipt amendments: the original receipt this one amends; "
+    "checks its signature and that the signed link (id and hash) matches it.",
+)
 @click.argument(
     "bundle_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
@@ -73,6 +81,7 @@ def verify_bundle_command(
     public_key_path: Path,
     verify_chain_flag: bool,
     chain_path: Optional[Path],
+    amends_path: Optional[Path] = None,
 ) -> None:
     """Verify an evidence bundle offline with an Ed25519 public key."""
     try:
@@ -122,6 +131,46 @@ def verify_bundle_command(
         click.echo(f"PASS: audit chain verified ({result['entries']} entries)")
 
     click.echo("PASS: Ed25519 evidence signature verified offline")
+    _report_receipt_amendment(bundle_data, public_key, amends_path)
+
+
+def _report_receipt_amendment(
+    bundle_data: Any, public_key: Any, amends_path: Optional[Path]
+) -> None:
+    """For a QiXMind session receipt, name what it amends and check the link."""
+    from ioa_core.evidence.session_receipt import (
+        describe_amendment,
+        verify_amendment_link,
+    )
+    from ioa_core.evidence.signing import verify_bundle
+
+    block = describe_amendment(bundle_data) if isinstance(bundle_data, dict) else None
+    if block:
+        click.echo(
+            f"AMENDS: {block.get('amends_receipt_id')} "
+            f"({block.get('amends_receipt_sha256')}), reason {block.get('reason_code')}, "
+            f"by role {((block.get('amended_by') or {}).get('role'))}"
+        )
+    if amends_path is None:
+        return
+    if not block:
+        click.echo("FAIL: --amends given, but this receipt amends nothing")
+        raise click.exceptions.Exit(1)
+    try:
+        with amends_path.open(encoding="utf-8") as handle:
+            original = json_lib.load(handle)
+    except (OSError, json_lib.JSONDecodeError) as exc:
+        click.echo(f"FAIL: unable to read the original receipt: {exc}")
+        raise click.exceptions.Exit(1) from exc
+    if not verify_bundle(original, public_key):
+        click.echo("FAIL: the original receipt does not verify with this key")
+        raise click.exceptions.Exit(1)
+    if not verify_amendment_link(bundle_data, original):
+        click.echo("FAIL: the amendment link does not match the original receipt")
+        raise click.exceptions.Exit(1)
+    click.echo(
+        "PASS: original receipt verified; amendment link (id and SHA-256) matches"
+    )
 
 
 @app.command()
