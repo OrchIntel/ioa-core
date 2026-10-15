@@ -33,7 +33,7 @@ def get_vector_search_engine():
 
 
 @click.group()
-@click.version_option(version="2.16.0", prog_name="IOA Core")
+@click.version_option(version="2.17.0", prog_name="IOA Core")
 def app():
     """IOA Core - Intelligent Orchestration Architecture Core
 
@@ -46,7 +46,7 @@ def app():
 @app.command()
 def version():
     """Show IOA Core version."""
-    click.echo("IOA Core v2.16.0")
+    click.echo("IOA Core v2.17.0")
 
 
 @app.command("verify")
@@ -81,6 +81,13 @@ def verify_bundle_command(
     except (OSError, json_lib.JSONDecodeError) as exc:
         click.echo(f"FAIL: unable to read bundle: {exc}")
         raise click.exceptions.Exit(1) from exc
+
+    if (
+        isinstance(bundle_data, dict)
+        and bundle_data.get("framework") == "QIXMIND_SANDBOX_EVALUATION_RECEIPT"
+    ):
+        # Shown before anything else, whatever the verification result.
+        click.echo("Sandbox evaluation receipt: synthetic data, not a clinical record")
 
     legacy_signature = bundle_data.get("signature")
     if isinstance(legacy_signature, str) and legacy_signature.startswith("SIGv1:"):

@@ -13,6 +13,15 @@ and audit requirements across all IOA systems.
 
 from .evidence_bundle import EvidenceBundle, EvidenceBundleError
 from .exporters import EvidenceExporter
+from .sandbox_receipt import (
+    SANDBOX_NOTICE,
+    SANDBOX_RECEIPT_FRAMEWORK,
+    SandboxReceiptError,
+    check_sandbox_receipt,
+    create_sandbox_receipt,
+    verify_sandbox_receipt,
+    verify_sandbox_receipt_from_registry,
+)
 from .session_receipt import (
     SessionReceiptError,
     create_session_receipt,
@@ -27,12 +36,19 @@ __all__ = [
     "EvidenceBundleError",
     "EvidenceExporter",
     "EvidenceSigningError",
+    "SANDBOX_NOTICE",
+    "SANDBOX_RECEIPT_FRAMEWORK",
+    "SandboxReceiptError",
     "SessionReceiptError",
+    "check_sandbox_receipt",
+    "create_sandbox_receipt",
     "create_session_receipt",
     "load_public_key",
     "receipt_json_bytes",
     "sign_bundle",
     "verify_bundle",
+    "verify_sandbox_receipt",
+    "verify_sandbox_receipt_from_registry",
     "verify_session_receipt",
     "verify_session_receipt_from_registry",
 ]

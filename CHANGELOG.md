@@ -1,7 +1,14 @@
-**Version:** v2.16.0  
-**Last-Updated:** 2026-10-14
+**Version:** v2.17.0  
+**Last-Updated:** 2026-10-15
 
 # Changelog
+## [2.17.0] - 2026-10-15
+### Added
+- `ioa_core.evidence.sandbox_receipt` (QiXMind partner sandbox, synthetic fixtures only): `create_sandbox_receipt()`, `verify_sandbox_receipt()`, `verify_sandbox_receipt_from_registry()` and `check_sandbox_receipt()` (verification with a reason code, notice first). Own framework `QIXMIND_SANDBOX_EVALUATION_RECEIPT`, schema `qixmind.sandbox-evaluation-receipt.v1`, id prefix `qixmind-sbx-` and key registry schema `qixmind.sandbox-evaluation-key-registry.v1`. The signed metadata carries `environment: sandbox_evaluation`, `not_for_clinical_use: true` and the notice "Sandbox evaluation receipt: synthetic data, not a clinical record"; the sandbox verifier requires them. Every field is labelled `computed_by: qixmind` (fixture ids, fingerprints, live gate results, review-output status, evaluation-only findings, draft-policy required actions, provenance, sign-off checks) or `asserted_by: partner` (model, provider, clinician role, partner timestamps, acknowledged gates, dispositions); a partner-asserted field cannot be placed among computed fields, computed fields cannot be asserted, and assertions are identifiers or codes, never free text. Signing is refused with a key listed in the production registry or equal to the production signing key, and the sandbox verifier refuses production keys. Separate environment variables (`QIXMIND_SANDBOX_PRIVATE_KEY_*`, `QIXMIND_SANDBOX_PUBLIC_KEY_REGISTRY_*`). See `docs/qixmind/sandbox-evaluation-receipts.md`.
+- `ioa verify` prints the sandbox notice before anything else for a sandbox receipt.
+### Changed
+- `verify_session_receipt()` and `verify_session_receipt_from_registry()` also refuse any bundle carrying an environment designation or the `qixmind-sbx-` prefix (they already refused the sandbox framework). Production receipts are unchanged.
+
 ## [2.16.0] - 2026-10-14
 ### Added
 - `ioa_core.health.policy` (evaluation only): versioned action policies with a definition fingerprint that excludes status and approval. `required_actions()` gives one requirement per occurrence group; `summary_by_gate()` is for presentation only. `require_live_approval()` refuses any policy that is not `approved`. The packaged default (`qixmind_default`, `2026.10.1-draft`) is a draft.

@@ -778,10 +778,15 @@ def receipt_json_bytes(receipt: Mapping[str, Any]) -> bytes:
 
 def _is_receipt(receipt: Mapping[str, Any]) -> bool:
     metadata = receipt.get("metadata")
+    # A production receipt never carries an environment designation; a sandbox
+    # evaluation receipt (its own framework, ioa_core.evidence.sandbox_receipt)
+    # is refused here even if its framework field were altered.
     return (
         receipt.get("framework") == RECEIPT_FRAMEWORK
         and isinstance(metadata, Mapping)
         and metadata.get("schema") == RECEIPT_SCHEMA
+        and "environment" not in metadata
+        and not str(receipt.get("bundle_id") or "").startswith("qixmind-sbx-")
     )
 
 
